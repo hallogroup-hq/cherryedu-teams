@@ -1,9 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Standalone output for containerized/Vercel deployment
-  output: "standalone",
-
   // Security headers
   async headers() {
     return [
