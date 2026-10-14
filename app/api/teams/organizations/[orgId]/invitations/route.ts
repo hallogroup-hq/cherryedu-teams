@@ -77,7 +77,10 @@ export async function POST(
       [orgId, emailNormalized, role, body.outlet_id || null, tokenHash, expiresAt, user.userId]
     );
 
-    return NextResponse.json({ success: true, invitation: insertRes.rows[0] }, { status: 201 });
+    return NextResponse.json(
+      { success: true, invitation: insertRes.rows[0], token },
+      { status: 201 }
+    );
   } catch (err: any) {
     if (err instanceof AuthorizationError) {
       return NextResponse.json({ success: false, error: err.message, code: err.code }, { status: err.status });

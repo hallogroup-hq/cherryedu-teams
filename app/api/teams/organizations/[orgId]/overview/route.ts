@@ -102,7 +102,7 @@ export async function GET(
       outlets: outletsRes.rows,
     };
 
-    return NextResponse.json({ success: true, overview });
+    return NextResponse.json({ success: true, organization, overview });
   } catch (err: any) {
     if (err instanceof AuthorizationError) {
       return NextResponse.json({ success: false, error: err.message, code: err.code }, { status: err.status });

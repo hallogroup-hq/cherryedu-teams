@@ -199,6 +199,31 @@ export async function POST(
 
     // 4. Action: Final Competency Sign-Off (Decision 2 Assessor Enforcement)
     if (action === 'submit_signoff') {
+      // 4.0. Immediate Assessor Gate: Admin and Non-Trainers rejected immediately
+      if (user.staffPermissions.includes('platform_admin') && !user.staffPermissions.includes('cherry_trainer')) {
+        throw new AuthorizationError(
+          'ADMIN_CANNOT_SIGNOFF',
+          'Platform Admin tidak berwenang menandatangani kelulusan kompetensi secara langsung. Keputusan kompetensi membutuhkan penilai yang berwenang.',
+          403
+        );
+      }
+
+      const isCherryTrainer = user.staffPermissions.includes('cherry_trainer');
+      if (!isCherryTrainer) {
+        const delegationCheck = await query<{ id: string }>(
+          `SELECT id FROM b2b.internal_staff_permissions
+           WHERE user_id = $1 AND permission_code = 'assessment_quality_reviewer' AND revoked_at IS NULL`,
+          [user.userId]
+        );
+        if (delegationCheck.rows.length === 0) {
+          throw new AuthorizationError(
+            'UNAUTHORIZED_ASSESSOR',
+            'Hanya Trainer Cherry Edu yang ditugaskan atau penilai dengan delegasi resmi yang berwenang menandatangani kelulusan kompetensi.',
+            403
+          );
+        }
+      }
+
       const enrollmentId = body.enrollment_id;
       const competencyId = body.competency_id;
       const rubricVersionId = body.rubric_version_id;
@@ -287,12 +312,13 @@ export async function POST(
 
       // Fetch Official Rubric Criteria (No Hardcoded Fallback!)
       const criteriaRes = await query<{
+        id: string;
         code: string;
         description: string;
         weight: string;
         is_critical: boolean;
       }>(
-        `SELECT code, description, weight::text, is_critical 
+        `SELECT id, code, description, weight::text, is_critical 
          FROM b2b.rubric_criteria 
          WHERE rubric_version_id = $1`,
         [rubricVersionId]
@@ -355,7 +381,19 @@ export async function POST(
       }
 
       // 4.5. Run Authoritative Pedagogical Gate Evaluation
-      const submittedCriterionResults: CriterionResult[] = body.criterion_results || [];
+      const rawCriteria = body.criterion_results || body.criteria_scores || [];
+      const codeById = new Map<string, string>();
+      for (const c of criteriaRes.rows) {
+        codeById.set(c.id, c.code);
+        codeById.set(c.code, c.code);
+      }
+
+      const submittedCriterionResults: CriterionResult[] = rawCriteria.map((r: any) => ({
+        criterion_id: codeById.get(r.criterion_id) || r.criterion_id,
+        level: r.level,
+        critical_failure: Boolean(r.critical_failure),
+        notes: r.notes || '',
+      }));
 
       // Strict validation: Reject unknown rubric criterion IDs
       const officialCriterionCodes = new Set(officialCriteria.map((c) => c.code));
@@ -508,6 +546,7 @@ export async function POST(
             message: 'Asesmen praktik berhasil diverifikasi dan disahkan.',
             assessment_id: assessmentId,
             signoff_id: signoffInsert.rows[0].id,
+            decision: 'competent',
             evaluation,
           },
           { status: 201 }
