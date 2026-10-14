@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test:auth": "NODE_ENV=test npx tsx tests/verify_auth.ts",
     "test:tenant": "NODE_ENV=test npx tsx tests/verify_tenant_isolation.ts",
-    "test:api": "NODE_ENV=test npx tsx tests/verify_b2b_apis.ts"
+    "test:api": "NODE_ENV=test npx tsx tests/verify_b2b_apis.ts",
+    "test:competency": "NODE_ENV=test npx tsx tests/verify_curriculum_competency.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
