@@ -12,7 +12,8 @@
     "test:tenant": "NODE_ENV=test npx tsx tests/verify_tenant_isolation.ts",
     "test:api": "NODE_ENV=test npx tsx tests/verify_b2b_apis.ts",
     "test:competency": "NODE_ENV=test npx tsx tests/verify_curriculum_competency.ts",
-    "test:barista": "NODE_ENV=test npx tsx tests/verify_barista_experience.ts"
+    "test:barista": "NODE_ENV=test npx tsx tests/verify_barista_experience.ts",
+    "test:owner": "NODE_ENV=test npx tsx tests/verify_owner_experience.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
