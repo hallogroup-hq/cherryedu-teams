@@ -1,165 +1,34 @@
 "use client";
 
-import React, { useEffect, useState, use } from "react";
+import React, { useState, use } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import ShellNav from "@/components/ShellNav";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { toast } from "sonner";
 import {
-  Building2,
+  DEMO_MENTORSHIP_PROGRAM,
+  BaristaMentorshipRecord,
+  TrainerServiceLog,
+} from "@/lib/mentorshipService";
+import {
+  FileText,
   Users,
   Award,
-  Flame,
-  Coffee,
-  Plus,
-  Download,
-  Share2,
   CheckCircle2,
-  AlertCircle,
   Clock,
   Sparkles,
   ChevronRight,
   ExternalLink,
   SlidersHorizontal,
   X,
-  Copy,
+  Coffee,
+  Download,
+  Calendar,
+  Layers,
+  ArrowUpRight,
+  TrendingUp,
+  MessageSquare,
 } from "lucide-react";
-
-interface Organization {
-  id: string;
-  slug: string;
-  display_name: string;
-  legal_name?: string | null;
-  business_category?: string | null;
-  timezone: string;
-}
-
-interface Outlet {
-  id: string;
-  name: string;
-  city: string;
-  address?: string | null;
-  status: string;
-  staff_count?: number;
-}
-
-interface Cohort {
-  id: string;
-  name: string;
-  start_at: string;
-  end_at?: string | null;
-  status: string;
-  participant_count?: string | number;
-}
-
-interface Invitation {
-  id: string;
-  email_normalized: string;
-  intended_role: string;
-  outlet_id?: string | null;
-  status: string;
-  created_at: string;
-}
-
-interface BaristaRecord {
-  id: string;
-  name: string;
-  email: string;
-  outletId: string;
-  outletName: string;
-  role: string;
-  completionPct: number;
-  streakDays: number;
-  todayCalibrated: boolean;
-  dialInRatio: string;
-  competencyStatus: string;
-  avatarText: string;
-  skills: {
-    dialIn: number;
-    milk: number;
-    sensory: number;
-    hygiene: number;
-  };
-}
-
-const DEFAULT_BARISTAS: BaristaRecord[] = [
-  {
-    id: "budi-01",
-    name: "Budi Pratama",
-    email: "barista1@kopikamu.id",
-    outletId: "out-senja-01",
-    outletName: "Senja Braga",
-    role: "Junior Barista",
-    completionPct: 75,
-    streakDays: 5,
-    todayCalibrated: true,
-    dialInRatio: "1:2.0 (18.0g → 36.0g @ 27s)",
-    competencyStatus: "Siap Uji Praktikal (Level 3)",
-    avatarText: "BP",
-    skills: { dialIn: 85, milk: 80, sensory: 65, hygiene: 90 },
-  },
-  {
-    id: "siti-02",
-    name: "Siti Rahma",
-    email: "barista2@kopikamu.id",
-    outletId: "out-senja-02",
-    outletName: "Senja Riau",
-    role: "Senior Barista",
-    completionPct: 100,
-    streakDays: 14,
-    todayCalibrated: true,
-    dialInRatio: "1:2.0 (18.5g → 37.0g @ 28s)",
-    competencyStatus: "Kompeten Terverifikasi (Level 4)",
-    avatarText: "SR",
-    skills: { dialIn: 95, milk: 95, sensory: 90, hygiene: 100 },
-  },
-  {
-    id: "reza-03",
-    name: "Reza Kurniawan",
-    email: "barista3@kopikamu.id",
-    outletId: "out-senja-03",
-    outletName: "Senja Dago Giri",
-    role: "Apprentice Barista",
-    completionPct: 50,
-    streakDays: 2,
-    todayCalibrated: false,
-    dialInRatio: "Belum Kalibrasi Pagi Ini",
-    competencyStatus: "Latihan Terarah (Remedial)",
-    avatarText: "RK",
-    skills: { dialIn: 50, milk: 60, sensory: 40, hygiene: 75 },
-  },
-  {
-    id: "dewi-04",
-    name: "Dewi Lestari",
-    email: "barista4@kopikamu.id",
-    outletId: "out-senja-01",
-    outletName: "Senja Braga",
-    role: "Head Bar",
-    completionPct: 90,
-    streakDays: 9,
-    todayCalibrated: true,
-    dialInRatio: "1:2.1 (18.0g → 38.0g @ 26s)",
-    competencyStatus: "Kompeten Terverifikasi (Level 3+)",
-    avatarText: "DL",
-    skills: { dialIn: 90, milk: 92, sensory: 88, hygiene: 95 },
-  },
-  {
-    id: "fajar-05",
-    name: "Fajar Ramadhan",
-    email: "barista5@kopikamu.id",
-    outletId: "out-senja-02",
-    outletName: "Senja Riau",
-    role: "Junior Barista",
-    completionPct: 80,
-    streakDays: 6,
-    todayCalibrated: true,
-    dialInRatio: "1:1.9 (18.0g → 35.0g @ 29s)",
-    competencyStatus: "Sedang Belajar (Modul 3)",
-    avatarText: "FR",
-    skills: { dialIn: 80, milk: 85, sensory: 70, hygiene: 85 },
-  },
-];
 
 export default function OwnerOverviewPage({
   params,
@@ -167,280 +36,178 @@ export default function OwnerOverviewPage({
   params: Promise<{ orgId: string }>;
 }) {
   const { orgId } = use(params);
-  const router = useRouter();
+  const program = DEMO_MENTORSHIP_PROGRAM;
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [overview, setOverview] = useState<any>(null);
-  const [outlets, setOutlets] = useState<Outlet[]>([]);
-  const [cohorts, setCohorts] = useState<Cohort[]>([]);
-  const [invitations, setInvitations] = useState<Invitation[]>([]);
-  
-  // Navigation & Sub-filters
-  const [activeTab, setActiveTab] = useState<"team" | "outlets" | "cohorts" | "invites">("team");
-  const [selectedOutletFilter, setSelectedOutletFilter] = useState<string>("all");
-  const [selectedBarista, setSelectedBarista] = useState<BaristaRecord | null>(null);
+  const [activeTab, setActiveTab] = useState<"baristas" | "activity" | "rnd" | "exams">("baristas");
+  const [selectedBarista, setSelectedBarista] = useState<BaristaMentorshipRecord | null>(null);
 
-  // Modal States
-  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState("learner");
-  const [inviteOutletId, setInviteOutletId] = useState("");
-  const [inviting, setInviting] = useState(false);
-  const [generatedInviteToken, setGeneratedInviteToken] = useState<string | null>(null);
+  // Export Executive Report
+  const handleExportReport = () => {
+    const headers = "Nama Barista,Peran,Skor Awal,Skor Sekarang,Pertumbuhan,Fundamental B2C,Praktik Teknik,Praktik Espresso,Class Path Selesai,Ujian Hybrid,Rekomendasi Trainer\n";
+    const rows = program.baristas.map((b) => {
+      const growth = `+${b.currentScore - b.initialScore} poin`;
+      const fundamental = b.fundamentalHuluHilir.finalExamPassed && b.fundamentalBaristaPath.finalExamPassed ? "Lulus Penuh" : "Sebagian";
+      const teknik = `${b.offlineTeknik.score}/100`;
+      const espresso = `${b.offlineEspressoBase.score}/100`;
+      const classes = `${b.classesTaken.filter((c) => c.completed).length}/3 Path`;
+      const exam = b.hybridExam.status === "graded" ? `${b.hybridExam.finalScore}/100` : "Belum Ujian";
+      return `"${b.name}","${b.role}","${b.initialScore}","${b.currentScore}","${growth}","${fundamental}","${teknik}","${espresso}","${classes}","${exam}","${b.trainerRecommendation}"`;
+    }).join("\n");
 
-  // New Outlet Form State
-  const [newOutletName, setNewOutletName] = useState("");
-  const [newOutletCity, setNewOutletCity] = useState("");
-  const [newOutletAddress, setNewOutletAddress] = useState("");
-  const [creatingOutlet, setCreatingOutlet] = useState(false);
-
-  useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const token = typeof window !== 'undefined' ? localStorage.getItem('teams_auth_token') || '' : '';
-        const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
-
-        const res = await fetch(`/api/teams/organizations/${orgId}/overview`, {
-          headers,
-          credentials: 'same-origin',
-        });
-        if (!res.ok) {
-          if (res.status === 401) { router.push("/login"); return; }
-          throw new Error("Gagal memuat overview organisasi.");
-        }
-        const data = await res.json();
-        setOverview(data.overview);
-        setOutlets(data.overview?.outlets || []);
-        setCohorts(data.overview?.active_cohorts || []);
-
-        const inviteRes = await fetch(`/api/teams/organizations/${orgId}/invitations`, {
-          headers,
-          credentials: 'same-origin',
-        });
-        if (inviteRes.ok) {
-          const inviteData = await inviteRes.json();
-          setInvitations(inviteData.invitations || []);
-        }
-      } catch (err: any) {
-        setError(err.message || "Terjadi kesalahan saat memuat data.");
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadData();
-  }, [orgId, router]);
-
-  // Filtered Barista list
-  const filteredBaristas = selectedOutletFilter === "all"
-    ? DEFAULT_BARISTAS
-    : DEFAULT_BARISTAS.filter((b) => b.outletId === selectedOutletFilter);
-
-  // Handle Send Invitation
-  async function handleSendInvitation(e: React.FormEvent) {
-    e.preventDefault();
-    if (!inviteEmail.trim()) return;
-    try {
-      setInviting(true);
-      const res = await fetch(`/api/teams/organizations/${orgId}/invitations`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          email: inviteEmail.trim(),
-          role: inviteRole,
-          outlet_id: inviteOutletId || undefined,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        toast.error(data.error || "Gagal mengirim undangan.");
-        return;
-      }
-      setGeneratedInviteToken(data.token);
-      setInvitations((prev) => [data.invitation, ...prev]);
-      setInviteEmail("");
-      toast.success(`Undangan untuk ${data.invitation.email_normalized} siap dibagikan!`);
-    } catch {
-      toast.error("Koneksi gagal saat mengirim undangan.");
-    } finally {
-      setInviting(false);
-    }
-  }
-
-  // Handle Revoke Invitation
-  async function handleRevokeInvitation(inviteId: string) {
-    try {
-      const res = await fetch(`/api/teams/organizations/${orgId}/invitations?id=${inviteId}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) {
-        toast.error("Gagal membatalkan undangan.");
-        return;
-      }
-      toast.success("Undangan berhasil dibatalkan.");
-      setInvitations((prev) => prev.filter((i) => i.id !== inviteId));
-    } catch {
-      toast.error("Koneksi gagal saat membatalkan undangan.");
-    }
-  }
-
-  // Handle Create Outlet
-  async function handleCreateOutlet(e: React.FormEvent) {
-    e.preventDefault();
-    if (!newOutletName.trim() || !newOutletCity.trim()) return;
-    try {
-      setCreatingOutlet(true);
-      const res = await fetch(`/api/teams/organizations/${orgId}/outlets`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          name: newOutletName.trim(),
-          city: newOutletCity.trim(),
-          address: newOutletAddress.trim() || undefined,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        toast.error(data.error || "Gagal membuat outlet.");
-        return;
-      }
-      toast.success(`Outlet "${data.outlet.name}" berhasil ditambahkan.`);
-      setOutlets((prev) => [...prev, data.outlet]);
-      setNewOutletName(""); setNewOutletCity(""); setNewOutletAddress("");
-    } catch {
-      toast.error("Koneksi gagal saat menambahkan outlet.");
-    } finally {
-      setCreatingOutlet(false);
-    }
-  }
-
-  // Export Barista Roster to CSV
-  function handleExportCSV() {
-    const headers = "ID,Nama,Email,Outlet,Peran,Progres_Kompetensi,Streak_Hari,Status_Kalibrasi,Status_Asesmen\n";
-    const rows = DEFAULT_BARISTAS.map(
-      (b) => `"${b.id}","${b.name}","${b.email}","${b.outletName}","${b.role}","${b.completionPct}%","${b.streakDays} Hari","${b.todayCalibrated ? 'Terkalibrasi' : 'Belum'}","${b.competencyStatus}"`
-    ).join("\n");
     const blob = new Blob([headers + rows], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `roster-barista-${orgId}-${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute("download", `laporan-eksekutif-cherryedu-${orgId}-${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast.success("File CSV Roster Barista berhasil diunduh.");
-  }
+    toast.success("Laporan Eksekutif Perkembangan Barista berhasil diunduh.");
+  };
 
-  const organization: Organization | undefined = overview?.organization;
-  const calibratedTodayCount = DEFAULT_BARISTAS.filter((b) => b.todayCalibrated).length;
+  const avgInitial = Math.round(
+    program.baristas.reduce((acc, b) => acc + b.initialScore, 0) / program.baristas.length
+  );
+  const avgCurrent = Math.round(
+    program.baristas.reduce((acc, b) => acc + b.currentScore, 0) / program.baristas.length
+  );
 
   return (
     <div className="min-h-screen bg-paper-100 text-roast-950 flex flex-col">
-      <ShellNav role="owner" orgId={orgId} orgName={organization?.display_name || "Kopi Senja Utama"} />
+      <ShellNav role="owner" orgId={orgId} orgName={program.coffeeShopName} />
 
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 pb-28 md:pb-12">
         
-        {/* Top Hero Card */}
-        <div className="card p-5 sm:p-6 bg-white border-paper-300 shadow-subtle">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
+        {/* EXECUTIVE REPORT HERO CARD */}
+        <div className="card p-5 sm:p-7 bg-white border-paper-300 shadow-subtle space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-roast-500 font-bold">
-                  Owner &amp; Multi-Outlet Dashboard
+                  Executive Owner Report · Transparansi Layanan
                 </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-crema-100 border border-crema-300 text-roast-800 font-semibold">
-                  3 Cabang Aktif
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-crema-100 border border-crema-300 text-roast-900 font-bold">
+                  Program Mentorship 1 Bulan (Hybrid)
                 </span>
               </div>
               <h1 className="font-serif font-black text-2xl sm:text-3xl text-roast-950">
-                {organization?.display_name || "Kopi Senja Utama"}
+                {program.coffeeShopName}
               </h1>
-              <p className="text-xs sm:text-sm text-roast-600 font-sans">
-                Pantau kompetensi seduh barista, verifikasi kalibrasi harian, dan standarisasi rasa tiap cabang.
+              <p className="text-xs sm:text-sm text-roast-600 font-sans max-w-2xl leading-relaxed">
+                Laporan resmi pendampingan SDM oleh tim Cherry Edu. Menampilkan seluruh aktivitas offline trainer, penguasaan materi online, dan matriks perkembangan nyata tiap barista.
               </p>
             </div>
 
-            {/* Header Fast Actions */}
+            {/* Quick Actions */}
             <div className="flex items-center gap-2 flex-wrap shrink-0">
               <button
                 type="button"
-                onClick={() => setIsInviteModalOpen(true)}
+                onClick={handleExportReport}
                 className="btn-primary text-xs py-2 px-3.5 flex items-center gap-1.5 shadow-2xs"
               >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Undang Barista</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleExportCSV}
-                className="btn-secondary text-xs py-2 px-3 flex items-center gap-1.5"
-                title="Unduh laporan tim format CSV"
-              >
                 <Download className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Ekspor CSV</span>
+                <span>Unduh Laporan (.CSV)</span>
               </button>
               <Link
                 href={`/org/${orgId}/learn`}
-                className="btn-ghost text-xs py-2 px-2.5 text-roast-700 hover:text-roast-950 flex items-center gap-1 border border-paper-300 rounded-lg hover:bg-paper-50"
+                className="btn-secondary text-xs py-2 px-3 flex items-center gap-1.5"
               >
                 <Coffee className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Lihat Sebagai Barista</span>
+                <span className="hidden sm:inline">Lihat Portal Barista</span>
               </Link>
             </div>
           </div>
 
-          {/* KPI Bento Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6 pt-6 border-t border-paper-200">
-            <div className="p-4 bg-paper-50 rounded-xl border border-paper-200 shadow-2xs">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase tracking-wider font-mono text-roast-500 font-bold">Total Barista</span>
-                <Users className="w-4 h-4 text-roast-400" />
+          {/* ROADMAP TIMELINE 1 BULAN (STEPPER) */}
+          <div className="p-4 sm:p-5 rounded-xl bg-paper-50 border border-paper-200/90 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-roast-700" />
+                <span className="font-serif font-bold text-sm text-roast-950">
+                  Tahap Layanan: Minggu ke-{program.currentWeek} dari 4 Minggu
+                </span>
               </div>
-              <p className="text-2xl font-bold font-serif text-roast-950 mt-1">{DEFAULT_BARISTAS.length}</p>
-              <p className="text-[11px] text-roast-500 font-mono mt-0.5">Tersebar di 3 cabang</p>
+              <span className="text-xs font-mono font-bold text-roast-800">
+                Progress Keseluruhan: {program.overallServiceProgressPct}%
+              </span>
+            </div>
+
+            {/* Visual Stepper */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2 pt-1">
+              {[
+                { step: "1. R&D Audit", sub: "Audit Bar & SOP", status: "done" },
+                { step: "2.1 Fundamental", sub: "Web Cherry Edu", status: "done" },
+                { step: "2.2 Praktik Teknik", sub: "Sesi Offline Bar", status: "done" },
+                { step: "2.3 Espresso Base", sub: "Dial-In & Sensori", status: "active" },
+                { step: "2.4 Class 3 Path", sub: "Min. 3 Modul B2C", status: "active" },
+                { step: "2.5 Ujian & Rapor", sub: "Evaluasi Akhir", status: "pending" },
+              ].map((m) => (
+                <div
+                  key={m.step}
+                  className={`p-2.5 rounded-lg border text-xs space-y-0.5 ${
+                    m.status === "done"
+                      ? "bg-white border-paper-300 text-roast-950"
+                      : m.status === "active"
+                      ? "bg-crema-100 border-crema-300 text-roast-950 shadow-2xs font-semibold"
+                      : "bg-paper-100/60 border-paper-200 text-roast-400"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[11px] font-bold">{m.step}</span>
+                    {m.status === "done" && <CheckCircle2 className="w-3.5 h-3.5 text-roast-950 shrink-0" />}
+                    {m.status === "active" && <span className="w-2 h-2 rounded-full bg-cherry-700 animate-pulse" />}
+                  </div>
+                  <p className="text-[10px] text-roast-500 font-sans">{m.sub}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* KEY METRICS SUMMARY */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-1">
+            <div className="p-4 bg-paper-50 rounded-xl border border-paper-200 shadow-2xs">
+              <span className="text-[10px] uppercase tracking-wider font-mono text-roast-500 font-bold block mb-1">
+                Barista Didampingi
+              </span>
+              <p className="text-2xl font-bold font-serif text-roast-950">{program.baristas.length} Orang</p>
+              <p className="text-[11px] text-roast-500 font-mono mt-0.5">SDM aktif coffee shop</p>
             </div>
 
             <div className="p-4 bg-paper-50 rounded-xl border border-paper-200 shadow-2xs">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase tracking-wider font-mono text-roast-500 font-bold">Kalibrasi Hari Ini</span>
-                <Coffee className="w-4 h-4 text-cherry-700" />
-              </div>
-              <p className="text-2xl font-bold font-serif text-roast-950 mt-1">
-                {calibratedTodayCount} <span className="text-sm font-sans font-normal text-roast-500">/ {DEFAULT_BARISTAS.length}</span>
+              <span className="text-[10px] uppercase tracking-wider font-mono text-roast-500 font-bold block mb-1">
+                Kenaikan Skill Tim
+              </span>
+              <p className="text-2xl font-bold font-serif text-roast-950">
+                +{avgCurrent - avgInitial} <span className="text-sm font-sans font-normal text-roast-500">Poin</span>
               </p>
-              <p className="text-[11px] text-roast-500 font-mono mt-0.5">80% cabang siap seduh</p>
+              <p className="text-[11px] text-roast-500 font-mono mt-0.5">Rata-rata {avgInitial} → {avgCurrent}</p>
             </div>
 
             <div className="p-4 bg-paper-50 rounded-xl border border-paper-200 shadow-2xs">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase tracking-wider font-mono text-roast-500 font-bold">Kelulusan Skill</span>
-                <Award className="w-4 h-4 text-roast-600" />
-              </div>
-              <p className="text-2xl font-bold font-serif text-roast-950 mt-1">79%</p>
-              <p className="text-[11px] text-roast-500 font-mono mt-0.5">Standar Cherry Edu Level 3</p>
+              <span className="text-[10px] uppercase tracking-wider font-mono text-roast-500 font-bold block mb-1">
+                Sesi Offline Trainer
+              </span>
+              <p className="text-2xl font-bold font-serif text-roast-950">{program.serviceLogs.length} Kali</p>
+              <p className="text-[11px] text-roast-500 font-mono mt-0.5">Tatap muka langsung di bar</p>
             </div>
 
             <div className="p-4 bg-paper-50 rounded-xl border border-paper-200 shadow-2xs">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase tracking-wider font-mono text-roast-500 font-bold">Streak Tim Tertinggi</span>
-                <Flame className="w-4 h-4 text-amber-600" />
-              </div>
-              <p className="text-2xl font-bold font-serif text-roast-950 mt-1">14 Hari</p>
-              <p className="text-[11px] text-roast-500 font-mono mt-0.5">Siti Rahma (Senja Riau)</p>
+              <span className="text-[10px] uppercase tracking-wider font-mono text-roast-500 font-bold block mb-1">
+                Status R&amp;D Resep
+              </span>
+              <p className="text-2xl font-bold font-serif text-roast-950">Selesai</p>
+              <p className="text-[11px] text-roast-500 font-mono mt-0.5">Rasio 1:2.0 terstandarisasi</p>
             </div>
           </div>
         </div>
 
-        {/* Navigation Tabs */}
+        {/* WORKSPACE NAVIGATION TABS */}
         <div className="flex border-b border-paper-300 gap-2 sm:gap-6 text-sm overflow-x-auto scrollbar-none">
           {[
-            { key: "team", label: `Roster Barista (${DEFAULT_BARISTAS.length})` },
-            { key: "outlets", label: `Daftar Cabang (${outlets.length || 3})` },
-            { key: "cohorts", label: `Batch Pelatihan (${cohorts.length || 2})` },
-            { key: "invites", label: `Undangan Tim (${invitations.length})` },
+            { key: "baristas", label: `Rapor & Perkembangan Barista (${program.baristas.length})` },
+            { key: "activity", label: `Aktivitas Trainer Cherry Edu (${program.serviceLogs.length})` },
+            { key: "rnd", label: "Hasil Audit R&D & Resep Bar" },
+            { key: "exams", label: "Evaluasi Ujian Hybrid" },
           ].map((tab) => (
             <button
               key={tab.key}
@@ -457,275 +224,179 @@ export default function OwnerOverviewPage({
           ))}
         </div>
 
-        {/* TAB 1: BARISTA ROSTER & TRACKER */}
-        {activeTab === "team" && (
+        {/* TAB 1: RAPOR & PERKEMBANGAN BARISTA */}
+        {activeTab === "baristas" && (
           <div className="space-y-4">
-            
-            {/* Multi-outlet Filter Pills */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-roast-500 font-bold shrink-0">
-                Pilih Cabang:
-              </span>
-              {[
-                { id: "all", label: `Semua Cabang (${DEFAULT_BARISTAS.length})` },
-                { id: "out-senja-01", label: "Senja Braga (2)" },
-                { id: "out-senja-02", label: "Senja Riau (2)" },
-                { id: "out-senja-03", label: "Senja Dago Giri (1)" },
-              ].map((opt) => (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() => setSelectedOutletFilter(opt.id)}
-                  className={`text-xs px-3 py-1.5 rounded-full font-mono transition-all shrink-0 border ${
-                    selectedOutletFilter === opt.id
-                      ? "bg-roast-950 text-white border-roast-950 font-bold shadow-2xs"
-                      : "bg-white text-roast-700 border-paper-300 hover:border-roast-400"
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-serif font-bold text-lg text-roast-950">Matriks Pertumbuhan Barista</h2>
+                <p className="text-xs text-roast-500">Klik barista untuk melihat audit penguasaan 6 modul mentorship</p>
+              </div>
             </div>
 
-            {/* Baristas Cards Grid — Mobile-First */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-              {filteredBaristas.map((barista) => (
-                <div
-                  key={barista.id}
-                  onClick={() => setSelectedBarista(barista)}
-                  className="card p-4 sm:p-5 bg-white border-paper-300 hover:border-roast-400 hover:shadow-subtle transition-all cursor-pointer space-y-3"
-                >
-                  {/* Card Header */}
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-crema-200 border border-crema-300 text-roast-900 font-serif font-black flex items-center justify-center text-sm shrink-0">
-                        {barista.avatarText}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {program.baristas.map((barista) => {
+                const growth = barista.currentScore - barista.initialScore;
+                return (
+                  <div
+                    key={barista.id}
+                    onClick={() => setSelectedBarista(barista)}
+                    className="card p-5 bg-white border-paper-300 hover:border-roast-500 hover:shadow-subtle transition-all cursor-pointer space-y-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-11 h-11 rounded-full bg-crema-200 border border-crema-300 text-roast-900 font-serif font-black flex items-center justify-center text-sm shrink-0">
+                          {barista.avatarText}
+                        </div>
+                        <div>
                           <h3 className="font-serif font-bold text-base text-roast-950 leading-tight">
                             {barista.name}
                           </h3>
+                          <p className="text-xs text-roast-500 font-mono mt-0.5">{barista.role}</p>
                         </div>
-                        <p className="text-xs text-roast-500 font-mono mt-0.5">
-                          {barista.outletName} · {barista.role}
-                        </p>
                       </div>
-                    </div>
 
-                    {/* Circular Competency Meter */}
-                    <div className="flex flex-col items-center shrink-0">
-                      <div className="relative w-11 h-11 flex items-center justify-center">
-                        <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                          <circle
-                            cx="18"
-                            cy="18"
-                            r="15"
-                            className="text-paper-200 stroke-current"
-                            strokeWidth="3"
-                            fill="none"
-                          />
-                          <circle
-                            cx="18"
-                            cy="18"
-                            r="15"
-                            className="text-cherry-800 stroke-current"
-                            strokeWidth="3.2"
-                            strokeDasharray={94.2}
-                            strokeDashoffset={94.2 - (94.2 * barista.completionPct) / 100}
-                            strokeLinecap="round"
-                            fill="none"
-                          />
-                        </svg>
-                        <span className="absolute font-mono font-bold text-[10px] text-roast-950">
-                          {barista.completionPct}%
+                      <div className="text-right shrink-0">
+                        <span className="text-xs font-mono font-bold text-roast-950 block">
+                          {barista.currentScore}/100
+                        </span>
+                        <span className="text-[10px] font-mono text-amber-800 font-bold">
+                          +{growth} poin
                         </span>
                       </div>
-                      <span className="text-[9px] font-mono text-roast-400 uppercase mt-0.5">Skor Skill</span>
                     </div>
-                  </div>
 
-                  {/* Operational Status Badges */}
-                  <div className="p-2.5 rounded-lg bg-paper-50 border border-paper-200/80 space-y-1.5 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] text-roast-600 font-sans">Kalibrasi Pagi:</span>
-                      <span className={`text-[11px] font-mono font-bold ${
-                        barista.todayCalibrated ? 'text-roast-900' : 'text-roast-500'
-                      }`}>
-                        {barista.dialInRatio}
-                      </span>
+                    {/* Before vs After Visual Bar */}
+                    <div className="p-3 rounded-xl bg-paper-50 border border-paper-200/80 space-y-2 text-xs">
+                      <div className="flex justify-between text-[11px] font-mono">
+                        <span className="text-roast-500">Awal: {barista.initialScore}</span>
+                        <span className="text-roast-950 font-bold">Saat Ini: {barista.currentScore}</span>
+                      </div>
+                      <div className="w-full bg-paper-200 h-2.5 rounded-full overflow-hidden flex">
+                        <div
+                          className="bg-paper-400 h-full"
+                          style={{ width: `${barista.initialScore}%` }}
+                          title={`Skor Awal: ${barista.initialScore}`}
+                        />
+                        <div
+                          className="bg-roast-950 h-full"
+                          style={{ width: `${growth}%` }}
+                          title={`Kenaikan: +${growth}`}
+                        />
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] text-roast-600 font-sans">Streak Konsistensi:</span>
-                      <span className="inline-flex items-center gap-1 text-[11px] font-mono text-amber-700 font-bold">
-                        <Flame className="w-3 h-3 fill-amber-500" />
-                        {barista.streakDays} Hari Berturut-turut
-                      </span>
-                    </div>
-                  </div>
 
-                  {/* Skills Snapshot & CTA */}
-                  <div className="flex items-center justify-between pt-1 border-t border-paper-200 text-xs">
-                    <span className="text-[11px] font-mono text-roast-600 truncate max-w-[210px]">
-                      {barista.competencyStatus}
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-cherry-800 font-bold">
-                      Lihat Rincian <ChevronRight className="w-3 h-3" />
-                    </span>
+                    {/* 6-Pill Checkpoints Snapshot */}
+                    <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono">
+                      <div className="p-2 rounded bg-paper-50 border border-paper-200">
+                        <span className="text-roast-500 block text-[9px]">2.1 FUNDAMENTAL</span>
+                        <span className="font-semibold text-roast-900">
+                          {barista.fundamentalHuluHilir.finalExamPassed ? "Lulus B2C ✓" : "In Progress"}
+                        </span>
+                      </div>
+
+                      <div className="p-2 rounded bg-paper-50 border border-paper-200">
+                        <span className="text-roast-500 block text-[9px]">2.2 TEKNIK OFFLINE</span>
+                        <span className="font-semibold text-roast-900">
+                          {barista.offlineTeknik.score}/100
+                        </span>
+                      </div>
+
+                      <div className="p-2 rounded bg-paper-50 border border-paper-200">
+                        <span className="text-roast-500 block text-[9px]">2.3 ESPRESSO BASE</span>
+                        <span className="font-semibold text-roast-900">
+                          {barista.offlineEspressoBase.score}/100
+                        </span>
+                      </div>
+
+                      <div className="p-2 rounded bg-paper-50 border border-paper-200">
+                        <span className="text-roast-500 block text-[9px]">2.4 CLASS PATH</span>
+                        <span className="font-semibold text-roast-900">
+                          {barista.classesTaken.filter((c) => c.completed).length}/3 Path
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Trainer Note Snippet */}
+                    <div className="pt-2 border-t border-paper-200 flex items-center justify-between text-xs">
+                      <span className="text-[11px] text-roast-600 line-clamp-1 italic font-sans">
+                        &ldquo;{barista.trainerRecommendation}&rdquo;
+                      </span>
+                      <ChevronRight className="w-4 h-4 text-roast-400 shrink-0 ml-1" />
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
 
-        {/* TAB 2: OUTLET MANAGEMENT */}
-        {activeTab === "outlets" && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-3.5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="font-serif font-bold text-lg text-roast-950">Cabang Terdaftar</h2>
-                  <p className="text-xs text-roast-500">Standarisasi SOP dan mesin tiap cabang</p>
-                </div>
-                <span className="text-xs font-mono text-roast-500">{outlets.length || 3} Outlet Aktif</span>
-              </div>
-
-              {(outlets.length > 0 ? outlets : [
-                { id: "out-senja-01", name: "Senja Braga Flagship", city: "Bandung", address: "Jl. Braga No. 45", status: "active", staff_count: 2 },
-                { id: "out-senja-02", name: "Senja Riau", city: "Bandung", address: "Jl. LLRE Martadinata No. 88", status: "active", staff_count: 2 },
-                { id: "out-senja-03", name: "Senja Dago Giri", city: "Bandung", address: "Jl. Dago Giri No. 12", status: "active", staff_count: 1 },
-              ]).map((outlet) => (
-                <div key={outlet.id} className="card p-4 sm:p-5 bg-white border-paper-300 space-y-2">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] uppercase tracking-widest font-mono text-roast-500 font-bold">
-                          {outlet.city}
-                        </span>
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-paper-100 border border-paper-200 text-roast-700">
-                          {outlet.status.toUpperCase()}
-                        </span>
-                      </div>
-                      <h3 className="text-base font-semibold text-roast-950 mt-1 font-serif">{outlet.name}</h3>
-                      {outlet.address && (
-                        <p className="text-xs text-roast-600 mt-0.5 font-sans">{outlet.address}</p>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <span className="text-xs font-mono font-bold text-roast-900 bg-paper-100 px-2.5 py-1 rounded border border-paper-200">
-                        {outlet.staff_count ?? 2} Barista
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Add Outlet Form */}
-            <div className="card h-fit p-5 bg-white border-paper-300 space-y-4">
-              <div>
-                <h2 className="font-serif font-bold text-base text-roast-950">Tambah Cabang Baru</h2>
-                <p className="text-xs text-roast-500">Perluas standarisasi ke lokasi baru</p>
-              </div>
-              <form onSubmit={handleCreateOutlet} className="space-y-3.5">
-                <div>
-                  <label className="label text-[11px]">Nama Cabang / Outlet *</label>
-                  <input
-                    type="text" required
-                    value={newOutletName}
-                    onChange={(e) => setNewOutletName(e.target.value)}
-                    placeholder="Contoh: Senja Sudirman"
-                    className="input text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="label text-[11px]">Kota *</label>
-                  <input
-                    type="text" required
-                    value={newOutletCity}
-                    onChange={(e) => setNewOutletCity(e.target.value)}
-                    placeholder="Contoh: Jakarta Selatan"
-                    className="input text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="label text-[11px]">Alamat Lengkap</label>
-                  <textarea
-                    value={newOutletAddress}
-                    onChange={(e) => setNewOutletAddress(e.target.value)}
-                    placeholder="Jl. Jenderal Sudirman Kav. 25..."
-                    className="input text-xs h-16"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={creatingOutlet}
-                  className="btn-primary w-full text-xs py-2.5"
-                >
-                  {creatingOutlet ? "Menyimpan..." : "Simpan Cabang Baru"}
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 3: COHORTS */}
-        {activeTab === "cohorts" && (
+        {/* TAB 2: AKTIVITAS & TRANSPARANSI LAYANAN */}
+        {activeTab === "activity" && (
           <div className="space-y-4">
-            <div className="card p-5 bg-white border-paper-300">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="font-serif font-bold text-lg text-roast-950">Batch Pelatihan Terjadwal</h2>
-                  <p className="text-xs text-roast-500">Kelompok pembelajaran terstruktur dengan instruktur resmi</p>
-                </div>
+            <div className="card p-5 sm:p-6 bg-white border-paper-300 space-y-4">
+              <div>
+                <h2 className="font-serif font-bold text-lg text-roast-950">
+                  Transparansi Layanan: Apa Saja yang Dikerjakan Tim Cherry Edu?
+                </h2>
+                <p className="text-xs text-roast-500">
+                  Rekam jejak kunjungan tatap muka, pendampingan bar offline, dan tindakan yang telah dieksekusi.
+                </p>
               </div>
 
-              <div className="space-y-3">
-                {[
-                  {
-                    id: "coh-senja-barista-01",
-                    name: "Batch Barista Standarisasi Q1",
-                    start_at: "2026-04-01T08:00:00Z",
-                    end_at: "2026-05-30T17:00:00Z",
-                    status: "active",
-                    participant_count: 5,
-                    trainer: "Dimas Trainer (Instruktur Resmi Cherry Edu)",
-                    curriculum: "Kurikulum Barista & Kalibrasi Seduh Profesional (v1)",
-                  },
-                  {
-                    id: "coh-senja-brew-02",
-                    name: "Batch Kalibrasi Sensori & Manual Brew",
-                    start_at: "2026-04-15T08:00:00Z",
-                    end_at: "2026-06-01T17:00:00Z",
-                    status: "active",
-                    participant_count: 2,
-                    trainer: "Dimas Trainer (Instruktur Resmi Cherry Edu)",
-                    curriculum: "Manual Brewing & Sensorik Lanjut (v1)",
-                  },
-                ].map((cohort) => (
+              <div className="space-y-3.5 pt-2">
+                {program.serviceLogs.map((log) => (
                   <div
-                    key={cohort.id}
-                    className="p-4 bg-paper-50 rounded-xl border border-paper-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs"
+                    key={log.id}
+                    className="p-4 sm:p-5 rounded-xl bg-paper-50 border border-paper-200 space-y-3 shadow-2xs"
                   >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-crema-100 border border-crema-300 text-roast-800 font-bold uppercase">
-                          {cohort.status}
-                        </span>
-                        <span className="text-xs text-roast-500 font-mono">
-                          Mulai: {new Date(cohort.start_at).toLocaleDateString("id-ID", { dateStyle: "medium" })}
-                        </span>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-paper-200/80 pb-2.5">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-white border border-paper-300 font-bold text-roast-800">
+                            {log.sessionType === "rnd"
+                              ? "Fase 1: R&D & Audit"
+                              : log.sessionType === "offline_teknik"
+                              ? "Fase 2.2: Praktik Teknik"
+                              : "Fase 2.3: Espresso Base"}
+                          </span>
+                          <span className="text-xs font-mono text-roast-500">{log.date}</span>
+                        </div>
+                        <h3 className="font-serif font-bold text-base text-roast-950 mt-1">
+                          {log.title}
+                        </h3>
                       </div>
-                      <h3 className="text-base font-semibold text-roast-950 font-serif">{cohort.name}</h3>
-                      <p className="text-xs text-roast-600 font-sans">{cohort.curriculum}</p>
-                      <p className="text-xs text-roast-500 font-mono">Instruktur: {cohort.trainer}</p>
+                      <span className="text-xs font-mono text-roast-600 bg-white px-2.5 py-1 rounded border border-paper-200 self-start sm:self-auto font-medium">
+                        Instruktur: {log.trainerName}
+                      </span>
                     </div>
 
-                    <div className="sm:text-right shrink-0">
-                      <span className="text-xs font-mono text-roast-900 bg-white px-3 py-1.5 rounded-lg border border-paper-300 font-bold inline-block">
-                        {cohort.participant_count} Barista Aktif
-                      </span>
+                    <p className="text-xs sm:text-sm text-roast-700 font-sans leading-relaxed">
+                      {log.summary}
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs pt-1">
+                      <div className="p-3 bg-white rounded-lg border border-paper-200/80 space-y-1">
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-roast-500 font-bold">
+                          Temuan di Bar:
+                        </span>
+                        <ul className="list-disc list-inside text-roast-700 space-y-0.5 text-[11px]">
+                          {log.findings.map((f, i) => (
+                            <li key={i}>{f}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div className="p-3 bg-white rounded-lg border border-paper-200/80 space-y-1">
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-roast-500 font-bold">
+                          Rekomendasi Tindak Lanjut:
+                        </span>
+                        <ul className="list-disc list-inside text-roast-700 space-y-0.5 text-[11px]">
+                          {log.actionItems.map((a, i) => (
+                            <li key={i}>{a}</li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -734,80 +405,169 @@ export default function OwnerOverviewPage({
           </div>
         )}
 
-        {/* TAB 4: INVITATIONS */}
-        {activeTab === "invites" && (
+        {/* TAB 3: HASIL AUDIT R&D & RESEP KOPI */}
+        {activeTab === "rnd" && (
           <div className="space-y-4">
-            <div className="card p-5 bg-white border-paper-300 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <h2 className="font-serif font-bold text-lg text-roast-950">Riwayat Undangan Akses</h2>
-                  <p className="text-xs text-roast-500">Kelola token aktivasi akun untuk barista baru</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsInviteModalOpen(true)}
-                  className="btn-primary text-xs py-2 px-3.5 flex items-center gap-1.5 self-start sm:self-auto"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Buat Undangan Baru</span>
-                </button>
+            <div className="card p-5 sm:p-6 bg-white border-paper-300 space-y-5">
+              <div>
+                <h2 className="font-serif font-bold text-lg text-roast-950">
+                  Laporan Audit R&amp;D dan Spesifikasi Seduh Kafe
+                </h2>
+                <p className="text-xs text-roast-500">
+                  Audit fondasi mesin, air, gilingan, dan standarisasi resep SOP resmi.
+                </p>
               </div>
 
-              {invitations.length === 0 ? (
-                <div className="p-8 text-center text-roast-500 text-xs font-mono bg-paper-50 rounded-xl border border-paper-200">
-                  Belum ada riwayat undangan. Klik tombol &ldquo;Buat Undangan Baru&rdquo; untuk mengirim akses ke tim Anda.
+              {/* R&D Recipe Highlight Card */}
+              <div className="p-5 rounded-xl bg-paper-50 border border-paper-300 space-y-4">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-roast-500 font-bold block">
+                  Standarisasi Resep House Blend Kafe (Hasil Kalibrasi Cherry Edu)
+                </span>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                  <div className="p-3 bg-white rounded-xl border border-paper-200">
+                    <span className="text-[10px] font-mono text-roast-400 uppercase">Dosis Bubuk</span>
+                    <p className="font-serif font-black text-2xl text-roast-950 mt-0.5">
+                      {program.rndAudit.houseBlendRecipe.doseGrams}g
+                    </p>
+                    <span className="text-[10px] text-roast-500 font-mono">± 0.2g tolerance</span>
+                  </div>
+
+                  <div className="p-3 bg-white rounded-xl border border-paper-200">
+                    <span className="text-[10px] font-mono text-roast-400 uppercase">Yield Liquid</span>
+                    <p className="font-serif font-black text-2xl text-roast-950 mt-0.5">
+                      {program.rndAudit.houseBlendRecipe.yieldGrams}g
+                    </p>
+                    <span className="text-[10px] text-roast-500 font-mono">Hasil cangkir</span>
+                  </div>
+
+                  <div className="p-3 bg-white rounded-xl border border-paper-200">
+                    <span className="text-[10px] font-mono text-roast-400 uppercase">Waktu Ekstraksi</span>
+                    <p className="font-serif font-black text-2xl text-roast-950 mt-0.5">
+                      {program.rndAudit.houseBlendRecipe.targetTimeSec}s
+                    </p>
+                    <span className="text-[10px] text-roast-500 font-mono">Rentang 26–28s</span>
+                  </div>
+
+                  <div className="p-3 bg-white rounded-xl border border-paper-200">
+                    <span className="text-[10px] font-mono text-roast-400 uppercase">Rasio Seduh</span>
+                    <p className="font-serif font-black text-2xl text-roast-950 mt-0.5">
+                      {program.rndAudit.houseBlendRecipe.brewRatio}
+                    </p>
+                    <span className="text-[10px] text-roast-500 font-mono">Ideal espresso</span>
+                  </div>
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  {invitations.map((invite) => (
-                    <div
-                      key={invite.id}
-                      className="p-3.5 bg-paper-50 rounded-xl border border-paper-200 flex items-center justify-between gap-3 shadow-2xs"
-                    >
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white border border-paper-300 text-roast-700 font-bold uppercase">
-                            {invite.intended_role}
-                          </span>
-                          <span className="text-[10px] font-mono text-roast-500 uppercase">{invite.status}</span>
-                        </div>
-                        <p className="text-sm font-semibold text-roast-950 font-mono">{invite.email_normalized}</p>
-                        <p className="text-[11px] text-roast-500 font-mono mt-0.5">
-                          Dikirim: {new Date(invite.created_at).toLocaleDateString("id-ID", { dateStyle: "medium" })}
-                        </p>
-                      </div>
-                      {invite.status === "pending" && (
-                        <button
-                          type="button"
-                          onClick={() => handleRevokeInvitation(invite.id)}
-                          className="btn-ghost text-xs text-roast-500 hover:text-cherry-800 font-mono"
-                        >
-                          Batalkan
-                        </button>
-                      )}
-                    </div>
+              </div>
+
+              {/* Hardware & Water Specs */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div className="p-4 rounded-xl bg-paper-50 border border-paper-200 space-y-1.5">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-roast-500 font-bold">
+                    Mesin Espresso &amp; Tekanan:
+                  </span>
+                  <p className="text-roast-900 font-medium font-sans">{program.rndAudit.machineStatus}</p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-paper-50 border border-paper-200 space-y-1.5">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-roast-500 font-bold">
+                    TDS &amp; Kualitas Air Bar:
+                  </span>
+                  <p className="text-roast-900 font-medium font-sans">
+                    {program.rndAudit.waterTdsPpm} PPM (Optimal untuk ekstraksi Specialty Coffee)
+                  </p>
+                </div>
+              </div>
+
+              {/* Key Findings List */}
+              <div className="p-4 rounded-xl bg-paper-50 border border-paper-200 space-y-2 text-xs">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-roast-500 font-bold">
+                  Catatan Audit R&amp;D Trainer:
+                </span>
+                <ul className="list-disc list-inside text-roast-700 space-y-1 text-xs">
+                  {program.rndAudit.keyFindings.map((kf, i) => (
+                    <li key={i}>{kf}</li>
                   ))}
-                </div>
-              )}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: UJIAN HYBRID & HASIL EVALUASI */}
+        {activeTab === "exams" && (
+          <div className="space-y-4">
+            <div className="card p-5 sm:p-6 bg-white border-paper-300 space-y-4">
+              <div>
+                <h2 className="font-serif font-bold text-lg text-roast-950">
+                  Hasil Ujian Komprehensif Barista (Modul 2.5)
+                </h2>
+                <p className="text-xs text-roast-500">
+                  Ujian terintegrasi menggabungkan kurikulum B2C Cherry Edu dengan studi kasus operasional kafe ini.
+                </p>
+              </div>
+
+              <div className="data-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Nama Barista</th>
+                      <th>Status Ujian</th>
+                      <th className="text-center">Skor Teori B2C</th>
+                      <th className="text-center">Skor Kasus Trainer</th>
+                      <th className="text-center">Nilai Akhir</th>
+                      <th>Keputusan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {program.baristas.map((b) => (
+                      <tr key={b.id}>
+                        <td>
+                          <div className="font-semibold text-roast-950">{b.name}</div>
+                          <div className="text-xs text-roast-500 font-mono">{b.role}</div>
+                        </td>
+                        <td>
+                          <span className="status-pill font-mono">
+                            {b.hybridExam.status.toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="text-center font-mono font-bold text-roast-950">
+                          {b.hybridExam.status === "graded" ? `${b.hybridExam.theoryScore}%` : "—"}
+                        </td>
+                        <td className="text-center font-mono font-bold text-roast-950">
+                          {b.hybridExam.status === "graded" ? `${b.hybridExam.practicalCustomScore}%` : "—"}
+                        </td>
+                        <td className="text-center font-mono font-black text-roast-950 text-sm">
+                          {b.hybridExam.status === "graded" ? `${b.hybridExam.finalScore}` : "—"}
+                        </td>
+                        <td>
+                          <span className={`text-xs font-mono font-bold ${
+                            b.hybridExam.passed ? "text-roast-950" : "text-roast-500"
+                          }`}>
+                            {b.hybridExam.passed ? "LULUS (STANDAR INDUSTRI)" : "PERLU REMEDIAL"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
       </main>
 
-      {/* MODAL 1: BARISTA DETAIL INSPECTOR */}
+      {/* MODAL: DETAIL BARISTA AUDIT INSPECTOR */}
       {selectedBarista && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-roast-950/60 backdrop-blur-xs animate-in fade-in">
-          <div className="card max-w-lg w-full bg-white p-6 rounded-2xl shadow-elevated border border-paper-300 space-y-5 animate-in zoom-in-95">
-            <div className="flex items-start justify-between">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-roast-950/70 backdrop-blur-xs animate-in fade-in">
+          <div className="card max-w-xl w-full bg-white p-5 sm:p-6 rounded-2xl shadow-elevated border border-paper-300 max-h-[92vh] overflow-y-auto space-y-5 animate-in zoom-in-95">
+            <div className="flex items-start justify-between border-b border-paper-200 pb-3">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-crema-200 border border-crema-300 text-roast-900 font-serif font-black flex items-center justify-center text-lg">
+                <div className="w-12 h-12 rounded-full bg-crema-200 border border-crema-300 text-roast-900 font-serif font-black flex items-center justify-center text-lg shrink-0">
                   {selectedBarista.avatarText}
                 </div>
                 <div>
                   <h3 className="font-serif font-black text-xl text-roast-950">{selectedBarista.name}</h3>
-                  <p className="text-xs text-roast-500 font-mono">
-                    {selectedBarista.outletName} · {selectedBarista.role}
-                  </p>
+                  <p className="text-xs text-roast-500 font-mono">{selectedBarista.role}</p>
                 </div>
               </div>
               <button
@@ -819,183 +579,118 @@ export default function OwnerOverviewPage({
               </button>
             </div>
 
-            {/* Radar / Skills Progress */}
-            <div className="p-4 rounded-xl bg-paper-50 border border-paper-200 space-y-3">
-              <p className="text-[10px] font-mono uppercase tracking-wider text-roast-500 font-bold">
-                Penguasaan Kriteria Barista (Cherry Edu Rubrik)
-              </p>
-
-              <div className="space-y-2.5">
-                {[
-                  { label: "Dial-In & Rasio Seduh Espresso", val: selectedBarista.skills.dialIn },
-                  { label: "Microfoam Steaming & Latte Art", val: selectedBarista.skills.milk },
-                  { label: "Kalibrasi Rasa & Evaluasi Sensori", val: selectedBarista.skills.sensory },
-                  { label: "Alur Kerja, Sanitasi & Bar Hygiene", val: selectedBarista.skills.hygiene },
-                ].map((s) => (
-                  <div key={s.label}>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="text-roast-800 font-medium">{s.label}</span>
-                      <span className="font-mono font-bold text-roast-950">{s.val}%</span>
-                    </div>
-                    <div className="w-full bg-paper-200 h-2 rounded-full overflow-hidden">
-                      <div
-                        className="bg-roast-950 h-full rounded-full transition-all"
-                        style={{ width: `${s.val}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Calibration Record */}
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between py-1.5 border-b border-paper-200">
-                <span className="text-roast-500 font-mono">Kalibrasi Pagi Ini</span>
-                <span className="font-mono font-bold text-roast-950">{selectedBarista.dialInRatio}</span>
-              </div>
-              <div className="flex justify-between py-1.5 border-b border-paper-200">
-                <span className="text-roast-500 font-mono">Konsistensi Streak</span>
-                <span className="font-mono font-bold text-amber-700">{selectedBarista.streakDays} Hari Beruntun</span>
-              </div>
-              <div className="flex justify-between py-1.5">
-                <span className="text-roast-500 font-mono">Status Kompetensi</span>
-                <span className="font-mono font-bold text-roast-900">{selectedBarista.competencyStatus}</span>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="pt-2 flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  toast.success(`Pengingat kalibrasi berhasil dikirim ke ${selectedBarista.name}`);
-                  setSelectedBarista(null);
-                }}
-                className="btn-secondary flex-1 text-xs py-2.5"
-              >
-                Kirim Pengingat Kalibrasi
-              </button>
-              <Link
-                href={`/org/${orgId}/learn`}
-                className="btn-primary flex-1 text-xs py-2.5 text-center"
-              >
-                Buka Silabus
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL 2: INVITE EMPLOYEE */}
-      {isInviteModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-roast-950/60 backdrop-blur-xs animate-in fade-in">
-          <div className="card max-w-md w-full bg-white p-6 rounded-2xl shadow-elevated border border-paper-300 space-y-4 animate-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-paper-200 pb-3">
+            {/* Growth Summary Card */}
+            <div className="p-4 rounded-xl bg-paper-50 border border-paper-200 flex items-center justify-between text-xs">
               <div>
-                <h3 className="font-serif font-black text-lg text-roast-950">Undang Barista / Staf</h3>
-                <p className="text-xs text-roast-500">Berikan akses ke platform pelatihan tim</p>
+                <span className="text-[10px] font-mono uppercase text-roast-500 font-bold">Evaluasi Kenaikan</span>
+                <p className="font-serif font-bold text-base text-roast-950 mt-0.5">
+                  Skor {selectedBarista.initialScore} → {selectedBarista.currentScore} (+{selectedBarista.currentScore - selectedBarista.initialScore} poin)
+                </p>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsInviteModalOpen(false);
-                  setGeneratedInviteToken(null);
-                }}
-                className="text-roast-400 hover:text-roast-900 p-1"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <span className="text-xs font-mono font-bold px-3 py-1.5 rounded-lg bg-white border border-paper-300 text-roast-900">
+                {selectedBarista.overallStatus.replace(/_/g, " ").toUpperCase()}
+              </span>
             </div>
 
-            {/* Success Token Display */}
-            {generatedInviteToken ? (
-              <div className="space-y-3 p-4 bg-paper-50 rounded-xl border border-paper-300 text-xs">
-                <div className="flex items-center gap-2 text-roast-950 font-bold">
-                  <CheckCircle2 className="w-4 h-4 text-roast-900" />
-                  <span>Token Undangan Berhasil Dibuat</span>
+            {/* 6 Pillars Breakdown */}
+            <div className="space-y-3 text-xs">
+              <h4 className="font-serif font-bold text-sm text-roast-950">
+                Rincian 6 Pilar Mentorship 1 Bulan:
+              </h4>
+
+              {/* 2.1 Fundamental */}
+              <div className="p-3 bg-paper-50 rounded-lg border border-paper-200 space-y-1">
+                <div className="flex justify-between font-mono font-bold">
+                  <span className="text-roast-900">2.1 Fundamental Hulu ke Hilir &amp; Barista Path (B2C)</span>
+                  <span className="text-roast-700">
+                    {selectedBarista.fundamentalHuluHilir.finalExamPassed ? "LULUS ✓" : "BELUM LENGKAP"}
+                  </span>
                 </div>
-                <div className="p-3 bg-white rounded-lg border border-paper-300 font-mono text-[11px] text-roast-900 break-all select-all flex items-center justify-between gap-2">
-                  <span>{generatedInviteToken}</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigator.clipboard.writeText(generatedInviteToken);
-                      toast.success("Token berhasil disalin ke clipboard!");
-                    }}
-                    className="p-1 text-roast-600 hover:text-roast-950"
-                    title="Salin token"
-                  >
-                    <Copy className="w-4 h-4" />
-                  </button>
-                </div>
-                <p className="text-roast-600 text-[11px] leading-relaxed">
-                  Bagikan token ini ke barista untuk mengklaim akses di halaman login.
+                <p className="text-[11px] text-roast-500">
+                  Ujian Teori: {selectedBarista.fundamentalHuluHilir.examScore ?? "—"}/100 · Barista Path: {selectedBarista.fundamentalBaristaPath.examScore ?? "—"}/100
                 </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsInviteModalOpen(false);
-                    setGeneratedInviteToken(null);
-                  }}
-                  className="btn-primary w-full text-xs py-2 mt-2"
-                >
-                  Selesai
-                </button>
               </div>
-            ) : (
-              <form onSubmit={handleSendInvitation} className="space-y-3.5">
-                <div>
-                  <label className="label text-[11px]">Email Staf / Barista *</label>
-                  <input
-                    type="email" required
-                    value={inviteEmail}
-                    onChange={(e) => setInviteEmail(e.target.value)}
-                    placeholder="nama@kopikamu.id"
-                    className="input text-xs"
-                  />
+
+              {/* 2.2 Teknik */}
+              <div className="p-3 bg-paper-50 rounded-lg border border-paper-200 space-y-1">
+                <div className="flex justify-between font-mono font-bold">
+                  <span className="text-roast-900">2.2 Praktik Teknik Offline (Bar Ergonomics &amp; Tamping)</span>
+                  <span className="text-roast-700">{selectedBarista.offlineTeknik.score}/100</span>
                 </div>
-                <div>
-                  <label className="label text-[11px]">Peran Kerja *</label>
-                  <select
-                    value={inviteRole}
-                    onChange={(e) => setInviteRole(e.target.value)}
-                    className="input text-xs"
-                  >
-                    <option value="learner">Barista / Peserta Pelatihan</option>
-                    <option value="head_bar">Head Bar / Supervisor Cabang</option>
-                    <option value="client_manager">Manajer Operasional</option>
-                  </select>
+                <p className="text-[11px] text-roast-600 font-sans">
+                  Catatan: {selectedBarista.offlineTeknik.trainerNotes}
+                </p>
+              </div>
+
+              {/* 2.3 Espresso Base */}
+              <div className="p-3 bg-paper-50 rounded-lg border border-paper-200 space-y-1">
+                <div className="flex justify-between font-mono font-bold">
+                  <span className="text-roast-900">2.3 Espresso Base &amp; Kalibrasi (Offline)</span>
+                  <span className="text-roast-700">{selectedBarista.offlineEspressoBase.score}/100</span>
                 </div>
-                <div>
-                  <label className="label text-[11px]">Penugasan Cabang</label>
-                  <select
-                    value={inviteOutletId}
-                    onChange={(e) => setInviteOutletId(e.target.value)}
-                    className="input text-xs"
-                  >
-                    <option value="">Semua Cabang / Rotasi</option>
-                    {outlets.map((o) => (
-                      <option key={o.id} value={o.id}>
-                        {o.name} ({o.city})
-                      </option>
-                    ))}
-                  </select>
+                <p className="text-[11px] text-roast-600 font-sans">
+                  Rasio: {selectedBarista.offlineEspressoBase.dialInRatio} · Evaluasi: {selectedBarista.offlineEspressoBase.sensoryEvaluation}
+                </p>
+              </div>
+
+              {/* 2.4 Class 3 Path */}
+              <div className="p-3 bg-paper-50 rounded-lg border border-paper-200 space-y-2">
+                <div className="flex justify-between font-mono font-bold">
+                  <span className="text-roast-900">2.4 Class Pilihan (Min. 3 Path Cherry Edu Web)</span>
+                  <span className="text-roast-700">
+                    {selectedBarista.classesTaken.filter((c) => c.completed).length}/3 Path
+                  </span>
                 </div>
-                <button
-                  type="submit"
-                  disabled={inviting}
-                  className="btn-primary w-full text-xs py-2.5 mt-2"
-                >
-                  {inviting ? "Memproses..." : "Kirim Undangan Akses"}
-                </button>
-              </form>
-            )}
+                <div className="space-y-1">
+                  {selectedBarista.classesTaken.map((cl) => (
+                    <div key={cl.pathId} className="flex items-center justify-between text-[11px]">
+                      <span className="text-roast-700 font-medium">• {cl.title}</span>
+                      <span className="font-mono text-roast-500">
+                        {cl.completed ? `Selesai (${cl.score}%)` : "Sedang Berjalan"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 2.5 Ujian Hybrid */}
+              <div className="p-3 bg-paper-50 rounded-lg border border-paper-200 space-y-1">
+                <div className="flex justify-between font-mono font-bold">
+                  <span className="text-roast-900">2.5 Ujian Komprehensif Hybrid</span>
+                  <span className="text-roast-700">
+                    {selectedBarista.hybridExam.status === "graded"
+                      ? `${selectedBarista.hybridExam.finalScore}/100 (LULUS)`
+                      : "BELUM UJIAN"}
+                  </span>
+                </div>
+                <p className="text-[11px] text-roast-500">
+                  Teori B2C: {selectedBarista.hybridExam.theoryScore}% · Kasus Trainer: {selectedBarista.hybridExam.practicalCustomScore}%
+                </p>
+              </div>
+
+              {/* 2.6 Trainer Recommendation */}
+              <div className="p-3.5 bg-paper-100 rounded-lg border border-paper-300 space-y-1">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-roast-700 font-bold block">
+                  Rekomendasi Resmi Trainer Cherry Edu untuk Owner:
+                </span>
+                <p className="text-roast-950 font-serif text-xs leading-relaxed italic">
+                  &ldquo;{selectedBarista.trainerRecommendation}&rdquo;
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setSelectedBarista(null)}
+              className="btn-primary w-full text-xs py-2.5"
+            >
+              Tutup Rincian Barista
+            </button>
           </div>
         </div>
       )}
 
-      {/* Sticky Mobile Bottom Navigation for Owner */}
+      {/* Mobile Bottom Navigation */}
       <MobileBottomNav role="owner" orgId={orgId} />
     </div>
   );
