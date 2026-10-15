@@ -31,6 +31,8 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+import { Toaster } from "sonner";
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -38,6 +40,7 @@ export default function RootLayout({
     <html lang="id" className={`${fontSans.variable} ${fontSerif.variable} h-full`}>
       <body className="min-h-full font-sans antialiased bg-paper-100 text-roast-950">
         {children}
+        <Toaster position="top-center" richColors theme="light" />
       </body>
     </html>
   );

@@ -3,7 +3,29 @@
 import { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import confetti from "canvas-confetti";
+import { toast } from "sonner";
+import {
+  BookOpen,
+  Award,
+  Coffee,
+  CheckCircle2,
+  Lock,
+  PlayCircle,
+  ExternalLink,
+  Flame,
+  Clock,
+  Sparkles,
+  ArrowRight,
+  SlidersHorizontal,
+  ChevronRight,
+  ShieldCheck,
+  Send,
+} from "lucide-react";
 import ShellNav from "@/components/ShellNav";
+import MobileBottomNav from "@/components/MobileBottomNav";
+import CompetencyTrackerWidget from "@/components/CompetencyTrackerWidget";
+import DailyCalibrationWidget from "@/components/DailyCalibrationWidget";
 
 interface Step {
   id: string;
@@ -50,11 +72,20 @@ export default function BaristaLearnPage({
   const [steps, setSteps] = useState<Step[]>([]);
   const [competencies, setCompetencies] = useState<Competency[]>([]);
   const [remediationTasks, setRemediationTasks] = useState<RemediationTask[]>([]);
-  const [activeTab, setActiveTab] = useState<"curriculum" | "competencies" | "remediation">("curriculum");
+  const [activeTab, setActiveTab] = useState<"curriculum" | "tracker" | "calibration" | "remediation">("curriculum");
   const [submittingStepId, setSubmittingStepId] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<RemediationTask | null>(null);
   const [practiceNotes, setPracticeNotes] = useState("");
-  const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [practiceTimer, setPracticeTimer] = useState<number>(0);
+  const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isTimerRunning) {
+      interval = setInterval(() => setPracticeTimer((prev) => prev + 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isTimerRunning]);
 
   useEffect(() => {
     async function loadData() {
@@ -112,14 +143,13 @@ export default function BaristaLearnPage({
     loadData();
   }, [orgId, router]);
 
-  async function handleCompleteStep(stepId: string) {
+  async function handleCompleteStep(step: Step) {
     if (!enrollmentId) return;
     try {
-      setSubmittingStepId(stepId);
-      setActionMessage(null);
+      setSubmittingStepId(step.id);
 
       const res = await fetch(
-        `/api/teams/organizations/${orgId}/enrollments/${enrollmentId}/steps/${stepId}/progress`,
+        `/api/teams/organizations/${orgId}/enrollments/${enrollmentId}/steps/${step.id}/progress`,
         {
           method: "POST",
           headers: { "content-type": "application/json" },
@@ -128,10 +158,29 @@ export default function BaristaLearnPage({
       );
 
       const data = await res.json();
-      if (!res.ok) { setActionMessage(data.error || "Gagal memperbarui progres."); return; }
+      if (!res.ok) {
+        toast.error(data.error || "Gagal memperbarui progres.");
+        return;
+      }
 
-      setActionMessage("Tahapan pembelajaran berhasil diselesaikan!");
+      // Celebratory Confetti!
+      confetti({
+        particleCount: 65,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#7E1D2A', '#E0C774', '#140E0C', '#4D6644'],
+      });
 
+      toast.success("Modul Berhasil Dituntaskan!", {
+        description: `Hebat! "${step.title_override || `Tahapan ${step.sort_order}`}" telah ditandai tuntas.`,
+      });
+
+      // Update local state smoothly
+      setSteps((prev) =>
+        prev.map((s) => (s.id === step.id ? { ...s, state: "completed", completed_at: new Date().toISOString() } : s))
+      );
+
+      // Refresh background
       const progRes = await fetch(
         `/api/teams/organizations/${orgId}/enrollments/${enrollmentId}/progress`
       );
@@ -141,7 +190,7 @@ export default function BaristaLearnPage({
         setCompetencies(progData.competencies || []);
       }
     } catch {
-      setActionMessage("Koneksi gagal. Silakan coba kembali.");
+      toast.error("Koneksi gagal. Silakan coba kembali.");
     } finally {
       setSubmittingStepId(null);
     }
@@ -149,7 +198,6 @@ export default function BaristaLearnPage({
 
   async function handleSubmitRemediation(taskId: string) {
     try {
-      setActionMessage(null);
       const res = await fetch(`/api/teams/organizations/${orgId}/remediation`, {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -158,13 +206,25 @@ export default function BaristaLearnPage({
 
       if (!res.ok) {
         const data = await res.json();
-        setActionMessage(data.error || "Gagal mengirim tugas remedial.");
+        toast.error(data.error || "Gagal mengirim tugas remedial.");
         return;
       }
 
-      setActionMessage("Hasil latihan remedial berhasil diserahkan ke trainer.");
+      confetti({
+        particleCount: 40,
+        spread: 50,
+        origin: { y: 0.7 },
+        colors: ['#7E1D2A', '#4D6644', '#E0C774'],
+      });
+
+      toast.success("Bukti Latihan Berhasil Diserahkan!", {
+        description: "Trainer Dimas akan memverifikasi hasil latihan Anda.",
+      });
+
       setSelectedTask(null);
       setPracticeNotes("");
+      setIsTimerRunning(false);
+      setPracticeTimer(0);
 
       const remRes = await fetch(`/api/teams/organizations/${orgId}/remediation`);
       if (remRes.ok) {
@@ -172,7 +232,7 @@ export default function BaristaLearnPage({
         setRemediationTasks(remData.tasks || []);
       }
     } catch {
-      setActionMessage("Gagal mengirim remedial.");
+      toast.error("Gagal mengirim remedial.");
     }
   }
 
@@ -180,199 +240,214 @@ export default function BaristaLearnPage({
   const progressPercent = steps.length > 0 ? Math.round((completedCount / steps.length) * 100) : 0;
 
   return (
-    <div className="min-h-screen bg-paper-100 text-roast-950 flex flex-col">
-      <ShellNav role="barista" orgId={orgId} />
+    <div className="min-h-screen bg-paper-100 text-roast-950 flex flex-col pb-24 md:pb-12">
+      <ShellNav role="barista" orgId={orgId} orgName="Senja Braga Flagship" userName="Budi Pratama (Barista)" />
 
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-8 space-y-8">
-        {/* Progress Hero Card */}
-        <div className="card">
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
+
+        {/* Hero Banner: Progress & Ecosystem Link */}
+        <div className="bg-white rounded-2xl border border-paper-300 p-5 sm:p-7 shadow-card">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <p className="section-label mb-1">Kurikulum Spesialisasi · Cherry Edu Teams</p>
-              <h1 className="font-serif font-black text-2xl text-roast-950">
-                Jalur Pelatihan &amp; Validasi Kompetensi Barista
+              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-cherry-700 font-bold px-2 py-0.5 rounded bg-cherry-50 border border-cherry-200">
+                  Outlet: Senja Braga Flagship
+                </span>
+                <span className="text-[10px] font-mono text-roast-500 uppercase tracking-wider">
+                  Batch Kalibrasi Q1
+                </span>
+              </div>
+              <h1 className="font-serif font-black text-2xl sm:text-3xl text-roast-950 tracking-tight">
+                Standarisasi Kompetensi Barista
               </h1>
-              <p className="text-xs text-roast-600 mt-1">
-                Selesaikan modul teori online, kuis pemahaman, dan observasi praktik bersama trainer resmi.
+              <p className="text-xs sm:text-sm text-roast-600 mt-1 max-w-xl leading-relaxed">
+                Kurikulum terpadu kalibrasi mesin espresso, texturing susu, dan etika kerja bar profesional Cherry Edu.
               </p>
             </div>
-            <div className="text-right sm:border-l sm:border-paper-300 sm:pl-6 shrink-0">
-              <span className="text-3xl font-bold font-serif text-roast-950">{progressPercent}%</span>
-              <p className="text-xs text-roast-500 mt-0.5 font-mono">
-                {completedCount} dari {steps.length} Modul Tuntas
-              </p>
+
+            {/* Quick Stats Pill */}
+            <div className="flex items-center gap-4 bg-paper-50 p-4 rounded-xl border border-paper-200 shrink-0 self-start sm:self-auto">
+              <div className="text-right">
+                <span className="text-3xl font-black font-serif text-cherry-700 leading-none">
+                  {progressPercent}%
+                </span>
+                <p className="text-[10px] text-roast-500 mt-1 font-mono">
+                  {completedCount} dari {steps.length} Selesai
+                </p>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-cherry-100 flex items-center justify-center text-cherry-800 shrink-0">
+                <Award className="w-5 h-5 stroke-[2.2]" />
+              </div>
             </div>
           </div>
 
-          {/* Progress Bar */}
-          <div className="w-full bg-paper-200 rounded-full h-2 mt-5 overflow-hidden">
-            <div
-              className="bg-cherry-700 h-2 rounded-full transition-all duration-500 shadow-xs"
-              style={{ width: `${progressPercent}%` }}
-            />
+          {/* Progress Bar with Milestones */}
+          <div className="mt-6 pt-5 border-t border-paper-200">
+            <div className="flex justify-between text-[11px] font-mono text-roast-600 mb-2">
+              <span className="flex items-center gap-1.5 font-bold">
+                <Sparkles className="w-3.5 h-3.5 text-crema-600" /> Tahap Pembelajaran Aktif
+              </span>
+              <span>{completedCount}/{steps.length} Modul Tuntas</span>
+            </div>
+            <div className="w-full bg-paper-200 rounded-full h-3 overflow-hidden shadow-inner">
+              <div
+                className="bg-cherry-700 h-3 rounded-full transition-all duration-700 ease-out shadow-xs"
+                style={{ width: `${Math.max(progressPercent, 5)}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Ecosystem B2C Connection Banner */}
+          <div className="mt-5 p-3.5 rounded-xl bg-paper-50 border border-paper-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2.5">
+              <Coffee className="w-4 h-4 text-cherry-700 shrink-0" />
+              <span className="text-roast-700">
+                Ingin eksplorasi materi seduh manual &amp; cupping mendalam? Akses Pustaka Komunitas Cherry Edu.
+              </span>
+            </div>
+            <a
+              href="https://edu.cherrycoffeeroastery.com/paths"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-cherry-800 hover:text-cherry-950 font-bold font-mono text-[11px] shrink-0 hover:underline"
+            >
+              <span>Katalog Akademi B2C</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
           </div>
         </div>
 
-        {/* Action Message Banner */}
-        {actionMessage && (
-          <div className="p-4 rounded-xl bg-paper-50 border border-paper-300 text-xs text-roast-900 flex items-center justify-between shadow-subtle">
-            <span className="font-medium">{actionMessage}</span>
-            <button onClick={() => setActionMessage(null)} className="text-roast-500 hover:text-roast-900 ml-4 font-mono">
-              Tutup
-            </button>
-          </div>
-        )}
-
-        {/* Error Banner */}
-        {error && (
-          <div className="p-4 rounded-xl bg-cherry-50 border border-cherry-200 text-xs text-cherry-900">
-            {error}
-          </div>
-        )}
-
-        {/* Tab Navigation */}
-        <div className="flex border-b border-paper-300 gap-6 text-sm">
-          {(["curriculum", "competencies", "remediation"] as const).map((tab) => {
-            const labels: Record<string, string> = {
-              curriculum: `Kurikulum & Modul (${steps.length})`,
-              competencies: `Status Kompetensi (${competencies.length})`,
-              remediation: `Latihan Terarah (${remediationTasks.length})`,
-            };
+        {/* Tab Navigation Pill Bar */}
+        <div className="flex overflow-x-auto pb-1 gap-2 border-b border-paper-300 scrollbar-none">
+          {[
+            { id: "curriculum", label: "Silabus & Modul", count: steps.length, icon: BookOpen },
+            { id: "tracker", label: "Radar Kompetensi", count: 4, icon: Award },
+            { id: "calibration", label: "Dial-In Studio", count: null, icon: SlidersHorizontal },
+            { id: "remediation", label: "Latihan Terarah", count: remediationTasks.length, icon: Clock },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const active = activeTab === tab.id;
             return (
               <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`pb-3.5 font-medium transition-colors border-b-2 -mb-px text-xs font-mono uppercase tracking-wider ${
-                  activeTab === tab
-                    ? "border-roast-950 text-roast-950 font-bold"
-                    : "border-transparent text-roast-500 hover:text-roast-800"
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`py-2.5 px-4 rounded-xl text-xs font-mono uppercase tracking-wider font-bold transition flex items-center gap-2 shrink-0 ${
+                  active
+                    ? "bg-roast-950 text-white shadow-2xs"
+                    : "bg-white text-roast-600 hover:text-roast-950 hover:bg-paper-50 border border-paper-200"
                 }`}
               >
-                {labels[tab]}
+                <Icon className={`w-4 h-4 ${active ? "text-crema-300" : "text-roast-500"}`} />
+                <span>{tab.label}</span>
+                {tab.count !== null && (
+                  <span
+                    className={`text-[10px] px-1.5 py-0.2 rounded ${
+                      active ? "bg-roast-800 text-white" : "bg-paper-100 text-roast-700"
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                )}
               </button>
             );
           })}
         </div>
 
-        {/* TAB 1: CURRICULUM */}
+        {/* TAB 1: CURRICULUM ACCORDION */}
         {activeTab === "curriculum" && (
-          <div className="space-y-3.5">
-            {loading && <p className="text-sm text-roast-500 font-mono">Memuat kurikulum...</p>}
-            {!loading && steps.length === 0 && (
-              <div className="card p-8 text-center text-roast-500 text-xs font-mono">
-                Belum ada tahapan pembelajaran aktif.
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-serif font-black text-xl text-roast-950">Tahapan Kurikulum Barista</h2>
+                <p className="text-xs text-roast-500">Klik modul untuk mempelajari materi dan submit bukti praktik</p>
+              </div>
+              <span className="text-xs font-mono text-roast-500 hidden sm:inline">Standar SCA Indonesia</span>
+            </div>
+
+            {loading && (
+              <div className="p-8 text-center text-xs font-mono text-roast-500 bg-white rounded-xl border border-paper-200">
+                Memuat silabus pelatihan...
               </div>
             )}
 
-            {steps.map((step) => {
+            {!loading && steps.map((step) => {
               const isCompleted = step.state === "completed";
               const isLocked = !step.is_unlocked;
+              const isSubmitting = submittingStepId === step.id;
 
               return (
                 <div
                   key={step.id}
-                  className={`card transition-all ${isLocked ? "opacity-60 bg-paper-50" : "bg-white hover:border-paper-400"}`}
+                  className={`bg-white rounded-xl border p-4 sm:p-5 transition-all shadow-subtle ${
+                    isCompleted
+                      ? "border-olive-200 bg-paper-50/40"
+                      : isLocked
+                      ? "border-paper-200 opacity-60 bg-paper-50/80"
+                      : "border-paper-300 hover:border-paper-400 hover:shadow-card"
+                  }`}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-start gap-3.5">
-                      <span className="flex-shrink-0 w-8 h-8 rounded-lg border border-paper-300 bg-paper-50 flex items-center justify-center text-xs font-mono font-bold text-roast-800">
-                        {step.sort_order}
-                      </span>
+                      <div
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 font-mono font-bold text-xs ${
+                          isCompleted
+                            ? "bg-olive-100 text-olive-800 border border-olive-300"
+                            : isLocked
+                            ? "bg-paper-200 text-roast-400"
+                            : "bg-roast-950 text-white"
+                        }`}
+                      >
+                        {isCompleted ? <CheckCircle2 className="w-5 h-5 text-olive-700" /> : step.sort_order}
+                      </div>
+
                       <div>
-                        <div className="flex items-center gap-2 flex-wrap mb-1">
-                          <span className="text-[10px] uppercase tracking-wider font-mono text-roast-600 bg-paper-100 px-2 py-0.5 rounded border border-paper-200 font-semibold">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <span className="text-[9px] font-mono uppercase px-2 py-0.5 rounded bg-paper-100 border border-paper-200 text-roast-600 font-bold">
                             {step.step_type}
                           </span>
                           {isCompleted && (
-                            <span className="text-[10px] font-mono text-olive-800 bg-olive-50 px-2 py-0.5 rounded border border-olive-200 uppercase tracking-wider font-bold">
-                              Selesai
+                            <span className="text-[9px] font-mono uppercase px-2 py-0.5 rounded bg-olive-100 text-olive-900 font-bold border border-olive-200">
+                              ✓ Selesai Terverifikasi
                             </span>
                           )}
                           {isLocked && (
-                            <span className="text-[10px] font-mono text-roast-500 uppercase tracking-wider">
-                              Terkunci
+                            <span className="text-[9px] font-mono uppercase px-2 py-0.5 rounded bg-paper-200 text-roast-500 font-semibold flex items-center gap-1">
+                              <Lock className="w-2.5 h-2.5" /> Prasyarat Belum Terpenuhi
                             </span>
                           )}
                         </div>
-                        <h2 className="text-sm font-semibold text-roast-950">
+                        <h3 className="font-serif font-bold text-base text-roast-950">
                           {step.title_override || `Tahapan ${step.sort_order}`}
-                        </h2>
-                        {isLocked && step.missing_prerequisites.length > 0 && (
-                          <p className="text-xs text-roast-500 mt-1 font-sans">
-                            Selesaikan modul prasyarat terlebih dahulu untuk membuka materi ini.
-                          </p>
-                        )}
-                        {isCompleted && step.completed_at && (
-                          <p className="text-xs text-roast-500 mt-0.5 font-mono">
-                            Diselesaikan: {new Date(step.completed_at).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" })}
-                          </p>
-                        )}
+                        </h3>
+                        <p className="text-xs text-roast-600 mt-1 leading-relaxed">
+                          {step.step_type === "theory"
+                            ? "Pemahaman parameter dial-in, densitas bubuk kopi, dan channeling ekstraksi 9 bar."
+                            : step.step_type === "practice"
+                            ? "Praktik texturing microfoam glossy, stabilisasi suhu susu 60-65°C, dan pouring pola dasar."
+                            : step.step_type === "quiz"
+                            ? "Uji pemahaman prosedur SOP pembukaan bar, kalibrasi pagi, dan form checklist outlet."
+                            : "Uji observasi kompetensi langsung di depan instruktur bersertifikasi Cherry Edu."}
+                        </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
-                      <Link
-                        href={`/org/${orgId}/learn/${step.id}`}
-                        className="btn-secondary text-xs py-1.5 px-3"
-                      >
-                        Buka Materi
-                      </Link>
+                    {/* Action Button */}
+                    <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
                       {!isCompleted && !isLocked && (
                         <button
-                          onClick={() => handleCompleteStep(step.id)}
-                          disabled={submittingStepId === step.id}
-                          className="btn-primary text-xs py-1.5 px-3"
+                          type="button"
+                          onClick={() => handleCompleteStep(step)}
+                          disabled={isSubmitting}
+                          className="py-2 px-4 rounded-xl bg-roast-950 hover:bg-roast-850 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-xs disabled:opacity-50"
                         >
-                          {submittingStepId === step.id ? "Menyimpan..." : "Tandai Selesai"}
+                          <PlayCircle className="w-4 h-4 text-crema-300" />
+                          <span>{isSubmitting ? "Menyimpan..." : "Tandai Selesai & Lulus"}</span>
                         </button>
                       )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* TAB 2: COMPETENCIES */}
-        {activeTab === "competencies" && (
-          <div className="space-y-3.5">
-            {competencies.length === 0 && (
-              <div className="card p-8 text-center text-roast-500 text-xs font-mono">
-                Belum ada data kompetensi untuk pendaftaran ini.
-              </div>
-            )}
-
-            {competencies.map((comp) => {
-              const stateLabels: Record<string, string> = {
-                learning: "Materi Teori Sedang Berlangsung",
-                awaiting_assessment: "Menunggu Observasi Praktik Trainer",
-                needs_practice: "Perlu Latihan Tambahan (Remedial)",
-                competent: "Kompeten & Terverifikasi Industri",
-              };
-
-              return (
-                <div key={comp.competency_id} className="card">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                      <span className="text-[10px] font-mono text-roast-500 uppercase tracking-widest font-bold">
-                        {comp.code}
-                      </span>
-                      <h2 className="text-base font-serif font-bold text-roast-950 mt-0.5">{comp.name}</h2>
-                      <p className="text-xs text-roast-600 mt-1">
-                        Status: <span className="font-semibold text-roast-950">{stateLabels[comp.state] || comp.state}</span>
-                      </p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      {comp.state === "competent" ? (
-                        <span className="status-active font-bold">Kompeten Resmi</span>
-                      ) : (
-                        <span className="status-pending font-medium">Dalam Proses</span>
-                      )}
-                      {comp.verified_at && (
-                        <p className="text-[10px] text-roast-500 font-mono mt-1">
-                          Disahkan: {new Date(comp.verified_at).toLocaleDateString("id-ID")}
-                        </p>
+                      {isCompleted && (
+                        <span className="text-xs font-mono text-olive-800 font-bold flex items-center gap-1">
+                          <CheckCircle2 className="w-4 h-4 text-olive-600" /> Tuntas
+                        </span>
                       )}
                     </div>
                   </div>
@@ -382,77 +457,108 @@ export default function BaristaLearnPage({
           </div>
         )}
 
-        {/* TAB 3: REMEDIATION */}
+        {/* TAB 2: VISUAL COMPETENCY RADAR */}
+        {activeTab === "tracker" && <CompetencyTrackerWidget />}
+
+        {/* TAB 3: DAILY CALIBRATION STUDIO */}
+        {activeTab === "calibration" && <DailyCalibrationWidget />}
+
+        {/* TAB 4: DIRECT REMEDIATION WORKSPACE */}
         {activeTab === "remediation" && (
-          <div className="space-y-3.5">
-            {remediationTasks.length === 0 && (
-              <div className="card p-8 text-center text-roast-600 text-sm font-sans">
-                Tidak ada tugas remedial aktif. Seluruh kriteria memenuhi standar!
+          <div className="space-y-4">
+            <div>
+              <h2 className="font-serif font-black text-xl text-roast-950">Latihan Terarah &amp; Remedial</h2>
+              <p className="text-xs text-roast-600">
+                Tugas khusus yang diberikan instruktur setelah evaluasi praktikal untuk mengasah aspek yang perlu ditingkatkan.
+              </p>
+            </div>
+
+            {remediationTasks.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-paper-300 p-8 text-center space-y-2">
+                <CheckCircle2 className="w-10 h-10 text-olive-600 mx-auto" />
+                <h3 className="font-serif font-bold text-lg text-roast-950">Tidak Ada Tugas Remedial Aktif</h3>
+                <p className="text-xs text-roast-600 max-w-md mx-auto">
+                  Semua kriteria observasi praktikal Anda telah lulus standar industri. Terus pertahankan konsistensi ekstraksi harian!
+                </p>
               </div>
-            )}
-
-            {remediationTasks.map((task) => (
-              <div key={task.id} className="card space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="status-pill">{task.status}</span>
-                      <span className="text-xs text-roast-600 font-mono font-medium">{task.competency_name}</span>
-                    </div>
-                    <h2 className="text-base font-serif font-bold text-roast-950 mt-1">{task.title}</h2>
-                    <div className="text-xs text-roast-800 mt-2 bg-paper-50 p-3.5 rounded-lg border border-paper-300 font-mono leading-relaxed">
-                      {task.instructions}
-                    </div>
-                  </div>
-
-                  <div className="self-end sm:self-start shrink-0">
-                    {task.status === "assigned" && (
-                      <button
-                        onClick={() => setSelectedTask(task)}
-                        className="btn-primary text-xs py-1.5 px-3"
-                      >
-                        Serahkan Hasil
-                      </button>
-                    )}
-                    {task.status === "submitted" && (
-                      <span className="text-xs text-roast-600 font-mono bg-paper-100 px-2.5 py-1 rounded border border-paper-200">
-                        Menunggu Review Trainer
+            ) : (
+              remediationTasks.map((task) => (
+                <div key={task.id} className="bg-white rounded-2xl border border-paper-300 p-5 sm:p-6 shadow-card space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-3 border-b border-paper-200">
+                    <div>
+                      <span className="text-[10px] font-mono uppercase tracking-widest text-cherry-700 font-bold block mb-1">
+                        Target Remedial: {task.competency_name}
                       </span>
-                    )}
-                    {task.status === "verified" && (
-                      <span className="status-active font-bold">Tuntas Terverifikasi</span>
-                    )}
+                      <h3 className="font-serif font-bold text-lg text-roast-950">{task.title}</h3>
+                      <p className="text-xs text-roast-600 mt-1 leading-relaxed">{task.instructions}</p>
+                    </div>
+                    <span className="text-[10px] font-mono px-2.5 py-1 rounded bg-cherry-50 text-cherry-900 border border-cherry-200 font-bold uppercase shrink-0">
+                      Status: {task.status}
+                    </span>
                   </div>
-                </div>
 
-                {/* Submission Form Modal / Drawer */}
-                {selectedTask?.id === task.id && (
-                  <div className="mt-4 pt-4 border-t border-paper-200 space-y-3">
-                    <label className="label">Catatan &amp; Bukti Praktik Mandiri Barista:</label>
+                  {/* Interactive Practice Stopwatch & Notes */}
+                  <div className="p-4 rounded-xl bg-paper-50 border border-paper-200 space-y-3">
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <span className="text-roast-700 font-bold flex items-center gap-1.5">
+                        <Clock className="w-4 h-4 text-cherry-700" /> Stopwatch Latihan Seduh:
+                      </span>
+                      <span className="text-sm font-bold text-roast-950">{practiceTimer} detik</span>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setIsTimerRunning(!isTimerRunning)}
+                        className={`py-1.5 px-3 rounded-lg text-xs font-mono font-bold transition ${
+                          isTimerRunning ? "bg-cherry-700 text-white" : "bg-roast-950 text-white hover:bg-roast-850"
+                        }`}
+                      >
+                        {isTimerRunning ? "Pause Timer" : "Mulai Latihan Seduh"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsTimerRunning(false);
+                          setPracticeTimer(0);
+                        }}
+                        className="py-1.5 px-3 rounded-lg text-xs font-mono bg-paper-200 text-roast-700 hover:bg-paper-300 transition"
+                      >
+                        Reset
+                      </button>
+                    </div>
+
                     <textarea
+                      rows={3}
                       value={practiceNotes}
                       onChange={(e) => setPracticeNotes(e.target.value)}
-                      placeholder="Jelaskan parameter dial-in (dose, yield, extraction time) dan hasil kalibrasi..."
-                      className="input text-xs h-24"
+                      placeholder="Tuliskan catatan hasil latihan (contoh: Suhu susu dicapai 63°C, 3 pitcher berturut-turut tanpa bubble kasar)..."
+                      className="w-full p-3 rounded-xl border border-paper-300 bg-white text-xs text-roast-950 placeholder-roast-400 focus:outline-none focus:border-roast-800 transition"
                     />
-                    <div className="flex items-center gap-2 justify-end">
-                      <button onClick={() => setSelectedTask(null)} className="btn-ghost text-xs">
-                        Batal
-                      </button>
-                      <button
-                        onClick={() => handleSubmitRemediation(task.id)}
-                        className="btn-primary text-xs py-1.5 px-4"
-                      >
-                        Kirim ke Trainer
-                      </button>
-                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleSubmitRemediation(task.id)}
+                      className="w-full py-2.5 bg-roast-950 hover:bg-roast-850 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-2"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      <span>Kirim Bukti Latihan ke Trainer</span>
+                    </button>
                   </div>
-                )}
-              </div>
-            ))}
+                </div>
+              ))
+            )}
           </div>
         )}
       </main>
+
+      {/* Mobile Bottom Dock (Only on Phone Screens) */}
+      <MobileBottomNav
+        role="barista"
+        orgId={orgId}
+        onOpenCalibration={() => setActiveTab("calibration")}
+        onOpenTracker={() => setActiveTab("tracker")}
+      />
     </div>
   );
 }

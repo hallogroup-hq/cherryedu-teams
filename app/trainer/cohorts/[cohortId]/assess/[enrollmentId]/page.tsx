@@ -3,6 +3,19 @@
 import { use, useState, useEffect } from 'react';
 import Link from 'next/link';
 import ShellNav from '@/components/ShellNav';
+import MobileBottomNav from '@/components/MobileBottomNav';
+import confetti from 'canvas-confetti';
+import { toast } from 'sonner';
+import {
+  Award,
+  CheckCircle2,
+  AlertCircle,
+  Clock,
+  Sparkles,
+  ChevronLeft,
+  FileCheck2,
+  ShieldCheck,
+} from 'lucide-react';
 
 interface Criterion {
   id: string;
@@ -124,10 +137,11 @@ export default function PracticalAssessmentWorkspacePage({
       <div className="min-h-screen bg-paper-100 text-roast-950 flex flex-col">
         <ShellNav role="trainer" />
         <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-8 space-y-4">
-          <Link href={`/trainer/cohorts/${cohortId}`} className="text-xs font-mono text-roast-600 hover:text-roast-950 transition-colors">
-            ← Kembali ke Roster Peserta
+          <Link href={`/trainer/cohorts/${cohortId}`} className="text-xs font-mono text-roast-600 hover:text-roast-950 transition-colors inline-flex items-center gap-1">
+            <ChevronLeft className="w-3.5 h-3.5" />
+            Kembali ke Roster Peserta
           </Link>
-          <div className="p-4 bg-cherry-50 border border-cherry-200 rounded-lg text-xs text-cherry-900">
+          <div className="p-4 bg-cherry-50 border border-cherry-200 rounded-xl text-xs text-cherry-900">
             {error || 'Data ruang kerja tidak ditemukan.'}
           </div>
         </main>
@@ -137,11 +151,14 @@ export default function PracticalAssessmentWorkspacePage({
 
   let hasCriticalFailure = false;
   let hasSubstandardScore = false;
+  let passedCriteriaCount = 0;
+
   for (const c of data.rubric.criteria) {
     const s = scores[c.code];
     if (s) {
       if (c.isCritical && (s.level < 3 || s.critical_failure)) hasCriticalFailure = true;
       if (s.level < 3) hasSubstandardScore = true;
+      if (s.level >= 3) passedCriteriaCount += 1;
     }
   }
 
@@ -196,6 +213,18 @@ export default function PracticalAssessmentWorkspacePage({
 
       const resData = await res.json();
       if (res.ok && resData.success) {
+        if (isEligibleToSignoff) {
+          confetti({
+            particleCount: 90,
+            spread: 75,
+            origin: { y: 0.6 },
+            colors: ['#6B2737', '#93384D', '#140E0C', '#FAF7F2'],
+          });
+          toast.success(`Kelulusan ${data.enrollment.participant_name} berhasil disahkan secara resmi!`);
+        } else {
+          toast.info('Hasil asesmen dicatat. Barista dijadwalkan sesi latihan terarah.');
+        }
+
         setSuccessMessage(resData.message || 'Evaluasi asesmen berhasil disimpan.');
         const refresh = await fetch(`/api/teams/trainer/cohorts/${cohortId}/assess/${enrollmentId}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -203,9 +232,11 @@ export default function PracticalAssessmentWorkspacePage({
         const refData = await refresh.json();
         if (refData.success) setData(refData.workspace);
       } else {
+        toast.error(resData.error || 'Gagal menyimpan hasil evaluasi asesmen.');
         setError(resData.error || 'Gagal menyimpan hasil evaluasi asesmen.');
       }
     } catch (err: any) {
+      toast.error('Koneksi jaringan gagal.');
       setError(err.message || 'Koneksi jaringan gagal.');
     } finally {
       setSubmitting(false);
@@ -216,55 +247,90 @@ export default function PracticalAssessmentWorkspacePage({
     <div className="min-h-screen bg-paper-100 text-roast-950 flex flex-col">
       <ShellNav role="trainer" />
 
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 space-y-8">
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 pb-28 md:pb-12">
         {/* Breadcrumb & Header */}
         <div className="space-y-3">
           <Link
             href={`/trainer/cohorts/${cohortId}`}
-            className="text-xs font-mono text-roast-600 hover:text-roast-950 transition-colors inline-block"
+            className="text-xs font-mono text-roast-600 hover:text-roast-950 transition-colors inline-flex items-center gap-1"
           >
-            ← Kembali ke Roster ({data.enrollment.cohort_name})
+            <ChevronLeft className="w-3.5 h-3.5" />
+            Kembali ke Roster ({data.enrollment.cohort_name})
           </Link>
-          <div className="border-b border-paper-300 pb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div className="card p-5 bg-white border-paper-300 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-subtle">
             <div>
-              <p className="section-label mb-1">
+              <p className="text-[10px] font-mono uppercase tracking-widest text-roast-500 font-bold mb-1">
                 {data.enrollment.organization_name} · {data.enrollment.outlet_name || 'Outlet Utama'}
               </p>
               <h1 className="font-serif font-black text-2xl text-roast-950">
-                Lembar Observasi Praktik: {data.enrollment.participant_name}
+                Observasi Praktik: {data.enrollment.participant_name}
               </h1>
               <p className="text-xs text-roast-600 mt-1 font-mono">
                 {data.competency.name} ({data.competency.code}) · Rubrik Resmi Versi {data.rubric.versionNo}
               </p>
             </div>
-            <span className="status-pill self-start sm:self-auto font-bold">
-              {data.enrollment.competency_state.replace(/_/g, ' ')}
+            <div className="shrink-0 self-start sm:self-auto">
+              <span className="text-xs font-mono font-bold px-3 py-1.5 rounded-lg bg-paper-100 border border-paper-300 text-roast-900 inline-block">
+                {data.enrollment.competency_state.replace(/_/g, ' ')}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Live Criteria Gauge Banner */}
+        <div className="p-4 rounded-xl bg-white border border-paper-300 shadow-2xs space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-mono uppercase tracking-wider text-roast-700 font-bold">
+              Ambang Kelulusan Industri:
+            </span>
+            <span className="font-mono font-bold text-roast-950">
+              {passedCriteriaCount} / {data.rubric.criteria.length} Kriteria Memenuhi Syarat (Level 3+)
             </span>
           </div>
+          <div className="w-full bg-paper-200 h-2.5 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-300 ${
+                passedCriteriaCount === data.rubric.criteria.length
+                  ? 'bg-roast-950'
+                  : 'bg-amber-600'
+              }`}
+              style={{ width: `${(passedCriteriaCount / data.rubric.criteria.length) * 100}%` }}
+            />
+          </div>
+          <p className="text-[11px] text-roast-500 font-mono">
+            {isEligibleToSignoff
+              ? '✓ Semua kriteria memenuhi standar kelulusan Cherry Edu. Siap disahkan secara definitif.'
+              : 'Perhatian: Seluruh kriteria wajib minimal Level 3 untuk pengesahan sertifikasi.'}
+          </p>
         </div>
 
         {/* Feedback Messages */}
         {error && (
-          <div className="p-4 bg-cherry-50 border border-cherry-200 rounded-lg text-xs text-cherry-900">{error}</div>
+          <div className="p-4 bg-cherry-50 border border-cherry-200 rounded-xl text-xs text-cherry-900">{error}</div>
         )}
         {successMessage && (
-          <div className="p-4 bg-paper-50 border border-paper-300 rounded-lg text-xs text-roast-900 font-medium">{successMessage}</div>
+          <div className="p-4 bg-paper-50 border border-paper-300 rounded-xl text-xs text-roast-900 font-medium">{successMessage}</div>
         )}
 
         {/* Monotonic Lock Notice */}
         {data.isMonotonicallyLocked && (
-          <div className="card bg-paper-50 border-paper-300 space-y-1">
-            <div className="text-sm font-semibold text-roast-950">Kelulusan Kompetensi Terverifikasi</div>
-            <div className="text-xs text-roast-600 leading-relaxed">
-              Barista telah memenuhi standar kompetensi industri dan status terkunci secara permanen. Lembar penilaian ini bersifat arsip resmi negara/industri (read-only).
+          <div className="card p-5 bg-paper-50 border-paper-300 space-y-1.5">
+            <div className="flex items-center gap-2 text-sm font-semibold text-roast-950 font-serif">
+              <ShieldCheck className="w-4 h-4 text-roast-900" />
+              Kelulusan Kompetensi Terverifikasi Permanen
+            </div>
+            <div className="text-xs text-roast-600 leading-relaxed font-sans">
+              Barista telah memenuhi standar kompetensi industri dan status terkunci secara permanen. Lembar penilaian ini bersifat arsip resmi Cherry Edu (read-only).
             </div>
           </div>
         )}
 
         {/* Theory Gate Status */}
-        <div className="card space-y-2">
+        <div className="card p-5 bg-white border-paper-300 space-y-2">
           <div className="flex items-center justify-between">
-            <p className="section-label">Prasyarat Teori Online (Pedagogical Gate)</p>
+            <p className="text-[10px] font-mono uppercase tracking-wider text-roast-500 font-bold">
+              Prasyarat Teori Online (Pedagogical Gate)
+            </p>
             <span className="text-xs font-mono text-roast-700 font-semibold">
               {data.theoryStatus.completedCount} / {data.theoryStatus.totalRequired} Modul Selesai
             </span>
@@ -284,7 +350,7 @@ export default function PracticalAssessmentWorkspacePage({
         </div>
 
         {/* Rubric Criteria Evaluation Matrix */}
-        <div className="space-y-6">
+        <div className="space-y-5">
           <div className="flex items-center justify-between border-b border-paper-300 pb-3">
             <div>
               <h2 className="font-serif font-bold text-lg text-roast-950">Kriteria Rubrik Penilaian</h2>
@@ -293,19 +359,19 @@ export default function PracticalAssessmentWorkspacePage({
             <span className="text-xs font-mono text-roast-500">Skala 1:Novice → 4:Mastery</span>
           </div>
 
-          <div className="space-y-5">
+          <div className="space-y-4">
             {data.rubric.criteria.map((c) => {
               const currentScore = scores[c.code]?.level || 3;
               const currentNotes = scores[c.code]?.notes || '';
 
               return (
-                <div key={c.code} className="card space-y-4">
+                <div key={c.code} className="card p-5 bg-white border-paper-300 space-y-4 shadow-subtle">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-semibold text-roast-950">{c.description}</span>
+                        <span className="text-base font-serif font-bold text-roast-950">{c.description}</span>
                         {c.isCritical && (
-                          <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-cherry-50 border border-cherry-200 text-cherry-900 font-bold">
+                          <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-crema-100 border border-crema-300 text-roast-900 font-bold">
                             Kritis
                           </span>
                         )}
@@ -314,12 +380,12 @@ export default function PracticalAssessmentWorkspacePage({
                         Kode: {c.code} · Bobot: {c.weight}x
                       </div>
                     </div>
-                    <div className="text-xs font-mono text-roast-700 font-bold self-start whitespace-nowrap bg-paper-100 px-2 py-0.5 rounded border border-paper-200">
-                      Level Terpilih: {currentScore}
+                    <div className="text-xs font-mono text-roast-700 font-bold self-start whitespace-nowrap bg-paper-100 px-2.5 py-1 rounded border border-paper-200">
+                      Level Terpilih: L{currentScore}
                     </div>
                   </div>
 
-                  {/* Level Selection Buttons */}
+                  {/* Level Selection Buttons — Mobile-Friendly Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[1, 2, 3, 4].map((lvl) => {
                       const isSelected = currentScore === lvl;
@@ -330,7 +396,7 @@ export default function PracticalAssessmentWorkspacePage({
                           type="button"
                           disabled={data.isMonotonicallyLocked}
                           onClick={() => handleScoreChange(c.code, lvl)}
-                          className={`p-3 rounded-lg text-left border transition-all text-xs ${
+                          className={`p-3 rounded-xl text-left border transition-all text-xs ${
                             isSelected
                               ? 'bg-roast-950 text-white border-roast-950 shadow-xs'
                               : 'bg-paper-50 border-paper-200 text-roast-700 hover:border-roast-400 hover:bg-paper-100'
@@ -363,8 +429,10 @@ export default function PracticalAssessmentWorkspacePage({
         </div>
 
         {/* Real-time Status Card */}
-        <div className="card space-y-2">
-          <p className="section-label">Kalkulasi Kelulusan Real-Time</p>
+        <div className="card p-5 bg-white border-paper-300 space-y-2">
+          <p className="text-[10px] font-mono uppercase tracking-wider text-roast-500 font-bold">
+            Kalkulasi Kelulusan Real-Time
+          </p>
           {hasCriticalFailure || hasSubstandardScore ? (
             <div className="text-xs text-roast-800 space-y-1">
               <p className="font-semibold text-roast-950">Kriteria Substandar / Kritis Terdeteksi — Keputusan: Belum Kompeten.</p>
@@ -382,9 +450,9 @@ export default function PracticalAssessmentWorkspacePage({
 
         {/* Notes & Submission */}
         {!data.isMonotonicallyLocked && (
-          <div className="card space-y-4">
+          <div className="card p-5 bg-white border-paper-300 space-y-4">
             <div>
-              <label className="label">Catatan Evaluator &amp; Umpan Balik Kualitatif</label>
+              <label className="label text-xs">Catatan Evaluator &amp; Umpan Balik Kualitatif</label>
               <textarea
                 rows={3}
                 value={overallNotes}
@@ -396,7 +464,7 @@ export default function PracticalAssessmentWorkspacePage({
 
             {(hasCriticalFailure || hasSubstandardScore) && (
               <div>
-                <label className="label">Instruksi Sesi Remedial / Latihan Terarah</label>
+                <label className="label text-xs">Instruksi Sesi Remedial / Latihan Terarah</label>
                 <textarea
                   rows={2}
                   value={remediationInstructions}
@@ -413,7 +481,7 @@ export default function PracticalAssessmentWorkspacePage({
                 type="button"
                 disabled={submitting}
                 onClick={handleSubmitEvaluation}
-                className="btn-primary text-xs py-2.5 px-6 disabled:opacity-50 w-full sm:w-auto"
+                className="btn-primary text-xs py-3 px-6 disabled:opacity-50 w-full sm:w-auto shadow-2xs"
               >
                 {submitting
                   ? 'Menyimpan Hasil...'
@@ -460,6 +528,9 @@ export default function PracticalAssessmentWorkspacePage({
           </div>
         )}
       </main>
+
+      {/* Sticky Mobile Bottom Navigation for Trainer */}
+      <MobileBottomNav role="trainer" />
     </div>
   );
 }

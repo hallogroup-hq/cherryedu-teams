@@ -156,13 +156,11 @@ export default function LoginPage() {
         {/* Brand Header — Aligned with B2C edu.cherrycoffeeroastery.com */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-3 group">
-            <div className="w-11 h-11 rounded-xl bg-cherry-700 flex items-center justify-center shrink-0 shadow-sm group-hover:bg-cherry-800 transition-colors">
-              <svg viewBox="0 0 20 20" fill="none" className="w-6 h-6" aria-hidden="true">
-                <circle cx="7" cy="13" r="4" fill="#F9E5E7" opacity="0.95"/>
-                <circle cx="13" cy="13" r="4" fill="#F9E5E7" opacity="0.75"/>
-                <path d="M10 9 C10 9 11 4 13 3 C13 3 10 4 9 7" stroke="#F9E5E7" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
-              </svg>
-            </div>
+            <img
+              src="/cherry-logo-tight.png"
+              alt="Cherry Coffee Roastery"
+              className="h-11 w-auto object-contain group-hover:opacity-90 transition-opacity"
+            />
             <div className="text-left border-l border-paper-300 pl-3.5">
               <div className="font-serif font-black text-2xl tracking-tight text-roast-950 leading-none">
                 Cherry<span className="font-sans font-light text-cherry-700 text-xl ml-0.5">Edu</span>

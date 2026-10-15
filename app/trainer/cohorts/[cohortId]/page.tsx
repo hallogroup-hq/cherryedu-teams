@@ -3,6 +3,8 @@
 import { use, useState, useEffect } from 'react';
 import Link from 'next/link';
 import ShellNav from '@/components/ShellNav';
+import MobileBottomNav from '@/components/MobileBottomNav';
+import { ChevronLeft, ChevronRight, Users, Award, BookOpen } from 'lucide-react';
 
 interface Participant {
   enrollmentId: string;
@@ -69,28 +71,31 @@ export default function TrainerCohortParticipantsPage({
     <div className="min-h-screen bg-paper-100 text-roast-950 flex flex-col">
       <ShellNav role="trainer" />
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 space-y-8">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 pb-28 md:pb-12">
         {/* Breadcrumb & Header */}
         <div className="space-y-3">
           <Link
             href="/trainer"
-            className="text-xs font-mono text-roast-600 hover:text-roast-950 transition-colors inline-block"
+            className="text-xs font-mono text-roast-600 hover:text-roast-950 transition-colors inline-flex items-center gap-1"
           >
-            ← Kembali ke Daftar Cohort Trainer
+            <ChevronLeft className="w-3.5 h-3.5" />
+            Kembali ke Daftar Cohort Trainer
           </Link>
-          <div className="border-b border-paper-300 pb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div className="card p-5 sm:p-6 bg-white border-paper-300 shadow-subtle flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <p className="section-label mb-1">{cohort?.organization_name || 'Organisasi Klien'}</p>
-              <h1 className="font-serif font-black text-2xl text-roast-950">
+              <p className="text-[10px] font-mono uppercase tracking-widest text-roast-500 font-bold mb-1">
+                {cohort?.organization_name || 'Kopi Senja Utama'}
+              </p>
+              <h1 className="font-serif font-black text-2xl sm:text-3xl text-roast-950">
                 {cohort?.name || 'Cohort Pelatihan'}
               </h1>
-              <p className="text-xs text-roast-600 mt-1 font-mono">
+              <p className="text-xs sm:text-sm text-roast-600 mt-1 font-sans">
                 Program: {cohort?.program_title} · Versi {cohort?.program_version_no}
               </p>
             </div>
             {cohort?.status && (
-              <span className="status-pill self-start sm:self-auto font-bold">
-                STATUS: {cohort.status.toUpperCase()}
+              <span className="text-xs font-mono px-3 py-1.5 rounded-lg bg-crema-100 border border-crema-300 text-roast-900 font-bold uppercase self-start sm:self-auto shrink-0">
+                STATUS: {cohort.status}
               </span>
             )}
           </div>
@@ -98,12 +103,12 @@ export default function TrainerCohortParticipantsPage({
 
         {/* Error Banner */}
         {error && (
-          <div className="p-4 bg-cherry-50 border border-cherry-200 rounded-lg text-xs text-cherry-900">
+          <div className="p-4 bg-cherry-50 border border-cherry-200 rounded-xl text-xs text-cherry-900">
             {error}
           </div>
         )}
 
-        {/* Participants Table */}
+        {/* Participants Section */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
@@ -114,64 +119,108 @@ export default function TrainerCohortParticipantsPage({
           </div>
 
           {loading ? (
-            <div className="card p-12 text-center text-roast-500 text-sm font-mono">Memuat roster barista...</div>
+            <div className="card p-12 text-center text-roast-500 text-sm font-mono bg-white">Memuat roster barista...</div>
           ) : participants.length === 0 ? (
-            <div className="card p-12 text-center text-roast-500 text-sm font-sans">
+            <div className="card p-12 text-center text-roast-500 text-sm font-sans bg-white">
               Belum ada peserta yang terdaftar pada cohort ini.
             </div>
           ) : (
-            <div className="data-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Nama Barista</th>
-                    <th>Outlet</th>
-                    <th>Progres Teori Online</th>
-                    <th>Status Kompetensi</th>
-                    <th className="text-center">Percobaan</th>
-                    <th className="text-right">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {participants.map((p) => (
-                    <tr key={p.enrollmentId}>
-                      <td>
-                        <div className="font-semibold text-roast-950">{p.name}</div>
-                        <div className="text-xs text-roast-500 font-mono">{p.email}</div>
-                      </td>
-                      <td className="text-roast-700 font-medium">{p.outletName}</td>
-                      <td>
-                        <div className="text-xs font-mono text-roast-800 font-medium">
+            <>
+              {/* Mobile View: Cards (md:hidden) */}
+              <div className="grid grid-cols-1 gap-3.5 md:hidden">
+                {participants.map((p) => (
+                  <div key={p.enrollmentId} className="card p-4 bg-white border-paper-300 shadow-subtle space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h3 className="font-serif font-bold text-base text-roast-950">{p.name}</h3>
+                        <p className="text-xs text-roast-500 font-mono">{p.outletName} · {p.email}</p>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-paper-100 border border-paper-300 text-roast-800 font-bold uppercase shrink-0">
+                        {p.competencyState.replace(/_/g, ' ')}
+                      </span>
+                    </div>
+
+                    <div className="p-2.5 rounded-lg bg-paper-50 border border-paper-200 text-xs space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-roast-600 font-sans">Progres Teori:</span>
+                        <span className="font-mono font-bold text-roast-950">
                           {p.completedStepsCount} / {p.totalRequiredSteps} Modul
-                        </div>
-                        <div className="text-[11px] text-roast-500 mt-0.5">
-                          {p.isTheoryCompleted ? 'Prasyarat Terpenuhi' : 'Belum Lengkap'}
-                        </div>
-                      </td>
-                      <td>
-                        <span className="status-pill">
-                          {p.competencyState.replace(/_/g, ' ')}
                         </span>
-                      </td>
-                      <td className="text-center font-mono text-roast-700 text-xs">
-                        {p.assessmentAttemptsCount}x
-                      </td>
-                      <td className="text-right">
-                        <Link
-                          href={`/trainer/cohorts/${cohortId}/assess/${p.enrollmentId}`}
-                          className="btn-secondary text-xs py-1.5 px-3"
-                        >
-                          Buka Asesmen
-                        </Link>
-                      </td>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-roast-600 font-sans">Percobaan Asesmen:</span>
+                        <span className="font-mono text-roast-700">{p.assessmentAttemptsCount}x diuji</span>
+                      </div>
+                    </div>
+
+                    <Link
+                      href={`/trainer/cohorts/${cohortId}/assess/${p.enrollmentId}`}
+                      className="btn-primary w-full text-xs py-2.5 flex items-center justify-center gap-1.5 shadow-2xs"
+                    >
+                      <span>Buka Lembar Asesmen</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop View: Table (hidden md:block) */}
+              <div className="hidden md:block data-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Nama Barista</th>
+                      <th>Outlet</th>
+                      <th>Progres Teori Online</th>
+                      <th>Status Kompetensi</th>
+                      <th className="text-center">Percobaan</th>
+                      <th className="text-right">Aksi</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {participants.map((p) => (
+                      <tr key={p.enrollmentId}>
+                        <td>
+                          <div className="font-semibold text-roast-950">{p.name}</div>
+                          <div className="text-xs text-roast-500 font-mono">{p.email}</div>
+                        </td>
+                        <td className="text-roast-700 font-medium">{p.outletName}</td>
+                        <td>
+                          <div className="text-xs font-mono text-roast-800 font-medium">
+                            {p.completedStepsCount} / {p.totalRequiredSteps} Modul
+                          </div>
+                          <div className="text-[11px] text-roast-500 mt-0.5">
+                            {p.isTheoryCompleted ? 'Prasyarat Terpenuhi' : 'Belum Lengkap'}
+                          </div>
+                        </td>
+                        <td>
+                          <span className="status-pill">
+                            {p.competencyState.replace(/_/g, ' ')}
+                          </span>
+                        </td>
+                        <td className="text-center font-mono text-roast-700 text-xs">
+                          {p.assessmentAttemptsCount}x
+                        </td>
+                        <td className="text-right">
+                          <Link
+                            href={`/trainer/cohorts/${cohortId}/assess/${p.enrollmentId}`}
+                            className="btn-secondary text-xs py-1.5 px-3"
+                          >
+                            Buka Asesmen
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
       </main>
+
+      {/* Sticky Mobile Bottom Navigation for Trainer */}
+      <MobileBottomNav role="trainer" />
     </div>
   );
 }
