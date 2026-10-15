@@ -32,14 +32,8 @@ export default function DashboardPage() {
 
       if (staffPerms && staffPerms.length > 0) {
         const codes = staffPerms.map((p: {permission_code: string}) => p.permission_code);
-        if (codes.includes("platform_admin")) {
-          router.replace("/admin");
-          return;
-        }
-        if (codes.includes("cherry_trainer")) {
-          router.replace("/trainer");
-          return;
-        }
+        if (codes.includes("platform_admin")) { router.replace("/admin"); return; }
+        if (codes.includes("cherry_trainer")) { router.replace("/trainer"); return; }
       }
 
       // 2. Check organization membership role
@@ -66,12 +60,11 @@ export default function DashboardPage() {
           router.replace(`/org/${m.organization_id}/overview`);
           return;
         }
-        // Head bar / learner
         router.replace(`/org/${m.organization_id}/learn`);
         return;
       }
 
-      // 3. No membership found — prompt to join or wait for invite
+      // 3. No membership found
       setStatus("Akunmu belum terhubung ke organisasi. Cek email undanganmu.");
     }
 
@@ -81,8 +74,24 @@ export default function DashboardPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-      <p className="text-slate-400 text-sm">{status}</p>
+    <div className="min-h-screen bg-roast-950 flex items-center justify-center">
+      <div className="text-center space-y-3">
+        {/* Cherry wordmark */}
+        <div className="flex items-center justify-center gap-1.5 mb-6">
+          <div className="w-7 h-7 rounded-md bg-cherry-700 flex items-center justify-center">
+            <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4" aria-hidden="true">
+              <circle cx="8" cy="14" r="4" fill="white" fillOpacity="0.9"/>
+              <circle cx="16" cy="14" r="4" fill="white" fillOpacity="0.7"/>
+              <path d="M12 10 C12 6 16 2 16 2" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M12 10 C12 6 8 4 6 2" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <span className="font-serif font-black text-lg text-paper-100 tracking-tight">Cherry</span>
+          <span className="font-sans font-light text-lg text-cherry-600 tracking-tight">Edu</span>
+          <span className="font-mono text-[9px] uppercase tracking-widest text-roast-500 ml-0.5">Teams</span>
+        </div>
+        <p className="text-roast-400 text-sm font-mono">{status}</p>
+      </div>
     </div>
   );
 }

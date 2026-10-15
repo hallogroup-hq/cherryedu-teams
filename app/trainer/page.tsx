@@ -55,105 +55,103 @@ export default function TrainerDashboardPage() {
   );
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 p-6 sm:p-10">
-      <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="border-b border-slate-800 pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <div className="text-xs uppercase tracking-wider text-slate-400 font-mono mb-1">
-              Cherry Edu Teams — Portal Trainer
+    <div className="min-h-screen bg-roast-950 text-roast-100">
+      {/* Nav */}
+      <header className="sticky top-0 z-40 bg-roast-950/95 backdrop-blur-md border-b border-roast-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center h-14 gap-5">
+          <div className="flex items-center gap-2.5 shrink-0">
+            <div className="w-7 h-7 rounded bg-cherry-700 flex items-center justify-center">
+              <svg viewBox="0 0 20 20" fill="none" className="w-4 h-4" aria-hidden>
+                <circle cx="7" cy="13" r="4" fill="#F9E5E7" opacity="0.9"/>
+                <circle cx="13" cy="13" r="4" fill="#F9E5E7" opacity="0.7"/>
+                <path d="M10 9 C10 9 11 4 13 3 C13 3 10 4 9 7" stroke="#F9E5E7" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+              </svg>
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-white">
-              Dasbor Pelatihan & Asesmen
-            </h1>
-            <p className="text-sm text-slate-400 mt-1">
-              Pengelolaan kelompok pelatihan, verifikasi rubrik, dan pengesahan kompetensi barista.
-            </p>
+            <div className="flex flex-col border-l border-roast-800 pl-2.5">
+              <span className="font-serif font-black text-base tracking-tight text-paper-100 leading-none">
+                Cherry<span className="font-sans font-light text-cherry-400 text-sm ml-0.5">Edu</span>
+              </span>
+              <span className="text-[8px] font-mono tracking-widest text-roast-500 uppercase mt-0.5">Teams · Trainer</span>
+            </div>
           </div>
-          <div className="text-sm font-medium text-slate-300 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded self-start">
-            Trainer Resmi: {trainerName || 'Instruktur Terdaftar'}
+          <div className="ml-auto flex items-center gap-3">
+            <span className="text-[9px] font-mono uppercase tracking-widest px-2 py-1 rounded border border-roast-800 text-roast-600 bg-roast-900">trainer</span>
+            {trainerName && <span className="text-xs text-roast-400 hidden sm:block truncate max-w-[160px]">{trainerName}</span>}
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Page header */}
+        <div className="pb-5 border-b border-roast-800 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+          <div>
+            <span className="section-label block mb-1">Portal Trainer · Dasbor</span>
+            <h1 className="font-serif font-bold text-2xl text-paper-100">Pelatihan &amp; Asesmen</h1>
+            <p className="text-sm text-roast-500 mt-1">Kelompok pelatihan, verifikasi rubrik, dan pengesahan kompetensi barista.</p>
           </div>
         </div>
 
-        {/* Error Banner */}
         {error && (
-          <div className="p-4 bg-slate-900 border border-slate-700 rounded text-sm text-slate-300">
+          <div className="flex items-center gap-2 bg-cherry-950 border border-cherry-900 text-cherry-300 rounded-xl px-4 py-3 text-sm">
             {error}
           </div>
         )}
 
-        {/* KPI Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="p-5 bg-slate-900 border border-slate-800 rounded">
-            <div className="text-xs text-slate-400 font-medium">Cohort Ditugaskan</div>
-            <div className="text-3xl font-bold text-white mt-2 font-mono">{cohorts.length}</div>
-            <div className="text-xs text-slate-500 mt-1">Grup aktif lintas klien</div>
-          </div>
-          <div className="p-5 bg-slate-900 border border-slate-800 rounded">
-            <div className="text-xs text-slate-400 font-medium">Total Barista Binaan</div>
-            <div className="text-3xl font-bold text-white mt-2 font-mono">{totalParticipants}</div>
-            <div className="text-xs text-slate-500 mt-1">Peserta terdaftar aktif</div>
-          </div>
-          <div className="p-5 bg-slate-900 border border-slate-800 rounded">
-            <div className="text-xs text-slate-400 font-medium">Standar Penilaian</div>
-            <div className="text-3xl font-bold text-white mt-2 font-mono">Level 3</div>
-            <div className="text-xs text-slate-500 mt-1">Ambang batas kompetensi industri</div>
-          </div>
+        {/* KPIs */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {[
+            { label: 'Cohort Ditugaskan', value: cohorts.length, sub: 'Grup aktif lintas klien' },
+            { label: 'Total Barista Binaan', value: totalParticipants, sub: 'Peserta terdaftar aktif' },
+            { label: 'Standar Penilaian', value: 'Level 3', sub: 'Ambang batas kompetensi industri' },
+          ].map((k) => (
+            <div key={k.label} className="bg-roast-900 border border-roast-800 rounded-xl p-5">
+              <span className="section-label block mb-2">{k.label}</span>
+              <span className="font-serif font-bold text-2xl text-paper-100 tabular-nums">{k.value}</span>
+              <p className="text-xs text-roast-600 mt-1">{k.sub}</p>
+            </div>
+          ))}
         </div>
 
-        {/* Cohort Roster Table */}
+        {/* Cohort roster */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-white">Daftar Kelompok Pelatihan</h2>
-            <span className="text-xs text-slate-500">{cohorts.length} Cohort Tersedia</span>
+            <h2 className="font-serif font-bold text-lg text-paper-200">Daftar Cohort</h2>
+            <span className="section-label">{cohorts.length} cohort</span>
           </div>
 
           {loading ? (
-            <div className="p-12 text-center text-slate-500 text-sm">Memuat daftar cohort...</div>
+            <p className="text-sm text-roast-500">Memuat cohort…</p>
           ) : cohorts.length === 0 ? (
-            <div className="p-12 text-center bg-slate-900 border border-slate-800 rounded text-slate-400 text-sm">
-              Belum ada cohort yang ditugaskan kepada Anda saat ini.
+            <div className="py-12 text-center bg-roast-900 border border-roast-800 rounded-xl text-roast-500 text-sm font-mono uppercase tracking-wider">
+              Belum ada cohort yang ditugaskan
             </div>
           ) : (
-            <div className="border border-slate-800 rounded bg-slate-900 overflow-hidden">
-              <table className="w-full text-left text-sm">
+            <div className="border border-roast-800 rounded-xl overflow-hidden">
+              <table className="data-table">
                 <thead>
-                  <tr className="border-b border-slate-800 bg-slate-950/60 text-xs text-slate-400 font-mono uppercase">
-                    <th className="py-3 px-4">Organisasi Klien</th>
-                    <th className="py-3 px-4">Nama Cohort</th>
-                    <th className="py-3 px-4">Program Pelatihan</th>
-                    <th className="py-3 px-4 text-center">Peserta</th>
-                    <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4 text-right">Aksi</th>
+                  <tr>
+                    {['Organisasi', 'Cohort', 'Program', 'Peserta', 'Status', ''].map((h) => (
+                      <th key={h}>{h}</th>
+                    ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800">
-                  {cohorts.map((cohort) => (
-                    <tr key={cohort.cohort_id} className="hover:bg-slate-850/50 transition-colors">
-                      <td className="py-3.5 px-4 font-medium text-white">
-                        {cohort.organization_name}
+                <tbody>
+                  {cohorts.map((c) => (
+                    <tr key={c.assignment_id}>
+                      <td className="text-roast-300">{c.organization_name}</td>
+                      <td className="text-paper-200 font-medium">{c.cohort_name}</td>
+                      <td className="text-roast-400">{c.program_title} <span className="text-roast-600">v{c.program_version_no}</span></td>
+                      <td className="text-roast-300 tabular-nums text-center">{c.participant_count}</td>
+                      <td>
+                        <span className={`status-${c.cohort_status === 'active' ? 'active' : 'inactive'}`}>{c.cohort_status}</span>
                       </td>
-                      <td className="py-3.5 px-4 text-slate-200">
-                        {cohort.cohort_name}
-                      </td>
-                      <td className="py-3.5 px-4 text-slate-300">
-                        {cohort.program_title} (v{cohort.program_version_no})
-                      </td>
-                      <td className="py-3.5 px-4 text-center font-mono text-slate-300">
-                        {cohort.participant_count}
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <span className="text-xs uppercase font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">
-                          {cohort.cohort_status}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <Link
-                          href={`/trainer/cohorts/${cohort.cohort_id}`}
-                          className="inline-block text-xs font-medium text-slate-200 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded transition-colors"
+                      <td className="text-right">
+                        <a
+                          href={`/trainer/cohorts/${c.cohort_id}`}
+                          className="text-[11px] font-mono uppercase tracking-wider text-roast-400 hover:text-paper-200 transition-colors"
                         >
-                          Buka Roster &amp; Asesmen
-                        </Link>
+                          Kelola →
+                        </a>
                       </td>
                     </tr>
                   ))}
@@ -162,7 +160,8 @@ export default function TrainerDashboardPage() {
             </div>
           )}
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }
+

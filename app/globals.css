@@ -3,59 +3,96 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --font-sans: "Inter", system-ui, sans-serif;
-  }
-
-  html {
-    font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
   body {
-    @apply bg-slate-950 text-slate-100;
+    background-color: #140E0C;
+    color: #EAE4E0;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
-  *:focus-visible {
-    @apply outline-none ring-2 ring-cherry-500 ring-offset-2 ring-offset-slate-950;
+  h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+  }
+
+  p, li {
+    text-wrap: pretty;
   }
 }
 
+/* Scrollbar — espresso ink on dark */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: #211814; }
+::-webkit-scrollbar-thumb { background: #44342C; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #5A473D; }
+
+/* Selection */
+::selection { background-color: #651822; color: #F7F3EC; }
+
 @layer components {
+  /* ── Buttons ── */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-cherry-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-cherry-500 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 rounded-md
+           bg-roast-950 hover:bg-cherry-800 text-paper-50
+           px-4 py-2.5 text-xs uppercase tracking-wider font-bold
+           border border-roast-800 transition-colors;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 transition-colors hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 rounded-md
+           bg-roast-900 hover:bg-roast-800 text-roast-100
+           px-4 py-2.5 text-xs uppercase tracking-wider font-bold
+           border border-roast-700 transition-colors;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 rounded-md
+           text-roast-400 hover:bg-roast-900 hover:text-roast-100
+           px-4 py-2.5 text-xs transition-colors;
   }
 
+  /* ── Cards ── */
   .card {
-    @apply rounded-xl border border-slate-800 bg-slate-900 p-6;
+    @apply rounded-xl border border-roast-800 bg-roast-900 p-5;
   }
 
+  /* ── Form controls ── */
   .input {
-    @apply block w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 transition-colors focus:border-cherry-500 focus:outline-none focus:ring-1 focus:ring-cherry-500;
+    @apply block w-full rounded-md border border-roast-700 bg-roast-900
+           px-3 py-2.5 text-sm text-roast-100 placeholder-roast-600
+           transition-colors focus:border-cherry-700 focus:outline-none focus:ring-1 focus:ring-cherry-700;
   }
 
   .label {
-    @apply block text-sm font-medium text-slate-300 mb-1.5;
+    @apply block text-xs font-mono uppercase tracking-wider text-roast-400 mb-1.5;
   }
 
-  .badge {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  /* ── Mono section label (like B2C) ── */
+  .section-label {
+    @apply font-mono text-[10px] uppercase tracking-widest text-roast-500 font-bold;
   }
 
-  .badge-slate {
-    @apply badge bg-slate-800 text-slate-300;
+  /* ── Table ── */
+  .data-table {
+    @apply w-full text-xs border border-roast-800 rounded-lg overflow-hidden;
+  }
+  .data-table thead {
+    @apply bg-roast-900 border-b border-roast-800;
+  }
+  .data-table th {
+    @apply text-left px-4 py-2.5 text-roast-500 font-mono font-medium uppercase tracking-wider text-[10px];
+  }
+  .data-table tbody tr {
+    @apply border-b border-roast-800/50 hover:bg-roast-900/60 transition-colors;
+  }
+  .data-table td {
+    @apply px-4 py-2.5;
   }
 
-  .badge-cherry {
-    @apply badge bg-cherry-950 text-cherry-300 border border-cherry-900;
+  /* ── Status pill (neutral only — no red/green AI-slop) ── */
+  .status-pill {
+    @apply inline-flex items-center font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 rounded;
   }
+  .status-active   { @apply status-pill bg-roast-800 text-paper-300; }
+  .status-setup    { @apply status-pill bg-roast-900 text-roast-500 border border-roast-800; }
+  .status-pending  { @apply status-pill bg-roast-900 text-roast-400 border border-roast-700; }
+  .status-inactive { @apply status-pill bg-roast-950 text-roast-600 border border-roast-800; }
 }

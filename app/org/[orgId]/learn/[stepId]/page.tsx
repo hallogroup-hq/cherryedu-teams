@@ -3,6 +3,7 @@
 import { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import ShellNav from "@/components/ShellNav";
 
 export default function StepReaderPage({
   params,
@@ -70,73 +71,75 @@ export default function StepReaderPage({
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-      <header className="border-b border-slate-800 bg-slate-900/50 backdrop-blur px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href={`/org/${orgId}/learn`} className="text-xs text-slate-400 hover:text-white flex items-center gap-1 font-mono">
-            &larr; Kembali ke Kurikulum
-          </Link>
-        </div>
-        <span className="text-xs font-mono uppercase text-zinc-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
-          Modul Pembelajaran
-        </span>
-      </header>
+    <div className="min-h-screen bg-roast-950 text-roast-100 flex flex-col">
+      <ShellNav role="barista" orgId={orgId} />
 
-      <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-8">
-        {loading && <p className="text-sm text-slate-500 font-mono">Memuat konten tahapan...</p>}
+      <main className="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 py-8">
+        {/* Breadcrumb */}
+        <Link
+          href={`/org/${orgId}/learn`}
+          className="text-xs font-mono text-roast-500 hover:text-paper-100 transition-colors inline-block mb-6"
+        >
+          ← Kembali ke Kurikulum
+        </Link>
+
+        {loading && <p className="text-sm text-roast-500 font-mono">Memuat konten tahapan...</p>}
 
         {errorMessage && (
-          <div className="card mb-6 border-slate-700 bg-slate-900 text-xs text-slate-300">
-            <p className="font-semibold text-white mb-1">Perhatian:</p>
+          <div className="card mb-6 bg-cherry-950 border-cherry-900 text-xs text-cherry-300">
+            <p className="font-semibold text-cherry-200 mb-1">Perhatian:</p>
             <p>{errorMessage}</p>
           </div>
         )}
 
         {statusMessage && (
-          <div className="card mb-6 border-slate-700 bg-slate-900 text-xs text-white">
+          <div className="card mb-6 text-xs text-paper-200">
             <p>{statusMessage} Mengalihkan ke halaman kurikulum...</p>
           </div>
         )}
 
         {stepData && (
           <div className="space-y-6">
+            {/* Step Header */}
             <div className="card">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-mono text-zinc-300 bg-slate-800 px-2 py-0.5 rounded border border-slate-700 uppercase">
+                <span className="text-[10px] uppercase tracking-widest font-mono text-roast-500 bg-roast-800 px-1.5 py-0.5 rounded border border-roast-700">
                   {stepData.step_type}
                 </span>
-                <span className="text-xs text-slate-500 font-mono">Tahapan #{stepData.sort_order}</span>
+                <span className="text-xs text-roast-600 font-mono">Tahapan #{stepData.sort_order}</span>
               </div>
-              <h1 className="text-xl font-bold text-white tracking-tight">{stepData.title_override}</h1>
-              <p className="text-xs text-slate-400 mt-1">
-                Estimasi waktu belajar: 30 menit &middot; Standar Kompetensi Nasional Cherry Edu
+              <h1 className="font-serif font-bold text-xl text-paper-100 tracking-tight">
+                {stepData.title_override}
+              </h1>
+              <p className="text-xs text-roast-400 mt-1 font-mono">
+                Estimasi 30 menit · Standar Kompetensi Nasional Cherry Edu
               </p>
             </div>
 
-            {/* Lesson Body Content */}
-            <div className="card space-y-4 text-sm leading-relaxed text-slate-300">
-              <h2 className="text-base font-semibold text-white">Panduan Teknis & Prosedur</h2>
+            {/* Lesson Content */}
+            <div className="card space-y-4 text-sm leading-relaxed text-roast-300">
+              <h2 className="font-serif font-bold text-base text-paper-100">Panduan Teknis &amp; Prosedur</h2>
               <p>
                 Kalibrasi espresso merupakan fondasi utama konsistensi rasa kopi specialty di setiap outlet.
                 Proses dial-in harus memperhitungkan tiga variabel kunci:
               </p>
-              <ul className="list-disc pl-5 space-y-2 text-xs font-mono text-slate-300">
+              <ul className="list-disc pl-5 space-y-2 text-xs font-mono text-roast-300">
                 <li>
-                  <strong className="text-white">Dose (Gramatur Biji):</strong> 18.0g &plusmn; 0.2g menggunakan portafilter 58mm.
+                  <strong className="text-paper-100">Dose (Gramatur Biji):</strong> 18.0g ± 0.2g menggunakan portafilter 58mm.
                 </li>
                 <li>
-                  <strong className="text-white">Yield (Hasil Ekstraksi):</strong> 36.0g liquid espresso (rasio seduh 1:2.0).
+                  <strong className="text-paper-100">Yield (Hasil Ekstraksi):</strong> 36.0g liquid espresso (rasio seduh 1:2.0).
                 </li>
                 <li>
-                  <strong className="text-white">Time (Waktu Ekstraksi):</strong> 26 &ndash; 30 detik pada tekanan 9 bar dan suhu 93&deg;C.
+                  <strong className="text-paper-100">Time (Waktu Ekstraksi):</strong> 26 – 30 detik pada tekanan 9 bar dan suhu 93°C.
                 </li>
               </ul>
-              <div className="bg-slate-950 p-4 rounded-lg border border-slate-800 space-y-2 text-xs font-mono">
-                <p className="text-zinc-300 font-semibold">Standard Operating Procedure (SOP):</p>
-                <ol className="list-decimal pl-4 space-y-1 text-slate-400">
+              <div className="bg-roast-950 p-4 rounded-lg border border-roast-800 space-y-2 text-xs font-mono">
+                <p className="text-paper-200 font-semibold">Standard Operating Procedure (SOP):</p>
+                <ol className="list-decimal pl-4 space-y-1 text-roast-400">
                   <li>Bersihkan dan keringkan basket portafilter sebelum dosing.</li>
-                  <li>Lakukan distribusi bubuk secara merata menggunakan WDT tool untuk mencegah channeling.</li>
-                  <li>Lakukan tamping tegak lurus dengan tekanan rata 15 kg.</li>
+                  <li>Distribusi bubuk secara merata menggunakan WDT tool untuk mencegah channeling.</li>
+                  <li>Tamping tegak lurus dengan tekanan rata 15 kg.</li>
                   <li>Flush shower head 2 detik sebelum memasang portafilter.</li>
                   <li>Mulai ekstraksi segera setelah portafilter terpasang dan catat yield serta waktu.</li>
                 </ol>
@@ -144,7 +147,7 @@ export default function StepReaderPage({
             </div>
 
             {/* Action Bar */}
-            <div className="flex items-center justify-between pt-4 border-t border-slate-800">
+            <div className="flex items-center justify-between pt-4 border-t border-roast-800">
               <Link href={`/org/${orgId}/learn`} className="btn-secondary text-xs">
                 Kembali
               </Link>
@@ -152,12 +155,12 @@ export default function StepReaderPage({
                 <button
                   onClick={handleComplete}
                   disabled={completing || !stepData.is_unlocked}
-                  className="btn-primary text-xs bg-zinc-200 text-slate-950 hover:bg-white"
+                  className="btn-primary text-xs disabled:opacity-50"
                 >
                   {completing ? "Menyimpan Progres..." : "Tandai Selesai & Lanjut"}
                 </button>
               ) : (
-                <span className="text-xs text-zinc-300 font-mono bg-slate-900 border border-slate-700 px-3 py-1.5 rounded">
+                <span className="text-xs text-paper-300 font-mono bg-roast-900 border border-roast-700 px-3 py-1.5 rounded">
                   Tahapan Ini Sudah Diselesaikan
                 </span>
               )}

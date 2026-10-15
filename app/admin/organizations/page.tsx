@@ -3,23 +3,14 @@
 import { useEffect, useState } from 'react';
 
 type Org = {
-  id: string;
-  slug: string;
-  display_name: string;
-  legal_name: string | null;
-  business_category: string | null;
-  status: string;
-  timezone: string;
-  created_at: string;
-  member_count: string;
-  active_cohort_count: string;
+  id: string; slug: string; display_name: string; legal_name: string | null;
+  business_category: string | null; status: string; timezone: string;
+  created_at: string; member_count: string; active_cohort_count: string;
 };
 
-const STATUS_STYLES: Record<string, string> = {
-  active: 'text-slate-200',
-  suspended: 'text-slate-400',
-  setup: 'text-slate-500',
-  closed: 'text-slate-600',
+const STATUS_TEXT: Record<string, string> = {
+  active: 'text-paper-300', suspended: 'text-roast-500',
+  setup: 'text-roast-600', closed: 'text-roast-700',
 };
 
 export default function AdminOrganizationsPage() {
@@ -29,11 +20,7 @@ export default function AdminOrganizationsPage() {
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
-    display_name: '',
-    legal_name: '',
-    business_category: '',
-    slug: '',
-    timezone: 'Asia/Jakarta',
+    display_name: '', legal_name: '', business_category: '', slug: '', timezone: 'Asia/Jakarta',
   });
 
   const loadOrgs = () => {
@@ -41,7 +28,7 @@ export default function AdminOrganizationsPage() {
     fetch('/api/teams/admin/organizations')
       .then((r) => r.json())
       .then((d) => {
-        if (!d.success) throw new Error(d.error ?? 'Failed to load organisations');
+        if (!d.success) throw new Error(d.error ?? 'Failed');
         setOrgs(d.organizations ?? []);
       })
       .catch((e) => setError(e.message))
@@ -69,7 +56,7 @@ export default function AdminOrganizationsPage() {
         body: JSON.stringify(form),
       });
       const d = await res.json();
-      if (!d.success) throw new Error(d.error ?? 'Failed to onboard');
+      if (!d.success) throw new Error(d.error ?? 'Failed');
       setShowForm(false);
       setForm({ display_name: '', legal_name: '', business_category: '', slug: '', timezone: 'Asia/Jakarta' });
       loadOrgs();
@@ -82,93 +69,97 @@ export default function AdminOrganizationsPage() {
 
   return (
     <div>
-      <div className="flex items-start justify-between mb-8">
+      <div className="mb-8 pb-5 border-b border-roast-800 flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-white mb-1">Organisations</h1>
-          <p className="text-sm text-slate-500">All client organisations on the platform</p>
+          <span className="section-label block mb-1">Platform Admin · Organisations</span>
+          <h1 className="font-serif font-bold text-2xl text-paper-100">Organisasi Klien</h1>
+          <p className="text-sm text-roast-500 mt-1">Seluruh organisasi yang terdaftar di platform</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded transition-colors"
+          className="btn-primary shrink-0"
         >
-          {showForm ? 'Cancel' : '+ Onboard Organisation'}
+          {showForm ? 'Batal' : '+ Onboard Org'}
         </button>
       </div>
 
-      {error && <p className="text-sm text-red-400 mb-4">{error}</p>}
+      {error && (
+        <div className="mb-5 flex items-center gap-2 bg-cherry-950 border border-cherry-900 text-cherry-300 rounded-lg px-4 py-3 text-sm">
+          {error}
+        </div>
+      )}
 
       {showForm && (
         <form
           onSubmit={handleOnboard}
-          className="bg-slate-900 border border-slate-800 rounded-md p-5 mb-8 grid grid-cols-1 sm:grid-cols-2 gap-4"
+          className="bg-roast-900 border border-roast-800 rounded-xl p-6 mb-8 grid grid-cols-1 sm:grid-cols-2 gap-4"
         >
-          <h2 className="text-sm font-medium text-slate-300 col-span-full mb-1">Onboard New Client Organisation</h2>
+          <div className="col-span-full pb-4 border-b border-roast-800">
+            <span className="section-label">Onboard Organisasi Baru</span>
+          </div>
           {[
             { label: 'Display Name *', key: 'display_name', required: true },
-            { label: 'Slug *', key: 'slug', required: true },
-            { label: 'Legal Name', key: 'legal_name', required: false },
-            { label: 'Business Category', key: 'business_category', required: false },
+            { label: 'Slug URL *', key: 'slug', required: true },
+            { label: 'Nama Legal', key: 'legal_name', required: false },
+            { label: 'Kategori Bisnis', key: 'business_category', required: false },
           ].map(({ label, key, required }) => (
             <div key={key}>
-              <label className="block text-xs text-slate-500 mb-1">{label}</label>
+              <label className="label">{label}</label>
               <input
                 required={required}
                 value={form[key as keyof typeof form]}
                 onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                className="w-full bg-slate-800 border border-slate-700 rounded text-sm text-slate-100 px-3 py-2 focus:outline-none focus:border-slate-500"
+                className="input"
               />
             </div>
           ))}
-          <div className="col-span-full flex justify-end">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="text-xs bg-slate-700 hover:bg-slate-600 text-white px-5 py-2 rounded disabled:opacity-50 transition-colors"
-            >
-              {submitting ? 'Saving…' : 'Create Organisation'}
+          <div className="col-span-full flex justify-end pt-2">
+            <button type="submit" disabled={submitting} className="btn-primary disabled:opacity-50">
+              {submitting ? 'Menyimpan…' : 'Buat Organisasi'}
             </button>
           </div>
         </form>
       )}
 
       {loading ? (
-        <p className="text-sm text-slate-500">Loading…</p>
+        <p className="text-sm text-roast-500">Memuat…</p>
       ) : (
-        <div className="border border-slate-800 rounded-md overflow-hidden">
-          <table className="w-full text-xs">
-            <thead className="bg-slate-900 border-b border-slate-800">
+        <div className="border border-roast-800 rounded-xl overflow-hidden">
+          <table className="data-table">
+            <thead>
               <tr>
-                {['Organisation', 'Slug', 'Category', 'Status', 'Members', 'Cohorts', 'Actions'].map((h) => (
-                  <th key={h} className="text-left px-4 py-2 text-slate-500 font-medium">{h}</th>
+                {['Organisasi', 'Slug', 'Kategori', 'Status', 'Member', 'Cohort', 'Ubah Status'].map((h) => (
+                  <th key={h}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {orgs.map((org) => (
-                <tr key={org.id} className="border-b border-slate-800/60 hover:bg-slate-900/40">
-                  <td className="px-4 py-2 text-slate-200 font-medium">{org.display_name}</td>
-                  <td className="px-4 py-2 text-slate-500 font-mono">{org.slug}</td>
-                  <td className="px-4 py-2 text-slate-400">{org.business_category ?? '—'}</td>
-                  <td className={`px-4 py-2 font-mono ${STATUS_STYLES[org.status] ?? 'text-slate-400'}`}>{org.status}</td>
-                  <td className="px-4 py-2 text-slate-400 tabular-nums">{org.member_count}</td>
-                  <td className="px-4 py-2 text-slate-400 tabular-nums">{org.active_cohort_count}</td>
-                  <td className="px-4 py-2">
+                <tr key={org.id}>
+                  <td className="text-paper-200 font-medium">{org.display_name}</td>
+                  <td className="text-roast-500 font-mono">{org.slug}</td>
+                  <td className="text-roast-400">{org.business_category ?? '—'}</td>
+                  <td className={`font-mono ${STATUS_TEXT[org.status] ?? 'text-roast-400'}`}>{org.status}</td>
+                  <td className="text-roast-400 tabular-nums">{org.member_count}</td>
+                  <td className="text-roast-400 tabular-nums">{org.active_cohort_count}</td>
+                  <td>
                     <select
                       defaultValue={org.status}
                       onChange={(e) => handleStatusChange(org.id, e.target.value)}
-                      className="bg-slate-800 text-slate-300 text-xs rounded px-2 py-1 border border-slate-700 focus:outline-none"
+                      className="bg-roast-900 text-roast-300 text-[11px] font-mono rounded px-2 py-1 border border-roast-700 focus:outline-none focus:border-cherry-700"
                     >
-                      <option value="setup">setup</option>
-                      <option value="active">active</option>
-                      <option value="suspended">suspended</option>
-                      <option value="closed">closed</option>
+                      {['setup','active','suspended','closed'].map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
                     </select>
                   </td>
                 </tr>
               ))}
               {orgs.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-6 text-center text-slate-600">No organisations yet.</td>
+                  <td colSpan={7} className="px-4 py-8 text-center text-roast-600 font-mono text-xs uppercase tracking-wider">
+                    Belum ada organisasi.
+                  </td>
                 </tr>
               )}
             </tbody>

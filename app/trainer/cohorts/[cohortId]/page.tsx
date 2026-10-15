@@ -2,6 +2,7 @@
 
 import { use, useState, useEffect } from 'react';
 import Link from 'next/link';
+import ShellNav from '@/components/ShellNav';
 
 interface Participant {
   enrollmentId: string;
@@ -65,37 +66,39 @@ export default function TrainerCohortParticipantsPage({
   }, [cohortId]);
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 p-6 sm:p-10">
-      <div className="max-w-6xl mx-auto space-y-8">
-        {/* Navigation & Header */}
-        <div className="space-y-2">
+    <div className="min-h-screen bg-roast-950 text-roast-100 flex flex-col">
+      <ShellNav role="trainer" />
+
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 space-y-8">
+        {/* Breadcrumb & Header */}
+        <div className="space-y-3">
           <Link
             href="/trainer"
-            className="text-xs text-slate-400 hover:text-white transition-colors inline-block"
+            className="text-xs font-mono text-roast-500 hover:text-paper-100 transition-colors inline-block"
           >
-            &larr; Kembali ke Daftar Cohort Trainer
+            ← Kembali ke Daftar Cohort
           </Link>
-          <div className="border-b border-slate-800 pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="border-b border-roast-800 pb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <div>
-              <div className="text-xs uppercase tracking-wider text-slate-400 font-mono mb-1">
-                {cohort?.organization_name || 'Organisasi Klien'}
-              </div>
-              <h1 className="text-2xl font-bold tracking-tight text-white">
+              <p className="section-label mb-1">{cohort?.organization_name || 'Organisasi Klien'}</p>
+              <h1 className="font-serif font-bold text-2xl text-paper-100">
                 {cohort?.name || 'Cohort Pelatihan'}
               </h1>
-              <p className="text-sm text-slate-400 mt-1">
-                Program: {cohort?.program_title} (Versi {cohort?.program_version_no})
+              <p className="text-xs text-roast-400 mt-1 font-mono">
+                {cohort?.program_title} · Versi {cohort?.program_version_no}
               </p>
             </div>
-            <div className="text-xs font-mono px-3 py-1.5 rounded bg-slate-900 border border-slate-800 text-slate-300 self-start">
-              Status: {cohort?.status?.toUpperCase()}
-            </div>
+            {cohort?.status && (
+              <span className="status-pill self-start">
+                {cohort.status.toUpperCase()}
+              </span>
+            )}
           </div>
         </div>
 
         {/* Error Banner */}
         {error && (
-          <div className="p-4 bg-slate-900 border border-slate-700 rounded text-sm text-slate-300">
+          <div className="p-4 bg-cherry-950 border border-cherry-900 rounded-lg text-sm text-cherry-300">
             {error}
           </div>
         )}
@@ -103,73 +106,69 @@ export default function TrainerCohortParticipantsPage({
         {/* Participants Table */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-white">Daftar Barista &amp; Status Asesmen</h2>
-            <span className="text-xs text-slate-400">{participants.length} Peserta Terdaftar</span>
+            <h2 className="font-serif font-bold text-lg text-paper-100">Daftar Barista &amp; Status Asesmen</h2>
+            <span className="text-xs font-mono text-roast-500">{participants.length} Peserta Terdaftar</span>
           </div>
 
           {loading ? (
-            <div className="p-12 text-center text-slate-500 text-sm">Memuat roster barista...</div>
+            <div className="p-12 text-center text-roast-500 text-sm font-mono">Memuat roster barista...</div>
           ) : participants.length === 0 ? (
-            <div className="p-12 text-center bg-slate-900 border border-slate-800 rounded text-slate-400 text-sm">
+            <div className="card p-12 text-center text-roast-400 text-sm">
               Belum ada peserta yang terdaftar pada cohort ini.
             </div>
           ) : (
-            <div className="border border-slate-800 rounded bg-slate-900 overflow-hidden">
+            <div className="data-table">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-slate-800 bg-slate-950/60 text-xs text-slate-400 font-mono uppercase">
-                    <th className="py-3 px-4">Nama Barista</th>
-                    <th className="py-3 px-4">Outlet</th>
-                    <th className="py-3 px-4">Progres Teori Online</th>
-                    <th className="py-3 px-4">Status Kompetensi</th>
-                    <th className="py-3 px-4 text-center">Percobaan</th>
-                    <th className="py-3 px-4 text-right">Aksi</th>
+                  <tr>
+                    <th>Nama Barista</th>
+                    <th>Outlet</th>
+                    <th>Progres Teori</th>
+                    <th>Status Kompetensi</th>
+                    <th className="text-center">Percobaan</th>
+                    <th className="text-right">Aksi</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800">
-                  {participants.map((p) => {
-                    return (
-                      <tr key={p.enrollmentId} className="hover:bg-slate-850/50 transition-colors">
-                        <td className="py-3.5 px-4 font-medium text-white">
-                          <div>{p.name}</div>
-                          <div className="text-xs text-slate-500 font-mono">{p.email}</div>
-                        </td>
-                        <td className="py-3.5 px-4 text-slate-300">
-                          {p.outletName}
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <div className="text-xs font-mono text-slate-300">
-                            {p.completedStepsCount} / {p.totalRequiredSteps} Modul
-                          </div>
-                          <div className="text-xs text-slate-500">
-                            {p.isTheoryCompleted ? 'Selesai Prasyarat' : 'Belum Lengkap'}
-                          </div>
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 uppercase">
-                            {p.competencyState.replace(/_/g, ' ')}
-                          </span>
-                        </td>
-                        <td className="py-3.5 px-4 text-center font-mono text-slate-300">
-                          {p.assessmentAttemptsCount}x
-                        </td>
-                        <td className="py-3.5 px-4 text-right">
-                          <Link
-                            href={`/trainer/cohorts/${cohortId}/assess/${p.enrollmentId}`}
-                            className="inline-block text-xs font-medium text-slate-200 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded transition-colors"
-                          >
-                            Buka Lembar Asesmen
-                          </Link>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                <tbody>
+                  {participants.map((p) => (
+                    <tr key={p.enrollmentId}>
+                      <td>
+                        <div className="font-medium text-paper-100">{p.name}</div>
+                        <div className="text-xs text-roast-500 font-mono">{p.email}</div>
+                      </td>
+                      <td className="text-roast-300">{p.outletName}</td>
+                      <td>
+                        <div className="text-xs font-mono text-roast-300">
+                          {p.completedStepsCount} / {p.totalRequiredSteps} Modul
+                        </div>
+                        <div className="text-xs text-roast-500 mt-0.5">
+                          {p.isTheoryCompleted ? 'Prasyarat Selesai' : 'Belum Lengkap'}
+                        </div>
+                      </td>
+                      <td>
+                        <span className="status-pill">
+                          {p.competencyState.replace(/_/g, ' ')}
+                        </span>
+                      </td>
+                      <td className="text-center font-mono text-roast-300 text-xs">
+                        {p.assessmentAttemptsCount}x
+                      </td>
+                      <td className="text-right">
+                        <Link
+                          href={`/trainer/cohorts/${cohortId}/assess/${p.enrollmentId}`}
+                          className="btn-secondary text-xs py-1.5 px-3"
+                        >
+                          Lembar Asesmen
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
           )}
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }
