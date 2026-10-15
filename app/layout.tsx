@@ -12,21 +12,21 @@ const fontSerif = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-serif",
   display: "swap",
-  weight: ["400", "700", "900"],
+  weight: ["400", "600", "700", "900"],
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "Cherry Edu Teams",
+    default: "Cherry Edu Teams — Specialty Coffee Academy",
     template: "%s · Cherry Edu Teams",
   },
   description:
-    "Platform manajemen pelatihan dan kompetensi barista untuk bisnis kopi Indonesia.",
+    "Platform manajemen pelatihan dan kompetensi barista terstandarisasi untuk bisnis kopi Indonesia.",
   robots: { index: false, follow: false },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#140E0C",
+  themeColor: "#FAF7F2",
   width: "device-width",
   initialScale: 1,
 };
@@ -36,7 +36,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="id" className={`${fontSans.variable} ${fontSerif.variable} h-full`}>
-      <body className="h-full font-sans antialiased bg-roast-950 text-roast-100">
+      <body className="min-h-full font-sans antialiased bg-paper-100 text-roast-950">
         {children}
       </body>
     </html>

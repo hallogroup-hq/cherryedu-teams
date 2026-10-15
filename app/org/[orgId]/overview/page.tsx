@@ -171,85 +171,94 @@ export default function OwnerOverviewPage({
   const organization = overview?.organization;
 
   return (
-    <div className="min-h-screen bg-roast-950 text-roast-100 flex flex-col">
+    <div className="min-h-screen bg-paper-100 text-roast-950 flex flex-col">
       <ShellNav role="owner" orgId={orgId} orgName={organization?.display_name} />
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8">
-        {/* Organization Hero */}
-        <div className="card mb-8">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 space-y-8">
+        {/* Organization Hero Card */}
+        <div className="card">
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div>
               <p className="section-label mb-1">
-                Bisnis Kopi Terdaftar · {organization?.timezone || "Asia/Jakarta"}
+                Kemitraan Bisnis Kopi · Zona Waktu {organization?.timezone || "Asia/Jakarta"}
               </p>
-              <h1 className="font-serif font-bold text-2xl text-paper-100">
-                {organization?.display_name || "Memuat Organisasi..."}
+              <h1 className="font-serif font-black text-2xl text-roast-950">
+                {organization?.display_name || "Memuat Profil Bisnis..."}
               </h1>
-              <p className="text-xs text-roast-500 mt-1 font-mono">ID: {orgId}</p>
+              <p className="text-xs text-roast-500 mt-1 font-mono">
+                Identitas Tenant: <span className="text-roast-700 font-semibold">{orgId}</span>
+              </p>
             </div>
-            <div className="shrink-0">
-              <Link href={`/org/${orgId}/learn`} className="btn-secondary text-xs py-2 px-3">
-                Portal Barista
+            <div className="shrink-0 flex items-center gap-2">
+              <Link href={`/org/${orgId}/learn`} className="btn-secondary text-xs py-2 px-3.5">
+                Lihat Sebagai Barista
               </Link>
             </div>
           </div>
 
-          {/* KPI Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-roast-800">
+          {/* KPI Summary Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mt-6 pt-6 border-t border-paper-200">
             {[
-              { label: "Total Outlet", value: overview?.outlets_count ?? 0 },
-              { label: "Barista Aktif", value: overview?.active_learners_count ?? 0 },
-              { label: "Head Bar", value: overview?.head_bars_count ?? 0 },
-              { label: "Kelulusan", value: `${overview?.competency_completion_rate ?? 0}%` },
+              { label: "Total Outlet", value: overview?.outlets_count ?? 0, sub: "Cabang aktif" },
+              { label: "Barista Aktif", value: overview?.active_learners_count ?? 0, sub: "Peserta terdaftar" },
+              { label: "Head Bar / Spv", value: overview?.head_bars_count ?? 0, sub: "Supervisor tim" },
+              { label: "Kelulusan Skill", value: `${overview?.competency_completion_rate ?? 0}%`, sub: "Standar industri" },
             ].map((kpi) => (
-              <div key={kpi.label} className="p-3 bg-roast-950 rounded-lg border border-roast-800">
-                <p className="text-[10px] uppercase tracking-widest font-mono text-roast-500">{kpi.label}</p>
-                <p className="text-2xl font-bold font-mono text-paper-100 mt-1">{kpi.value}</p>
+              <div key={kpi.label} className="p-4 bg-paper-50 rounded-xl border border-paper-200 shadow-subtle">
+                <p className="text-[10px] uppercase tracking-widest font-mono text-roast-500 font-bold">{kpi.label}</p>
+                <p className="text-2xl font-bold font-serif text-roast-950 mt-1">{kpi.value}</p>
+                <p className="text-[11px] text-roast-400 mt-0.5 font-mono">{kpi.sub}</p>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Action Message */}
+        {/* Action Message Banner */}
         {actionMessage && (
-          <div className="mb-6 p-4 rounded-lg bg-roast-900 border border-roast-700 text-xs text-roast-200 flex items-center justify-between">
-            <span>{actionMessage}</span>
-            <button onClick={() => setActionMessage(null)} className="text-roast-500 hover:text-paper-100 ml-4">Tutup</button>
+          <div className="p-4 rounded-xl bg-paper-50 border border-paper-300 text-xs text-roast-900 flex items-center justify-between shadow-subtle">
+            <span className="font-medium">{actionMessage}</span>
+            <button onClick={() => setActionMessage(null)} className="text-roast-500 hover:text-roast-900 ml-4 font-mono">
+              Tutup
+            </button>
           </div>
         )}
 
         {/* Error Banner */}
         {error && (
-          <div className="mb-6 p-4 rounded-lg bg-cherry-950 border border-cherry-900 text-xs text-cherry-300">{error}</div>
-        )}
-
-        {/* Invite Token Banner */}
-        {generatedInviteToken && (
-          <div className="mb-6 p-4 rounded-lg bg-roast-900 border border-roast-700 text-xs space-y-1.5">
-            <p className="font-semibold text-paper-100">Token Undangan Berhasil Dibuat:</p>
-            <p className="font-mono text-paper-300 select-all bg-roast-950 p-2 rounded border border-roast-800 break-all">
-              {generatedInviteToken}
-            </p>
-            <p className="text-roast-500">Kirimkan token ini kepada karyawan untuk klaim akses di portal undangan.</p>
+          <div className="p-4 rounded-xl bg-cherry-50 border border-cherry-200 text-xs text-cherry-900">
+            {error}
           </div>
         )}
 
-        {/* Tab Navigation */}
-        <div className="flex border-b border-roast-800 mb-6 gap-6 text-sm">
+        {/* Generated Invite Token Banner */}
+        {generatedInviteToken && (
+          <div className="p-5 rounded-xl bg-paper-50 border border-paper-300 text-xs space-y-2 shadow-card">
+            <p className="font-bold text-roast-950">Token Undangan Karyawan Berhasil Dibuat:</p>
+            <p className="font-mono text-roast-900 select-all bg-white p-3 rounded-lg border border-paper-300 break-all text-xs font-semibold">
+              {generatedInviteToken}
+            </p>
+            <p className="text-roast-600 leading-relaxed font-sans">
+              Bagikan token ini kepada barista atau supervisor outlet untuk mengklaim akses ke portal pelatihan organisasi Anda.
+            </p>
+          </div>
+        )}
+
+        {/* Workspace Tab Navigation */}
+        <div className="flex border-b border-paper-300 gap-6 text-sm">
           {(["overview", "outlets", "team"] as const).map((tab) => {
             const labels: Record<string, string> = {
               overview: `Ringkasan & Cohort (${cohorts.length})`,
-              outlets: `Outlet (${outlets.length})`,
-              team: `Undangan Tim (${invitations.length})`,
+              outlets: `Kelola Outlet (${outlets.length})`,
+              team: `Undangan & Anggota Tim (${invitations.length})`,
             };
             return (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`pb-3 font-medium transition-colors border-b-2 -mb-px text-sm ${
+                className={`pb-3.5 font-medium transition-colors border-b-2 -mb-px text-xs font-mono uppercase tracking-wider ${
                   activeTab === tab
-                    ? "border-cherry-700 text-paper-100"
-                    : "border-transparent text-roast-500 hover:text-roast-300"
+                    ? "border-roast-950 text-roast-950 font-bold"
+                    : "border-transparent text-roast-500 hover:text-roast-800"
                 }`}
               >
                 {labels[tab]}
@@ -262,28 +271,30 @@ export default function OwnerOverviewPage({
         {activeTab === "overview" && (
           <div className="space-y-4">
             <div className="card">
-              <h2 className="font-serif font-bold text-base text-paper-100 mb-4">Cohort Pelatihan Aktif</h2>
+              <h2 className="font-serif font-bold text-lg text-roast-950 mb-4">Cohort Pelatihan Berjalan</h2>
               {cohorts.length === 0 ? (
-                <p className="text-xs text-roast-500">Belum ada cohort yang dijadwalkan.</p>
+                <div className="p-8 text-center text-roast-500 text-xs font-mono">
+                  Belum ada kelompok pelatihan (cohort) yang dijadwalkan untuk organisasi ini.
+                </div>
               ) : (
                 <div className="space-y-3">
                   {cohorts.map((cohort) => (
                     <div
                       key={cohort.id}
-                      className="p-4 bg-roast-950 rounded-lg border border-roast-800 flex items-center justify-between"
+                      className="p-4 bg-paper-50 rounded-xl border border-paper-200 flex items-center justify-between shadow-subtle hover:border-paper-400 transition-all"
                     >
                       <div>
                         <div className="flex items-center gap-2 mb-1">
                           <span className="status-pill">{cohort.status}</span>
-                          <span className="text-xs text-roast-600 font-mono">
-                            {new Date(cohort.start_at).toLocaleDateString("id-ID")}
+                          <span className="text-xs text-roast-500 font-mono">
+                            Mulai: {new Date(cohort.start_at).toLocaleDateString("id-ID", { dateStyle: "medium" })}
                           </span>
                         </div>
-                        <h3 className="text-sm font-semibold text-paper-100">{cohort.name}</h3>
+                        <h3 className="text-base font-semibold text-roast-950">{cohort.name}</h3>
                       </div>
                       <div className="text-right">
-                        <span className="text-xs font-mono text-roast-400">
-                          {cohort.participant_count ?? 1} Peserta
+                        <span className="text-xs font-mono text-roast-700 bg-white px-2.5 py-1 rounded border border-paper-200 font-semibold">
+                          {cohort.participant_count ?? 1} Barista Terdaftar
                         </span>
                       </div>
                     </div>
@@ -294,24 +305,26 @@ export default function OwnerOverviewPage({
           </div>
         )}
 
-        {/* TAB 2: OUTLETS */}
+        {/* TAB 2: OUTLET MANAGEMENT */}
         {activeTab === "outlets" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-3">
-              <h2 className="font-serif font-bold text-base text-paper-100 mb-2">Daftar Outlet</h2>
+            <div className="lg:col-span-2 space-y-3.5">
+              <h2 className="font-serif font-bold text-lg text-roast-950 mb-2">Daftar Cabang &amp; Outlet</h2>
               {outlets.length === 0 ? (
-                <p className="text-xs text-roast-500">Belum ada outlet yang ditambahkan.</p>
+                <div className="card p-8 text-center text-roast-500 text-xs font-mono">
+                  Belum ada cabang outlet yang ditambahkan.
+                </div>
               ) : (
                 outlets.map((outlet) => (
                   <div key={outlet.id} className="card">
                     <div className="flex items-start justify-between">
                       <div>
-                        <span className="text-[10px] uppercase tracking-widest font-mono text-roast-500">
+                        <span className="text-[10px] uppercase tracking-widest font-mono text-roast-500 font-bold">
                           {outlet.city}
                         </span>
-                        <h3 className="text-sm font-semibold text-paper-100 mt-1">{outlet.name}</h3>
+                        <h3 className="text-base font-semibold text-roast-950 mt-1">{outlet.name}</h3>
                         {outlet.address && (
-                          <p className="text-xs text-roast-400 mt-1">{outlet.address}</p>
+                          <p className="text-xs text-roast-600 mt-1 font-sans">{outlet.address}</p>
                         )}
                       </div>
                       <span className="status-pill">{outlet.status}</span>
@@ -322,17 +335,20 @@ export default function OwnerOverviewPage({
             </div>
 
             {/* Add Outlet Form */}
-            <div className="card h-fit">
-              <h2 className="font-serif font-bold text-base text-paper-100 mb-4">Tambah Outlet Baru</h2>
+            <div className="card h-fit space-y-4">
+              <div>
+                <h2 className="font-serif font-bold text-base text-roast-950">Tambah Cabang Baru</h2>
+                <p className="text-xs text-roast-500">Daftarkan outlet baru untuk penempatan barista</p>
+              </div>
               <form onSubmit={handleCreateOutlet} className="space-y-4">
                 <div>
-                  <label className="label">Nama Outlet *</label>
+                  <label className="label">Nama Outlet / Cabang *</label>
                   <input
                     type="text" required
                     value={newOutletName}
                     onChange={(e) => setNewOutletName(e.target.value)}
-                    placeholder="Flagship Dago"
-                    className="input text-xs mt-1"
+                    placeholder="Contoh: Flagship Dago"
+                    className="input text-xs"
                   />
                 </div>
                 <div>
@@ -341,8 +357,8 @@ export default function OwnerOverviewPage({
                     type="text" required
                     value={newOutletCity}
                     onChange={(e) => setNewOutletCity(e.target.value)}
-                    placeholder="Bandung"
-                    className="input text-xs mt-1"
+                    placeholder="Contoh: Bandung"
+                    className="input text-xs"
                   />
                 </div>
                 <div>
@@ -351,28 +367,30 @@ export default function OwnerOverviewPage({
                     value={newOutletAddress}
                     onChange={(e) => setNewOutletAddress(e.target.value)}
                     placeholder="Jl. Ir. H. Juanda No. 100..."
-                    className="input text-xs h-20 mt-1"
+                    className="input text-xs h-20"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={creatingOutlet}
-                  className="btn-primary w-full text-xs py-2 disabled:opacity-50"
+                  className="btn-primary w-full text-xs py-2.5"
                 >
-                  {creatingOutlet ? "Menyimpan..." : "Simpan Outlet"}
+                  {creatingOutlet ? "Menyimpan..." : "Simpan Cabang Outlet"}
                 </button>
               </form>
             </div>
           </div>
         )}
 
-        {/* TAB 3: TEAM */}
+        {/* TAB 3: TEAM & INVITATIONS */}
         {activeTab === "team" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-3">
-              <h2 className="font-serif font-bold text-base text-paper-100 mb-2">Riwayat Undangan Tim</h2>
+            <div className="lg:col-span-2 space-y-3.5">
+              <h2 className="font-serif font-bold text-lg text-roast-950 mb-2">Riwayat Undangan Anggota Tim</h2>
               {invitations.length === 0 ? (
-                <p className="text-xs text-roast-500">Belum ada undangan yang dikirim.</p>
+                <div className="card p-8 text-center text-roast-500 text-xs font-mono">
+                  Belum ada undangan yang dikirimkan.
+                </div>
               ) : (
                 invitations.map((invite) => (
                   <div key={invite.id} className="card flex items-center justify-between">
@@ -381,15 +399,15 @@ export default function OwnerOverviewPage({
                         <span className="status-pill">{invite.intended_role}</span>
                         <span className="text-[10px] font-mono text-roast-500 uppercase">{invite.status}</span>
                       </div>
-                      <p className="text-sm font-semibold text-paper-100">{invite.email_normalized}</p>
-                      <p className="text-xs text-roast-600 font-mono mt-0.5">
-                        {new Date(invite.created_at).toLocaleDateString("id-ID")}
+                      <p className="text-sm font-semibold text-roast-950 font-mono">{invite.email_normalized}</p>
+                      <p className="text-xs text-roast-500 font-mono mt-0.5">
+                        Dibuat: {new Date(invite.created_at).toLocaleDateString("id-ID", { dateStyle: "medium" })}
                       </p>
                     </div>
                     {invite.status === "pending" && (
                       <button
                         onClick={() => handleRevokeInvitation(invite.id)}
-                        className="btn-ghost text-xs text-roast-400 hover:text-cherry-400"
+                        className="btn-ghost text-xs text-roast-500 hover:text-cherry-700 font-mono"
                       >
                         Batalkan
                       </button>
@@ -399,39 +417,42 @@ export default function OwnerOverviewPage({
               )}
             </div>
 
-            {/* Send Invite Form */}
-            <div className="card h-fit">
-              <h2 className="font-serif font-bold text-base text-paper-100 mb-4">Undang Anggota Tim</h2>
+            {/* Send Invite Form Card */}
+            <div className="card h-fit space-y-4">
+              <div>
+                <h2 className="font-serif font-bold text-base text-roast-950">Undang Anggota Tim</h2>
+                <p className="text-xs text-roast-500">Kirim undangan untuk barista atau supervisor</p>
+              </div>
               <form onSubmit={handleSendInvitation} className="space-y-4">
                 <div>
-                  <label className="label">Email Karyawan *</label>
+                  <label className="label">Alamat Email Karyawan *</label>
                   <input
                     type="email" required
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
                     placeholder="barista@kopikamu.id"
-                    className="input text-xs mt-1"
+                    className="input text-xs"
                   />
                 </div>
                 <div>
-                  <label className="label">Peran (Role) *</label>
+                  <label className="label">Peran Kerja (Role) *</label>
                   <select
                     value={inviteRole}
                     onChange={(e) => setInviteRole(e.target.value)}
-                    className="input text-xs mt-1"
+                    className="input text-xs"
                   >
-                    <option value="learner">Barista / Peserta (Learner)</option>
-                    <option value="head_bar">Head Bar / Supervisor</option>
+                    <option value="learner">Barista / Peserta Pelatihan</option>
+                    <option value="head_bar">Head Bar / Supervisor Outlet</option>
                     <option value="client_manager">Manajer Operasional</option>
-                    <option value="owner">Co-Owner</option>
+                    <option value="owner">Co-Owner (Pemilik)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="label">Penugasan Outlet</label>
+                  <label className="label">Penugasan Outlet (Opsional)</label>
                   <select
                     value={inviteOutletId}
                     onChange={(e) => setInviteOutletId(e.target.value)}
-                    className="input text-xs mt-1"
+                    className="input text-xs"
                   >
                     <option value="">Semua Outlet / Belum Ditugaskan</option>
                     {outlets.map((o) => (
@@ -444,9 +465,9 @@ export default function OwnerOverviewPage({
                 <button
                   type="submit"
                   disabled={inviting}
-                  className="btn-primary w-full text-xs py-2 disabled:opacity-50"
+                  className="btn-primary w-full text-xs py-2.5"
                 >
-                  {inviting ? "Mengirim Undangan..." : "Kirim Undangan"}
+                  {inviting ? "Memproses Undangan..." : "Kirim Undangan Akses"}
                 </button>
               </form>
             </div>

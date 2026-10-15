@@ -4,8 +4,8 @@
 
 @layer base {
   body {
-    background-color: #140E0C;
-    color: #EAE4E0;
+    background-color: #FAF7F2;
+    color: #140E0C;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
@@ -18,81 +18,94 @@
   }
 }
 
-/* Scrollbar — espresso ink on dark */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: #211814; }
-::-webkit-scrollbar-thumb { background: #44342C; border-radius: 9999px; }
-::-webkit-scrollbar-thumb:hover { background: #5A473D; }
+/* Custom Minimalist Scrollbar — matching B2C */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #F7F3EC;
+}
+::-webkit-scrollbar-thumb {
+  background: #D4C7C0;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #957D71;
+}
 
 /* Selection */
-::selection { background-color: #651822; color: #F7F3EC; }
+::selection {
+  background-color: #F9E5E7;
+  color: #7E1D2A;
+}
 
 @layer components {
   /* ── Buttons ── */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md
-           bg-roast-950 hover:bg-cherry-800 text-paper-50
+    @apply inline-flex items-center justify-center gap-2 rounded-lg
+           bg-roast-950 hover:bg-cherry-700 text-white
            px-4 py-2.5 text-xs uppercase tracking-wider font-bold
-           border border-roast-800 transition-colors;
+           transition-colors shadow-xs disabled:opacity-60 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md
-           bg-roast-900 hover:bg-roast-800 text-roast-100
+    @apply inline-flex items-center justify-center gap-2 rounded-lg
+           bg-white hover:bg-paper-50 text-roast-900
            px-4 py-2.5 text-xs uppercase tracking-wider font-bold
-           border border-roast-700 transition-colors;
+           border border-paper-300 transition-colors shadow-xs disabled:opacity-60 disabled:cursor-not-allowed;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-md
-           text-roast-400 hover:bg-roast-900 hover:text-roast-100
-           px-4 py-2.5 text-xs transition-colors;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg
+           text-roast-600 hover:bg-paper-200 hover:text-roast-900
+           px-3 py-1.5 text-xs transition-colors;
   }
 
-  /* ── Cards ── */
+  /* ── Cards (Warm Artisanal Surface) ── */
   .card {
-    @apply rounded-xl border border-roast-800 bg-roast-900 p-5;
+    @apply rounded-xl border border-paper-300 bg-white p-6 shadow-card;
   }
 
   /* ── Form controls ── */
   .input {
-    @apply block w-full rounded-md border border-roast-700 bg-roast-900
-           px-3 py-2.5 text-sm text-roast-100 placeholder-roast-600
-           transition-colors focus:border-cherry-700 focus:outline-none focus:ring-1 focus:ring-cherry-700;
+    @apply block w-full rounded-lg border border-paper-300 bg-paper-50
+           px-3.5 py-2.5 text-sm text-roast-950 placeholder-roast-400
+           transition-colors focus:border-roast-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-roast-700;
   }
 
   .label {
-    @apply block text-xs font-mono uppercase tracking-wider text-roast-400 mb-1.5;
+    @apply block text-xs font-mono uppercase tracking-wider text-roast-700 font-semibold mb-1.5;
   }
 
-  /* ── Mono section label (like B2C) ── */
+  /* ── Mono section label (B2C Signature) ── */
   .section-label {
     @apply font-mono text-[10px] uppercase tracking-widest text-roast-500 font-bold;
   }
 
-  /* ── Table ── */
+  /* ── Data Table (Clean White Card Table) ── */
   .data-table {
-    @apply w-full text-xs border border-roast-800 rounded-lg overflow-hidden;
+    @apply w-full text-xs border border-paper-300 rounded-xl overflow-hidden bg-white shadow-subtle;
   }
   .data-table thead {
-    @apply bg-roast-900 border-b border-roast-800;
+    @apply bg-paper-100 border-b border-paper-300;
   }
   .data-table th {
-    @apply text-left px-4 py-2.5 text-roast-500 font-mono font-medium uppercase tracking-wider text-[10px];
+    @apply text-left px-4 py-3 text-roast-700 font-mono font-semibold uppercase tracking-wider text-[10px];
   }
   .data-table tbody tr {
-    @apply border-b border-roast-800/50 hover:bg-roast-900/60 transition-colors;
+    @apply border-b border-paper-200 hover:bg-paper-50/80 transition-colors;
   }
   .data-table td {
-    @apply px-4 py-2.5;
+    @apply px-4 py-3 text-roast-900;
   }
 
-  /* ── Status pill (neutral only — no red/green AI-slop) ── */
+  /* ── Status pill (Accessible, Calm, Grayscale-safe, NO Neon) ── */
   .status-pill {
-    @apply inline-flex items-center font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 rounded;
+    @apply inline-flex items-center font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 rounded border;
   }
-  .status-active   { @apply status-pill bg-roast-800 text-paper-300; }
-  .status-setup    { @apply status-pill bg-roast-900 text-roast-500 border border-roast-800; }
-  .status-pending  { @apply status-pill bg-roast-900 text-roast-400 border border-roast-700; }
-  .status-inactive { @apply status-pill bg-roast-950 text-roast-600 border border-roast-800; }
+  .status-active   { @apply status-pill bg-olive-50 text-olive-800 border-olive-200; }
+  .status-setup    { @apply status-pill bg-paper-100 text-roast-700 border-paper-300; }
+  .status-pending  { @apply status-pill bg-crema-50 text-crema-800 border-crema-300; }
+  .status-inactive { @apply status-pill bg-paper-200 text-roast-600 border-paper-300; }
 }

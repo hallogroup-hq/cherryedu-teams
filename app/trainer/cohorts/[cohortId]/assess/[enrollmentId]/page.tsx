@@ -110,10 +110,10 @@ export default function PracticalAssessmentWorkspacePage({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-roast-950 text-roast-100 flex flex-col">
+      <div className="min-h-screen bg-paper-100 text-roast-950 flex flex-col">
         <ShellNav role="trainer" />
-        <main className="flex-1 flex items-center justify-center">
-          <p className="text-roast-500 text-sm font-mono">Memuat ruang kerja asesmen...</p>
+        <main className="flex-1 flex items-center justify-center p-8">
+          <p className="text-roast-500 text-sm font-mono">Memuat ruang kerja asesmen praktikal...</p>
         </main>
       </div>
     );
@@ -121,13 +121,13 @@ export default function PracticalAssessmentWorkspacePage({
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-roast-950 text-roast-100 flex flex-col">
+      <div className="min-h-screen bg-paper-100 text-roast-950 flex flex-col">
         <ShellNav role="trainer" />
         <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-8 space-y-4">
-          <Link href={`/trainer/cohorts/${cohortId}`} className="text-xs font-mono text-roast-500 hover:text-paper-100 transition-colors">
+          <Link href={`/trainer/cohorts/${cohortId}`} className="text-xs font-mono text-roast-600 hover:text-roast-950 transition-colors">
             ← Kembali ke Roster Peserta
           </Link>
-          <div className="p-4 bg-cherry-950 border border-cherry-900 rounded-lg text-sm text-cherry-300">
+          <div className="p-4 bg-cherry-50 border border-cherry-200 rounded-lg text-xs text-cherry-900">
             {error || 'Data ruang kerja tidak ditemukan.'}
           </div>
         </main>
@@ -196,7 +196,7 @@ export default function PracticalAssessmentWorkspacePage({
 
       const resData = await res.json();
       if (res.ok && resData.success) {
-        setSuccessMessage(resData.message || 'Evaluasi berhasil disimpan.');
+        setSuccessMessage(resData.message || 'Evaluasi asesmen berhasil disimpan.');
         const refresh = await fetch(`/api/teams/trainer/cohorts/${cohortId}/assess/${enrollmentId}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
@@ -213,7 +213,7 @@ export default function PracticalAssessmentWorkspacePage({
   };
 
   return (
-    <div className="min-h-screen bg-roast-950 text-roast-100 flex flex-col">
+    <div className="min-h-screen bg-paper-100 text-roast-950 flex flex-col">
       <ShellNav role="trainer" />
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 space-y-8">
@@ -221,23 +221,23 @@ export default function PracticalAssessmentWorkspacePage({
         <div className="space-y-3">
           <Link
             href={`/trainer/cohorts/${cohortId}`}
-            className="text-xs font-mono text-roast-500 hover:text-paper-100 transition-colors inline-block"
+            className="text-xs font-mono text-roast-600 hover:text-roast-950 transition-colors inline-block"
           >
-            ← Kembali ke Roster Cohort ({data.enrollment.cohort_name})
+            ← Kembali ke Roster ({data.enrollment.cohort_name})
           </Link>
-          <div className="border-b border-roast-800 pb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div className="border-b border-paper-300 pb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <div>
               <p className="section-label mb-1">
                 {data.enrollment.organization_name} · {data.enrollment.outlet_name || 'Outlet Utama'}
               </p>
-              <h1 className="font-serif font-bold text-2xl text-paper-100">
-                Lembar Asesmen Praktik: {data.enrollment.participant_name}
+              <h1 className="font-serif font-black text-2xl text-roast-950">
+                Lembar Observasi Praktik: {data.enrollment.participant_name}
               </h1>
-              <p className="text-xs text-roast-400 mt-1 font-mono">
-                {data.competency.name} ({data.competency.code}) · Rubrik v{data.rubric.versionNo}
+              <p className="text-xs text-roast-600 mt-1 font-mono">
+                {data.competency.name} ({data.competency.code}) · Rubrik Resmi Versi {data.rubric.versionNo}
               </p>
             </div>
-            <span className="status-pill self-start">
+            <span className="status-pill self-start sm:self-auto font-bold">
               {data.enrollment.competency_state.replace(/_/g, ' ')}
             </span>
           </div>
@@ -245,18 +245,18 @@ export default function PracticalAssessmentWorkspacePage({
 
         {/* Feedback Messages */}
         {error && (
-          <div className="p-4 bg-cherry-950 border border-cherry-900 rounded-lg text-sm text-cherry-300">{error}</div>
+          <div className="p-4 bg-cherry-50 border border-cherry-200 rounded-lg text-xs text-cherry-900">{error}</div>
         )}
         {successMessage && (
-          <div className="p-4 bg-roast-900 border border-roast-700 rounded-lg text-sm text-paper-200">{successMessage}</div>
+          <div className="p-4 bg-paper-50 border border-paper-300 rounded-lg text-xs text-roast-900 font-medium">{successMessage}</div>
         )}
 
         {/* Monotonic Lock Notice */}
         {data.isMonotonicallyLocked && (
-          <div className="card border-roast-700 space-y-1">
-            <div className="text-sm font-semibold text-paper-100">Kelulusan Kompetensi Terverifikasi</div>
-            <div className="text-xs text-roast-400">
-              Barista telah memenuhi standar kompetensi industri dan status terkunci secara permanen. Lembar penilaian ini bersifat arsip resmi (read-only).
+          <div className="card bg-paper-50 border-paper-300 space-y-1">
+            <div className="text-sm font-semibold text-roast-950">Kelulusan Kompetensi Terverifikasi</div>
+            <div className="text-xs text-roast-600 leading-relaxed">
+              Barista telah memenuhi standar kompetensi industri dan status terkunci secara permanen. Lembar penilaian ini bersifat arsip resmi negara/industri (read-only).
             </div>
           </div>
         )}
@@ -265,17 +265,17 @@ export default function PracticalAssessmentWorkspacePage({
         <div className="card space-y-2">
           <div className="flex items-center justify-between">
             <p className="section-label">Prasyarat Teori Online (Pedagogical Gate)</p>
-            <span className="text-xs font-mono text-roast-300">
-              {data.theoryStatus.completedCount} / {data.theoryStatus.totalRequired} Modul
+            <span className="text-xs font-mono text-roast-700 font-semibold">
+              {data.theoryStatus.completedCount} / {data.theoryStatus.totalRequired} Modul Selesai
             </span>
           </div>
           {data.theoryStatus.isCompleted ? (
-            <p className="text-xs text-roast-400">
-              Seluruh modul teori telah diselesaikan. Barista memenuhi syarat untuk asesmen praktik.
+            <p className="text-xs text-roast-600">
+              Seluruh modul teori telah diselesaikan dengan tuntas. Barista memenuhi syarat untuk observasi praktik langsung di bar espresso.
             </p>
           ) : (
             <div className="space-y-1">
-              <p className="text-xs text-roast-300">Barista belum menyelesaikan seluruh modul teori yang dipersyaratkan.</p>
+              <p className="text-xs text-cherry-900 font-medium">Barista belum menyelesaikan seluruh modul teori yang dipersyaratkan.</p>
               <p className="text-xs text-roast-500 font-mono">
                 Tertunda: {data.theoryStatus.missingSteps.join(', ')}
               </p>
@@ -283,12 +283,12 @@ export default function PracticalAssessmentWorkspacePage({
           )}
         </div>
 
-        {/* Rubric Criteria */}
+        {/* Rubric Criteria Evaluation Matrix */}
         <div className="space-y-6">
-          <div className="flex items-center justify-between border-b border-roast-800 pb-3">
+          <div className="flex items-center justify-between border-b border-paper-300 pb-3">
             <div>
-              <h2 className="font-serif font-bold text-lg text-paper-100">Kriteria Rubrik Penilaian</h2>
-              <p className="text-xs text-roast-400 mt-0.5">Pilih level kecakapan (1–4) berdasarkan observasi langsung.</p>
+              <h2 className="font-serif font-bold text-lg text-roast-950">Kriteria Rubrik Penilaian</h2>
+              <p className="text-xs text-roast-600 mt-0.5">Pilih level kecakapan (1–4) berdasarkan observasi stasiun espresso.</p>
             </div>
             <span className="text-xs font-mono text-roast-500">Skala 1:Novice → 4:Mastery</span>
           </div>
@@ -303,23 +303,23 @@ export default function PracticalAssessmentWorkspacePage({
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-semibold text-paper-100">{c.description}</span>
+                        <span className="text-sm font-semibold text-roast-950">{c.description}</span>
                         {c.isCritical && (
-                          <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-cherry-950 border border-cherry-900 text-cherry-400">
+                          <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-cherry-50 border border-cherry-200 text-cherry-900 font-bold">
                             Kritis
                           </span>
                         )}
                       </div>
                       <div className="text-xs text-roast-500 font-mono mt-0.5">
-                        {c.code} · Bobot: {c.weight}x
+                        Kode: {c.code} · Bobot: {c.weight}x
                       </div>
                     </div>
-                    <div className="text-xs font-mono text-roast-300 self-start whitespace-nowrap">
+                    <div className="text-xs font-mono text-roast-700 font-bold self-start whitespace-nowrap bg-paper-100 px-2 py-0.5 rounded border border-paper-200">
                       Level Terpilih: {currentScore}
                     </div>
                   </div>
 
-                  {/* Level Selection */}
+                  {/* Level Selection Buttons */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[1, 2, 3, 4].map((lvl) => {
                       const isSelected = currentScore === lvl;
@@ -332,14 +332,16 @@ export default function PracticalAssessmentWorkspacePage({
                           onClick={() => handleScoreChange(c.code, lvl)}
                           className={`p-3 rounded-lg text-left border transition-all text-xs ${
                             isSelected
-                              ? 'bg-cherry-950/40 border-cherry-700 text-paper-100'
-                              : 'bg-roast-950/60 border-roast-800 text-roast-400 hover:border-roast-600'
+                              ? 'bg-roast-950 text-white border-roast-950 shadow-xs'
+                              : 'bg-paper-50 border-paper-200 text-roast-700 hover:border-roast-400 hover:bg-paper-100'
                           } ${data.isMonotonicallyLocked ? 'cursor-not-allowed opacity-50' : ''}`}
                         >
-                          <div className="font-mono font-semibold mb-1">
+                          <div className="font-mono font-bold mb-1">
                             L{lvl} {lvl >= 3 ? '(Lulus)' : '(Remedial)'}
                           </div>
-                          <div className="text-[11px] leading-relaxed text-roast-400 line-clamp-3">{anchorText}</div>
+                          <div className={`text-[11px] leading-relaxed line-clamp-3 ${isSelected ? 'text-paper-200' : 'text-roast-500'}`}>
+                            {anchorText}
+                          </div>
                         </button>
                       );
                     })}
@@ -360,20 +362,20 @@ export default function PracticalAssessmentWorkspacePage({
           </div>
         </div>
 
-        {/* Real-time Eligibility Status */}
+        {/* Real-time Status Card */}
         <div className="card space-y-2">
           <p className="section-label">Kalkulasi Kelulusan Real-Time</p>
           {hasCriticalFailure || hasSubstandardScore ? (
-            <div className="text-xs text-roast-300 space-y-1">
-              <p className="font-semibold text-paper-200">Kriteria Substandar Terdeteksi — Keputusan: Belum Kompeten.</p>
-              <p className="text-roast-400">
-                Semua kriteria wajib ≥ Level 3. Barista akan diarahkan ke sesi Latihan Terarah (Remedial).
+            <div className="text-xs text-roast-800 space-y-1">
+              <p className="font-semibold text-roast-950">Kriteria Substandar / Kritis Terdeteksi — Keputusan: Belum Kompeten.</p>
+              <p className="text-roast-600">
+                Seluruh kriteria wajib ≥ Level 3. Barista akan diarahkan ke sesi Latihan Terarah (Remedial).
               </p>
             </div>
           ) : (
             <div className="text-xs space-y-1">
-              <p className="font-semibold text-paper-100">Seluruh Kriteria Memenuhi Standar (Level 3+).</p>
-              <p className="text-roast-400">Barista siap disahkan sebagai KOMPETEN dalam kompetensi ini.</p>
+              <p className="font-semibold text-roast-950">Seluruh Kriteria Memenuhi Standar Industri (Level 3+).</p>
+              <p className="text-roast-600">Barista siap disahkan secara definitif sebagai KOMPETEN dalam kompetensi ini.</p>
             </div>
           )}
         </div>
@@ -382,7 +384,7 @@ export default function PracticalAssessmentWorkspacePage({
         {!data.isMonotonicallyLocked && (
           <div className="card space-y-4">
             <div>
-              <label className="label mb-1.5">Catatan Evaluator &amp; Umpan Balik Kualitatif</label>
+              <label className="label">Catatan Evaluator &amp; Umpan Balik Kualitatif</label>
               <textarea
                 rows={3}
                 value={overallNotes}
@@ -394,24 +396,24 @@ export default function PracticalAssessmentWorkspacePage({
 
             {(hasCriticalFailure || hasSubstandardScore) && (
               <div>
-                <label className="label mb-1.5">Instruksi Sesi Remedial / Latihan Terarah</label>
+                <label className="label">Instruksi Sesi Remedial / Latihan Terarah</label>
                 <textarea
                   rows={2}
                   value={remediationInstructions}
                   onChange={(e) => setRemediationInstructions(e.target.value)}
-                  placeholder="Contoh: Lakukan 5x kalibrasi espresso 18g:36g dalam 26–28 detik sebelum pengujian ulang..."
+                  placeholder="Contoh: Lakukan 5x kalibrasi espresso 18g:36g dalam rentang 26–28 detik sebelum uji ulang..."
                   className="input text-xs"
                 />
               </div>
             )}
 
-            <div className="pt-2 flex items-center justify-between">
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
               <p className="text-xs text-roast-500 font-mono">Assessor: Trainer Resmi Cherry Edu · Keputusan Mengikat</p>
               <button
                 type="button"
                 disabled={submitting}
                 onClick={handleSubmitEvaluation}
-                className="btn-primary text-xs py-2 px-5 disabled:opacity-50"
+                className="btn-primary text-xs py-2.5 px-6 disabled:opacity-50 w-full sm:w-auto"
               >
                 {submitting
                   ? 'Menyimpan Hasil...'
@@ -426,28 +428,28 @@ export default function PracticalAssessmentWorkspacePage({
         {/* Assessment History */}
         {data.attempts.length > 0 && (
           <div className="space-y-3">
-            <h3 className="font-serif font-bold text-base text-paper-100">Riwayat Percobaan Asesmen</h3>
+            <h3 className="font-serif font-bold text-base text-roast-950">Riwayat Percobaan Asesmen</h3>
             <div className="data-table">
-              <table className="w-full text-left text-xs">
+              <table>
                 <thead>
                   <tr>
                     <th>Percobaan</th>
                     <th>Keputusan</th>
-                    <th>Catatan</th>
+                    <th>Catatan Trainer</th>
                     <th>Tanggal</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.attempts.map((a) => (
                     <tr key={a.id}>
-                      <td className="font-mono font-semibold text-paper-100">#{a.attempt_no}</td>
+                      <td className="font-mono font-bold text-roast-950">#{a.attempt_no}</td>
                       <td>
-                        <span className="status-pill">
+                        <span className="status-pill font-mono">
                           {a.decision ? a.decision.replace(/_/g, ' ') : a.status}
                         </span>
                       </td>
-                      <td className="text-roast-400">{a.reason || '—'}</td>
-                      <td className="font-mono text-roast-500">
+                      <td className="text-roast-700">{a.reason || '—'}</td>
+                      <td className="font-mono text-roast-500 text-[11px]">
                         {new Date(a.started_at).toLocaleDateString('id-ID')}
                       </td>
                     </tr>
