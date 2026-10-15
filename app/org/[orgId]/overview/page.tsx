@@ -43,7 +43,7 @@ export default function OwnerOverviewPage({
 
   // Export Executive Report
   const handleExportReport = () => {
-    const headers = "Nama Barista,Peran,Skor Awal,Skor Sekarang,Pertumbuhan,Fundamental B2C,Praktik Teknik,Praktik Espresso,Class Path Selesai,Ujian Hybrid,Rekomendasi Trainer\n";
+    const headers = "Nama Barista,Peran,Skor Awal,Skor Sekarang,Pertumbuhan,Fundamental Online,Praktik Teknik,Praktik Espresso,Class Path Selesai,Ujian Hybrid,Rekomendasi Trainer\n";
     const rows = program.baristas.map((b) => {
       const growth = `+${b.currentScore - b.initialScore} poin`;
       const fundamental = b.fundamentalHuluHilir.finalExamPassed && b.fundamentalBaristaPath.finalExamPassed ? "Lulus Penuh" : "Sebagian";
@@ -139,7 +139,7 @@ export default function OwnerOverviewPage({
                 { step: "2.1 Fundamental", sub: "Web Cherry Edu", status: "done" },
                 { step: "2.2 Praktik Teknik", sub: "Sesi Offline Bar", status: "done" },
                 { step: "2.3 Espresso Base", sub: "Dial-In & Sensori", status: "active" },
-                { step: "2.4 Class 3 Path", sub: "Min. 3 Modul B2C", status: "active" },
+                { step: "2.4 Class 3 Path", sub: "Min. 3 Modul Pilihan", status: "active" },
                 { step: "2.5 Ujian & Rapor", sub: "Evaluasi Akhir", status: "pending" },
               ].map((m) => (
                 <div
@@ -291,7 +291,7 @@ export default function OwnerOverviewPage({
                       <div className="p-2 rounded bg-paper-50 border border-paper-200">
                         <span className="text-roast-500 block text-[9px]">2.1 FUNDAMENTAL</span>
                         <span className="font-semibold text-roast-900">
-                          {barista.fundamentalHuluHilir.finalExamPassed ? "Lulus B2C ✓" : "In Progress"}
+                          {barista.fundamentalHuluHilir.finalExamPassed ? "Teori Lulus ✓" : "In Progress"}
                         </span>
                       </div>
 
@@ -502,7 +502,7 @@ export default function OwnerOverviewPage({
                   Hasil Ujian Komprehensif Barista (Modul 2.5)
                 </h2>
                 <p className="text-xs text-roast-500">
-                  Ujian terintegrasi menggabungkan kurikulum B2C Cherry Edu dengan studi kasus operasional kafe ini.
+                  Ujian terintegrasi menggabungkan kurikulum teori Cherry Edu dengan studi kasus operasional kafe ini.
                 </p>
               </div>
 
@@ -512,7 +512,7 @@ export default function OwnerOverviewPage({
                     <tr>
                       <th>Nama Barista</th>
                       <th>Status Ujian</th>
-                      <th className="text-center">Skor Teori B2C</th>
+                      <th className="text-center">Skor Teori Online</th>
                       <th className="text-center">Skor Kasus Trainer</th>
                       <th className="text-center">Nilai Akhir</th>
                       <th>Keputusan</th>
@@ -601,7 +601,7 @@ export default function OwnerOverviewPage({
               {/* 2.1 Fundamental */}
               <div className="p-3 bg-paper-50 rounded-lg border border-paper-200 space-y-1">
                 <div className="flex justify-between font-mono font-bold">
-                  <span className="text-roast-900">2.1 Fundamental Hulu ke Hilir &amp; Barista Path (B2C)</span>
+                  <span className="text-roast-900">2.1 Fundamental Hulu ke Hilir &amp; Barista Path (Online)</span>
                   <span className="text-roast-700">
                     {selectedBarista.fundamentalHuluHilir.finalExamPassed ? "LULUS ✓" : "BELUM LENGKAP"}
                   </span>
@@ -664,7 +664,7 @@ export default function OwnerOverviewPage({
                   </span>
                 </div>
                 <p className="text-[11px] text-roast-500">
-                  Teori B2C: {selectedBarista.hybridExam.theoryScore}% · Kasus Trainer: {selectedBarista.hybridExam.practicalCustomScore}%
+                  Teori Online: {selectedBarista.hybridExam.theoryScore}% · Kasus Trainer: {selectedBarista.hybridExam.practicalCustomScore}%
                 </p>
               </div>
 

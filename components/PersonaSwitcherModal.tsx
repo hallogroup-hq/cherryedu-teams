@@ -24,7 +24,7 @@ const PERSONAS: Persona[] = [
     orgName: 'Kopi Senja (Specialty Coffee)',
     roleTitle: 'Barista Learner (Tahun ke-1)',
     destination: '/org/org-kopisenja-01/learn',
-    description: 'Roadmap 6 modul mentorship, tracker teori B2C, dial-in studio & ujian hybrid',
+    description: 'Roadmap 6 modul mentorship, tracker materi teori, dial-in studio & ujian hybrid',
     icon: Coffee,
   },
   {
@@ -178,7 +178,7 @@ export default function PersonaSwitcherModal({ isOpen, onClose, currentRole }: P
             rel="noopener noreferrer"
             className="text-cherry-700 hover:underline font-semibold"
           >
-            Buka Website Utama B2C ↗
+            Buka Portal Cherry Edu ↗
           </a>
         </div>
       </div>

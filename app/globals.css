@@ -18,7 +18,7 @@
   }
 }
 
-/* Custom Minimalist Scrollbar — matching B2C */
+/* Custom Minimalist Scrollbar — matching Cherry Edu */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -78,7 +78,7 @@
     @apply block text-xs font-mono uppercase tracking-wider text-roast-700 font-semibold mb-1.5;
   }
 
-  /* ── Mono section label (B2C Signature) ── */
+  /* ── Mono section label (Cherry Edu Signature) ── */
   .section-label {
     @apply font-mono text-[10px] uppercase tracking-widest text-roast-500 font-bold;
   }

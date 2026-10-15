@@ -146,7 +146,7 @@ export default function MobileBottomNav({
             </Link>
           )}
 
-          {/* TAB 3: Coffee Tool / B2C Link */}
+          {/* TAB 3: Coffee Tool Link */}
           {role === 'barista' && (
             <button
               type="button"
@@ -169,7 +169,7 @@ export default function MobileBottomNav({
               className="flex flex-col items-center justify-center h-full text-roast-500 hover:text-roast-900 font-medium transition-colors"
             >
               <ExternalLink className="w-5 h-5 stroke-[2]" />
-              <span className="text-[10px] mt-1 tracking-tight">Lab B2C</span>
+              <span className="text-[10px] mt-1 tracking-tight">Tools Kopi</span>
             </a>
           )}
 

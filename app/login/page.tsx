@@ -153,7 +153,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-paper-100 flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-lg">
 
-        {/* Brand Header — Aligned with B2C edu.cherrycoffeeroastery.com */}
+        {/* Brand Header — Aligned with edu.cherrycoffeeroastery.com */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-3 group">
             <img

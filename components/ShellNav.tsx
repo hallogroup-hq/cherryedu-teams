@@ -124,17 +124,17 @@ export default function ShellNav({
               )}
             </div>
 
-            {/* Right: Actions, Persona Switcher & B2C Link */}
+            {/* Right: Actions, Persona Switcher & Portal Link */}
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-              {/* External B2C Link */}
+              {/* External Cherry Edu Portal Link */}
               <a
-                href="https://edu.cherrycoffeeroastery.com"
+                href="https://edu.cherrycoffeeroastery.com/paths"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden lg:inline-flex items-center gap-1.5 text-xs text-roast-600 hover:text-cherry-800 font-medium px-2.5 py-1.5 rounded-md hover:bg-paper-50 transition border border-transparent hover:border-paper-200"
-                title="Buka portal B2C Cherry Edu Academy"
+                className="hidden lg:inline-flex items-center gap-1.5 text-xs text-roast-600 hover:text-roast-950 font-medium px-2.5 py-1.5 rounded-md hover:bg-paper-50 transition border border-transparent hover:border-paper-200"
+                title="Buka portal kurikulum Cherry Edu"
               >
-                <span>Website Edu (B2C)</span>
+                <span>Akademi Cherry Edu</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
 

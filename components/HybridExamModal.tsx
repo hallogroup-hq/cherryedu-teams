@@ -35,7 +35,7 @@ const EXAM_QUESTIONS: Question[] = [
   {
     id: 'q1',
     source: 'edu_cherry_b2c',
-    sourceLabel: 'Materi Fundamental Hulu ke Hilir (Cherry Edu B2C)',
+    sourceLabel: 'Materi Fundamental Hulu ke Hilir (Akademi Cherry Edu)',
     question: 'Pada proses pascapanen kopi, proses manakah yang mempertahankan lendir (mucilage) buah kopi saat penjemuran untuk menghasilkan body lebih tebal dan manis tinggi?',
     options: [
       'Fully Washed (Basah Penuh)',
@@ -49,7 +49,7 @@ const EXAM_QUESTIONS: Question[] = [
   {
     id: 'q2',
     source: 'edu_cherry_b2c',
-    sourceLabel: 'Materi Barista Path: Teori Ekstraksi (Cherry Edu B2C)',
+    sourceLabel: 'Materi Barista Path: Teori Ekstraksi (Akademi Cherry Edu)',
     question: 'Jika espresso terekstraksi terlalu cepat (18g yield 42g dalam 18 detik) dan rasanya sangat asam menyengat (sour/sharp), tindakan kalibrasi apa yang harus dilakukan?',
     options: [
       'Membuat gilingan lebih kasar (coarser)',
@@ -63,7 +63,7 @@ const EXAM_QUESTIONS: Question[] = [
   {
     id: 'q3',
     source: 'edu_cherry_b2c',
-    sourceLabel: 'Materi Milk Science (Cherry Edu B2C)',
+    sourceLabel: 'Materi Sains Susu & Microfoam (Akademi Cherry Edu)',
     question: 'Berapa rentang suhu ideal untuk steaming susu pada minuman cappuccino/latte agar protein dan laktosa tidak rusak (scalding)?',
     options: [
       '40°C – 48°C',
@@ -294,7 +294,7 @@ export default function HybridExamModal({
             <div className="grid grid-cols-2 gap-3 text-left">
               <div className="p-3 bg-paper-50 rounded-xl border border-paper-200 space-y-1">
                 <span className="text-[10px] font-mono uppercase text-roast-500 font-bold block">
-                  Materi B2C Online
+                  Teori Online Cherry Edu
                 </span>
                 <span className="font-serif font-bold text-xl text-roast-950">
                   {examResult?.b2cScore}%

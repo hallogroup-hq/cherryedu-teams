@@ -1,14 +1,14 @@
 /**
- * Cherry Edu Teams — B2B 1-Month Hybrid Mentorship Service Framework
+ * Cherry Edu Teams — Program Mentorship 1 Bulan Hybrid untuk Coffee Shop
  * 
  * Standar Service 1 Bulan untuk Coffee Shop:
  * 1. R&D (Audit Bar, Resep & SOP Mesin)
  * 2. Mentorship Hybrid:
- *    2.1 Fundamental (Online Tracker sync ke edu.cherrycoffeeroastery.com)
- *    2.2 Teknik (Offline Practical Bar Session)
- *    2.3 Espresso Base (Offline Dial-in & Sensory Session)
- *    2.4 Class (Min. 3 Specialized Paths dari Cherry Edu)
- *    2.5 Ujian (Hybrid Exam: Teori B2C + Soal Custom Trainer)
+ *    2.1 Fundamental (Materi online di edu.cherrycoffeeroastery.com)
+ *    2.2 Teknik (Sesi Praktik Tatap Muka di Bar)
+ *    2.3 Espresso Base (Sesi Praktik Dial-In & Sensori di Bar)
+ *    2.4 Class (Min. 3 Path Spesialisasi dari Cherry Edu)
+ *    2.5 Ujian (Hybrid Exam: Teori Online + Studi Kasus Mesin Kafe)
  *    2.6 Executive Owner Report (Transparansi kegiatan, progres service & perkembangan SDM)
  */
 
@@ -52,6 +52,7 @@ export interface BaristaMentorshipRecord {
     finalExamPassed: boolean;
     examScore?: number;
     lastAccessed?: string;
+    url: string;
   };
   fundamentalBaristaPath: {
     completed: boolean;
@@ -59,6 +60,7 @@ export interface BaristaMentorshipRecord {
     finalExamPassed: boolean;
     examScore?: number;
     lastAccessed?: string;
+    url: string;
   };
 
   // 2.2 Sesi Offline Teknik (Praktik Bar)
@@ -92,8 +94,8 @@ export interface BaristaMentorshipRecord {
   // 2.5 Ujian Komprehensif (Hybrid)
   hybridExam: {
     status: 'not_started' | 'in_progress' | 'submitted' | 'graded';
-    theoryScore: number; // Dari materi B2C
-    practicalCustomScore: number; // Soal custom trainer
+    theoryScore: number; // Dari materi online
+    practicalCustomScore: number; // Soal khusus trainer
     finalScore: number;
     passed: boolean;
     takenAt?: string;
@@ -157,7 +159,7 @@ export const DEMO_MENTORSHIP_PROGRAM: CoffeeShopMentorshipProgram = {
       targetTimeSec: 27,
       brewRatio: "1:2.0",
     },
-    sopDocumentUrl: "https://edu.cherrycoffeeroastery.com/docs/sop-senja-v1.pdf",
+    sopDocumentUrl: "https://edu.cherrycoffeeroastery.com/paths/barista-specialization",
     keyFindings: [
       "Distribusi bubuk kopi sebelumnya tidak konsisten, menyebabkan channeling minor pada basket kanan.",
       "Suhu steaming susu awal sering over 70°C; telah dikalibrasi ke sweet-spot 60–63°C.",
@@ -230,6 +232,7 @@ export const DEMO_MENTORSHIP_PROGRAM: CoffeeShopMentorshipProgram = {
         finalExamPassed: true,
         examScore: 88,
         lastAccessed: "2026-04-06",
+        url: "https://edu.cherrycoffeeroastery.com/paths/kopi-dari-hulu-ke-hilir",
       },
       fundamentalBaristaPath: {
         completed: true,
@@ -237,6 +240,7 @@ export const DEMO_MENTORSHIP_PROGRAM: CoffeeShopMentorshipProgram = {
         finalExamPassed: true,
         examScore: 92,
         lastAccessed: "2026-04-10",
+        url: "https://edu.cherrycoffeeroastery.com/paths/barista-specialization",
       },
       offlineTeknik: {
         verified: true,
@@ -261,29 +265,31 @@ export const DEMO_MENTORSHIP_PROGRAM: CoffeeShopMentorshipProgram = {
       },
       classesTaken: [
         {
-          pathId: "path-sensory",
-          title: "Sensory & Cupping Foundation",
-          category: "Sensory",
-          completed: true,
-          score: 86,
-          completedAt: "2026-04-11",
-          cherryEduUrl: "https://edu.cherrycoffeeroastery.com/courses/sensory",
-        },
-        {
-          pathId: "path-milk",
-          title: "Milk Science & Microfoam Texturing",
+          pathId: "path-barista",
+          title: "Professional Barista Specialization",
           category: "Barista Skills",
           completed: true,
-          score: 90,
-          completedAt: "2026-04-13",
-          cherryEduUrl: "https://edu.cherrycoffeeroastery.com/courses/milk-science",
+          score: 92,
+          completedAt: "2026-04-10",
+          cherryEduUrl: "https://edu.cherrycoffeeroastery.com/paths/barista-specialization",
         },
         {
-          pathId: "path-manualbrew",
-          title: "Specialty Manual Brewing (V60 & Aeropress)",
+          pathId: "path-home-brewer",
+          title: "Manual Brewing & Water Chemistry",
           category: "Brewing",
-          completed: false,
-          cherryEduUrl: "https://edu.cherrycoffeeroastery.com/courses/manual-brew",
+          completed: true,
+          score: 86,
+          completedAt: "2026-04-12",
+          cherryEduUrl: "https://edu.cherrycoffeeroastery.com/paths/home-brewer-specialization",
+        },
+        {
+          pathId: "path-foundation",
+          title: "Foundation: Kopi dari Hulu ke Hilir",
+          category: "Foundation",
+          completed: true,
+          score: 88,
+          completedAt: "2026-04-06",
+          cherryEduUrl: "https://edu.cherrycoffeeroastery.com/paths/kopi-dari-hulu-ke-hilir",
         },
       ],
       hybridExam: {
@@ -311,6 +317,7 @@ export const DEMO_MENTORSHIP_PROGRAM: CoffeeShopMentorshipProgram = {
         finalExamPassed: true,
         examScore: 96,
         lastAccessed: "2026-04-04",
+        url: "https://edu.cherrycoffeeroastery.com/paths/kopi-dari-hulu-ke-hilir",
       },
       fundamentalBaristaPath: {
         completed: true,
@@ -318,6 +325,7 @@ export const DEMO_MENTORSHIP_PROGRAM: CoffeeShopMentorshipProgram = {
         finalExamPassed: true,
         examScore: 98,
         lastAccessed: "2026-04-07",
+        url: "https://edu.cherrycoffeeroastery.com/paths/barista-specialization",
       },
       offlineTeknik: {
         verified: true,
@@ -342,31 +350,31 @@ export const DEMO_MENTORSHIP_PROGRAM: CoffeeShopMentorshipProgram = {
       },
       classesTaken: [
         {
-          pathId: "path-sensory",
-          title: "Sensory & Cupping Foundation",
-          category: "Sensory",
-          completed: true,
-          score: 94,
-          completedAt: "2026-04-08",
-          cherryEduUrl: "https://edu.cherrycoffeeroastery.com/courses/sensory",
-        },
-        {
-          pathId: "path-milk",
-          title: "Milk Science & Microfoam Texturing",
+          pathId: "path-barista",
+          title: "Professional Barista Specialization",
           category: "Barista Skills",
           completed: true,
           score: 98,
-          completedAt: "2026-04-10",
-          cherryEduUrl: "https://edu.cherrycoffeeroastery.com/courses/milk-science",
+          completedAt: "2026-04-07",
+          cherryEduUrl: "https://edu.cherrycoffeeroastery.com/paths/barista-specialization",
         },
         {
-          pathId: "path-workflow",
-          title: "High-Volume Bar Speed & Ergonomics",
-          category: "Operations",
+          pathId: "path-foundation",
+          title: "Foundation: Kopi dari Hulu ke Hilir",
+          category: "Foundation",
           completed: true,
-          score: 92,
-          completedAt: "2026-04-12",
-          cherryEduUrl: "https://edu.cherrycoffeeroastery.com/courses/bar-ergonomics",
+          score: 96,
+          completedAt: "2026-04-04",
+          cherryEduUrl: "https://edu.cherrycoffeeroastery.com/paths/kopi-dari-hulu-ke-hilir",
+        },
+        {
+          pathId: "path-home-brewer",
+          title: "Manual Brewing & Water Chemistry",
+          category: "Brewing",
+          completed: true,
+          score: 94,
+          completedAt: "2026-04-11",
+          cherryEduUrl: "https://edu.cherrycoffeeroastery.com/paths/home-brewer-specialization",
         },
       ],
       hybridExam: {
@@ -394,12 +402,14 @@ export const DEMO_MENTORSHIP_PROGRAM: CoffeeShopMentorshipProgram = {
         finalExamPassed: true,
         examScore: 78,
         lastAccessed: "2026-04-09",
+        url: "https://edu.cherrycoffeeroastery.com/paths/kopi-dari-hulu-ke-hilir",
       },
       fundamentalBaristaPath: {
         completed: false,
         progressPct: 65,
         finalExamPassed: false,
         lastAccessed: "2026-04-13",
+        url: "https://edu.cherrycoffeeroastery.com/paths/barista-specialization",
       },
       offlineTeknik: {
         verified: true,
@@ -423,27 +433,27 @@ export const DEMO_MENTORSHIP_PROGRAM: CoffeeShopMentorshipProgram = {
       },
       classesTaken: [
         {
-          pathId: "path-milk",
-          title: "Milk Science & Microfoam Texturing",
-          category: "Barista Skills",
+          pathId: "path-foundation",
+          title: "Foundation: Kopi dari Hulu ke Hilir",
+          category: "Foundation",
           completed: true,
-          score: 75,
-          completedAt: "2026-04-12",
-          cherryEduUrl: "https://edu.cherrycoffeeroastery.com/courses/milk-science",
+          score: 78,
+          completedAt: "2026-04-09",
+          cherryEduUrl: "https://edu.cherrycoffeeroastery.com/paths/kopi-dari-hulu-ke-hilir",
         },
         {
-          pathId: "path-sensory",
-          title: "Sensory & Cupping Foundation",
-          category: "Sensory",
+          pathId: "path-barista",
+          title: "Professional Barista Specialization",
+          category: "Barista Skills",
           completed: false,
-          cherryEduUrl: "https://edu.cherrycoffeeroastery.com/courses/sensory",
+          cherryEduUrl: "https://edu.cherrycoffeeroastery.com/paths/barista-specialization",
         },
         {
-          pathId: "path-manualbrew",
-          title: "Specialty Manual Brewing (V60 & Aeropress)",
+          pathId: "path-home-brewer",
+          title: "Manual Brewing & Water Chemistry",
           category: "Brewing",
           completed: false,
-          cherryEduUrl: "https://edu.cherrycoffeeroastery.com/courses/manual-brew",
+          cherryEduUrl: "https://edu.cherrycoffeeroastery.com/paths/home-brewer-specialization",
         },
       ],
       hybridExam: {
