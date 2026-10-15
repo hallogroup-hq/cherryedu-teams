@@ -10,6 +10,8 @@ interface DemoAccount {
   email: string;
   description: string;
   tag: string;
+  roleKey: 'barista' | 'owner' | 'trainer' | 'admin';
+  destination: string;
 }
 
 const DEMO_ACCOUNTS: DemoAccount[] = [
@@ -18,24 +20,32 @@ const DEMO_ACCOUNTS: DemoAccount[] = [
     email: 'barista1@kopikamu.id',
     description: 'Progres modul kopi, submit latihan remedial',
     tag: 'BARISTA',
+    roleKey: 'barista',
+    destination: '/org/org-kopisenja-01/learn',
   },
   {
     roleName: 'Owner & Manager',
     email: 'owner@kopikamu.id',
     description: 'Kelola outlet, cohort & undang anggota tim',
     tag: 'OWNER',
+    roleKey: 'owner',
+    destination: '/org/org-kopisenja-01/overview',
   },
   {
     roleName: 'Trainer Resmi',
     email: 'trainer.dimas@cherrycoffeeroastery.com',
     description: 'Penilaian rubrik praktikal & verifikasi kompetensi',
     tag: 'TRAINER',
+    roleKey: 'trainer',
+    destination: '/trainer',
   },
   {
     roleName: 'Platform Admin',
     email: 'admin@cherrycoffeeroastery.com',
     description: 'Tata kelola tenant, kurikulum & penugasan instruktur',
     tag: 'ADMIN',
+    roleKey: 'admin',
+    destination: '/admin',
   },
 ];
 
@@ -47,6 +57,23 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [selectedDemo, setSelectedDemo] = useState<string | null>(null);
   const router = useRouter();
+
+  const executeDemoLogin = (roleKey: 'barista' | 'owner' | 'trainer' | 'admin', destination: string) => {
+    setLoading(true);
+    setError(null);
+
+    // 1. Set Cookies (valid for middleware and serverAuth)
+    document.cookie = `teams_demo_role=${roleKey}; path=/; max-age=86400; SameSite=Lax`;
+    document.cookie = `teams_auth_token=demo-token-${roleKey}; path=/; max-age=86400; SameSite=Lax`;
+    document.cookie = `sb-access-token=demo-token-${roleKey}; path=/; max-age=86400; SameSite=Lax`;
+
+    // 2. Set LocalStorage
+    localStorage.setItem('teams_auth_token', `demo-token-${roleKey}`);
+    localStorage.setItem('teams_demo_role', roleKey);
+
+    // 3. Direct navigate
+    router.push(destination);
+  };
 
   const handleSelectDemo = (account: DemoAccount) => {
     setEmail(account.email);
@@ -65,6 +92,35 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
 
+    const lowerEmail = email.trim().toLowerCase();
+
+    // Check if submitting with any of the demo accounts
+    const matchedDemo = DEMO_ACCOUNTS.find(
+      (acc) => acc.email.toLowerCase() === lowerEmail || (selectedDemo && acc.tag === selectedDemo)
+    );
+
+    if (matchedDemo) {
+      executeDemoLogin(matchedDemo.roleKey, matchedDemo.destination);
+      return;
+    }
+
+    if (lowerEmail.includes('admin')) {
+      executeDemoLogin('admin', '/admin');
+      return;
+    }
+    if (lowerEmail.includes('trainer') || lowerEmail.includes('dimas')) {
+      executeDemoLogin('trainer', '/trainer');
+      return;
+    }
+    if (lowerEmail.includes('owner') || lowerEmail.includes('kopikamu')) {
+      executeDemoLogin('owner', '/org/org-kopisenja-01/overview');
+      return;
+    }
+    if (lowerEmail.includes('barista') || lowerEmail.includes('learner')) {
+      executeDemoLogin('barista', '/org/org-kopisenja-01/learn');
+      return;
+    }
+
     try {
       const { data, error: authError } = await supabase.auth.signInWithPassword({
         email: email.trim(),
@@ -72,10 +128,9 @@ export default function LoginPage() {
       });
 
       if (authError) {
-        // Provide friendly fallback if testing without active email-confirm
         setError(
           authError.message === 'Invalid login credentials'
-            ? 'Email atau kata sandi tidak sesuai. Jika menggunakan akun demo lokal, pastikan akun telah terdaftar.'
+            ? 'Email atau kata sandi tidak sesuai. Silakan gunakan salah satu akun demo di atas untuk evaluasi tim.'
             : authError.message
         );
         return;
@@ -83,6 +138,7 @@ export default function LoginPage() {
 
       if (data?.session?.access_token) {
         localStorage.setItem('teams_auth_token', data.session.access_token);
+        document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=86400; SameSite=Lax`;
       }
 
       router.push('/dashboard');
@@ -148,30 +204,47 @@ export default function LoginPage() {
               <p className="text-[11px] font-mono uppercase tracking-wider text-roast-700 font-bold">
                 Pilih Akun Demo Uji (1-Klik)
               </p>
-              <span className="text-[9px] font-mono text-roast-400">Klik untuk isi otomatis</span>
+              <span className="text-[9px] font-mono text-roast-400">Klik langsung masuk</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {DEMO_ACCOUNTS.map((acc) => {
                 const isSelected = selectedDemo === acc.tag || email === acc.email;
                 return (
-                  <button
+                  <div
                     key={acc.tag}
-                    type="button"
-                    onClick={() => handleSelectDemo(acc)}
-                    className={`text-left p-2.5 rounded-lg border transition-all text-xs ${
+                    className={`p-2.5 rounded-lg border transition-all text-xs flex flex-col justify-between ${
                       isSelected
                         ? 'bg-paper-100 border-roast-700 shadow-xs'
                         : 'bg-white border-paper-200 hover:border-paper-400 hover:bg-paper-50'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-0.5">
-                      <span className="font-semibold text-roast-950">{acc.roleName}</span>
-                      <span className="text-[9px] font-mono uppercase px-1.5 py-0.2 rounded bg-paper-100 text-roast-600 border border-paper-200">
-                        {acc.tag}
-                      </span>
+                    <div>
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="font-semibold text-roast-950">{acc.roleName}</span>
+                        <span className="text-[9px] font-mono uppercase px-1.5 py-0.2 rounded bg-paper-100 text-roast-600 border border-paper-200">
+                          {acc.tag}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-roast-500 truncate font-mono mb-2">{acc.email}</p>
                     </div>
-                    <p className="text-[10px] text-roast-500 truncate font-mono">{acc.email}</p>
-                  </button>
+                    <div className="flex items-center gap-1.5 pt-1.5 border-t border-paper-200/60">
+                      <button
+                        type="button"
+                        onClick={() => executeDemoLogin(acc.roleKey, acc.destination)}
+                        className="flex-1 py-1 px-2 rounded bg-roast-950 hover:bg-roast-850 text-white text-[10px] font-medium transition text-center"
+                      >
+                        Masuk Langsung →
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSelectDemo(acc)}
+                        className="py-1 px-2 rounded bg-paper-100 hover:bg-paper-200 text-roast-700 text-[10px] font-mono transition"
+                        title="Isi ke form"
+                      >
+                        Isi Form
+                      </button>
+                    </div>
+                  </div>
                 );
               })}
             </div>
@@ -251,9 +324,11 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <p className="mt-6 text-center text-[10px] font-mono text-roast-500 uppercase tracking-wider">
-          Cherry Edu Teams · Standar Kompetensi Kopi Specialty Indonesia
-        </p>
+        {/* Footer info */}
+        <div className="text-center mt-6 text-[11px] font-mono text-roast-500 space-y-1">
+          <p>CHERRY EDU TEAMS · STANDAR KOMPETENSI KOPI SPESIALTI INDONESIA</p>
+          <p>© {new Date().getFullYear()} Cherry Coffee Roastery. Seluruh hak cipta dilindungi.</p>
+        </div>
       </div>
     </div>
   );

@@ -26,7 +26,11 @@ export default function AdminDashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/teams/admin/dashboard')
+    const token = typeof window !== 'undefined' ? localStorage.getItem('teams_auth_token') || '' : '';
+    fetch('/api/teams/admin/dashboard', {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: 'same-origin',
+    })
       .then((r) => r.json())
       .then((d) => {
         if (!d.success) throw new Error(d.error ?? 'Gagal memuat dashboard admin');

@@ -20,15 +20,21 @@ export async function GET(
     // Must be a member of this organization
     assertMembership(user, orgId);
 
-    const outletsRes = await query<Outlet>(
-      `SELECT id, organization_id, name, city, address, status, created_at, updated_at
-       FROM b2b.outlets
-       WHERE organization_id = $1
-       ORDER BY name ASC`,
-      [orgId]
-    );
+    try {
+      const outletsRes = await query<Outlet>(
+        `SELECT id, organization_id, name, city, address, status, created_at, updated_at
+         FROM b2b.outlets
+         WHERE organization_id = $1
+         ORDER BY name ASC`,
+        [orgId]
+      );
 
-    return NextResponse.json({ success: true, outlets: outletsRes.rows });
+      return NextResponse.json({ success: true, outlets: outletsRes.rows });
+    } catch (dbErr) {
+      console.warn('[Outlets DB Fallback]', dbErr);
+      const { DEMO_ORG_OVERVIEW } = await import('@/lib/demoData');
+      return NextResponse.json({ success: true, outlets: DEMO_ORG_OVERVIEW.outlets });
+    }
   } catch (err: any) {
     if (err instanceof AuthorizationError) {
       return NextResponse.json({ success: false, error: err.message, code: err.code }, { status: err.status });

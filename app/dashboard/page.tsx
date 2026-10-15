@@ -15,6 +15,32 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function resolveRole() {
+      // 0. Check for 1-Click Demo Session
+      const demoRole =
+        (typeof window !== "undefined" && localStorage.getItem("teams_demo_role")) ||
+        (typeof document !== "undefined" &&
+          document.cookie
+            .split("; ")
+            .find((row) => row.startsWith("teams_demo_role="))
+            ?.split("=")[1]);
+
+      if (demoRole === "admin") {
+        router.replace("/admin");
+        return;
+      }
+      if (demoRole === "trainer") {
+        router.replace("/trainer");
+        return;
+      }
+      if (demoRole === "owner") {
+        router.replace("/org/org-kopisenja-01/overview");
+        return;
+      }
+      if (demoRole === "barista") {
+        router.replace("/org/org-kopisenja-01/learn");
+        return;
+      }
+
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         router.replace("/login");

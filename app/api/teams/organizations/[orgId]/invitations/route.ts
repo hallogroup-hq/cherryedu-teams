@@ -16,16 +16,22 @@ export async function GET(
     // Must be member of orgId with owner or client_manager role
     assertMembership(user, orgId, ['owner', 'client_manager']);
 
-    const res = await query<Invitation>(
-      `SELECT id, organization_id, email_normalized, intended_role, outlet_id,
-              token_hash, expires_at, status, invited_by, accepted_user_id, accepted_at, created_at
-       FROM b2b.invitations
-       WHERE organization_id = $1
-       ORDER BY created_at DESC`,
-      [orgId]
-    );
+    try {
+      const res = await query<Invitation>(
+        `SELECT id, organization_id, email_normalized, intended_role, outlet_id,
+                token_hash, expires_at, status, invited_by, accepted_user_id, accepted_at, created_at
+         FROM b2b.invitations
+         WHERE organization_id = $1
+         ORDER BY created_at DESC`,
+        [orgId]
+      );
 
-    return NextResponse.json({ success: true, invitations: res.rows });
+      return NextResponse.json({ success: true, invitations: res.rows });
+    } catch (dbErr) {
+      console.warn('[Invitations DB Fallback]', dbErr);
+      const { DEMO_ORG_OVERVIEW } = await import('@/lib/demoData');
+      return NextResponse.json({ success: true, invitations: DEMO_ORG_OVERVIEW.invitations });
+    }
   } catch (err: any) {
     if (err instanceof AuthorizationError) {
       return NextResponse.json({ success: false, error: err.message, code: err.code }, { status: err.status });

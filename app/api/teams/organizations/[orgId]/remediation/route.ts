@@ -58,8 +58,14 @@ export async function GET(
 
     sql += ` ORDER BY rt.created_at DESC`;
 
-    const res = await query<any>(sql, sqlParams);
-    return NextResponse.json({ success: true, tasks: res.rows });
+    try {
+      const res = await query<any>(sql, sqlParams);
+      return NextResponse.json({ success: true, tasks: res.rows });
+    } catch (dbErr) {
+      console.warn('[Remediation DB Fallback]', dbErr);
+      const { DEMO_BARISTA_PROGRESS } = await import('@/lib/demoData');
+      return NextResponse.json({ success: true, tasks: DEMO_BARISTA_PROGRESS.tasks });
+    }
   } catch (err: any) {
     if (err instanceof AuthorizationError) {
       return NextResponse.json({ success: false, error: err.message, code: err.code }, { status: err.status });

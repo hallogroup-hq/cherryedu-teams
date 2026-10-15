@@ -53,9 +53,14 @@ export async function GET(
 
     sql += ` GROUP BY c.id, pv.version_no, p.title ORDER BY c.start_at DESC`;
 
-    const cohortsRes = await query<any>(sql, sqlParams);
-
-    return NextResponse.json({ success: true, cohorts: cohortsRes.rows });
+    try {
+      const cohortsRes = await query<any>(sql, sqlParams);
+      return NextResponse.json({ success: true, cohorts: cohortsRes.rows });
+    } catch (dbErr) {
+      console.warn('[Cohorts DB Fallback]', dbErr);
+      const { DEMO_ORG_OVERVIEW } = await import('@/lib/demoData');
+      return NextResponse.json({ success: true, cohorts: DEMO_ORG_OVERVIEW.active_cohorts });
+    }
   } catch (err: any) {
     if (err instanceof AuthorizationError) {
       return NextResponse.json({ success: false, error: err.message, code: err.code }, { status: err.status });

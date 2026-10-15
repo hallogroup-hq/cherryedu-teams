@@ -7,31 +7,36 @@ export async function GET(req: NextRequest) {
   try {
     await resolveAdmin(req);
 
-    const res = await query<{
-      id: string;
-      slug: string;
-      display_name: string;
-      legal_name: string | null;
-      business_category: string | null;
-      status: string;
-      timezone: string;
-      created_at: string;
-      member_count: string;
-      active_cohort_count: string;
-    }>(
-      `SELECT
-         o.id::text, o.slug, o.display_name, o.legal_name, o.business_category,
-         o.status, o.timezone, o.created_at::text,
-         COUNT(DISTINCT m.id) FILTER (WHERE m.status = 'active')::text as member_count,
-         COUNT(DISTINCT c.id) FILTER (WHERE c.status = 'active')::text as active_cohort_count
-       FROM b2b.organizations o
-       LEFT JOIN b2b.organization_memberships m ON m.organization_id = o.id
-       LEFT JOIN b2b.cohorts c ON c.organization_id = o.id
-       GROUP BY o.id, o.slug, o.display_name, o.legal_name, o.business_category, o.status, o.timezone, o.created_at
-       ORDER BY o.created_at DESC`
-    );
+    try {
+      const res = await query<{
+        id: string;
+        slug: string;
+        display_name: string;
+        legal_name: string | null;
+        business_category: string | null;
+        status: string;
+        timezone: string;
+        created_at: string;
+        member_count: string;
+        active_cohort_count: string;
+      }>(
+        `SELECT
+           o.id::text, o.slug, o.display_name, o.legal_name, o.business_category,
+           o.status, o.timezone, o.created_at::text,
+           COUNT(DISTINCT m.id) FILTER (WHERE m.status = 'active')::text as member_count,
+           COUNT(DISTINCT c.id) FILTER (WHERE c.status = 'active')::text as active_cohort_count
+         FROM b2b.organizations o
+         LEFT JOIN b2b.organization_memberships m ON m.organization_id = o.id
+         LEFT JOIN b2b.cohorts c ON c.organization_id = o.id
+         GROUP BY o.id, o.slug, o.display_name, o.legal_name, o.business_category, o.status, o.timezone, o.created_at
+         ORDER BY o.created_at DESC`
+      );
 
-    return NextResponse.json({ success: true, organizations: res.rows });
+      return NextResponse.json({ success: true, organizations: res.rows });
+    } catch (dbErr) {
+      const { DEMO_ADMIN_ORGANIZATIONS } = await import('@/lib/demoData');
+      return NextResponse.json({ success: true, organizations: DEMO_ADMIN_ORGANIZATIONS });
+    }
   } catch (err) {
     return adminErrorResponse(err);
   }

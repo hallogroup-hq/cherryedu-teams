@@ -31,8 +31,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check for session cookie (set by Supabase Auth after login)
+  // Check for session cookie (set by Supabase Auth after login or 1-click demo switcher)
   const hasSession =
+    request.cookies.has("teams_demo_role") ||
+    request.cookies.has("teams_auth_token") ||
     request.cookies.has("sb-access-token") ||
     request.cookies.has("sb-refresh-token") ||
     // Supabase v2 cookie name pattern

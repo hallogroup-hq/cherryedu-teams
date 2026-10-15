@@ -62,13 +62,22 @@ export default function BaristaLearnPage({
         setLoading(true);
         setError(null);
 
-        const curRes = await fetch(`/api/teams/organizations/${orgId}/curriculum`);
+        const token = typeof window !== 'undefined' ? localStorage.getItem('teams_auth_token') || '' : '';
+        const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+
+        const curRes = await fetch(`/api/teams/organizations/${orgId}/curriculum`, {
+          headers,
+          credentials: 'same-origin',
+        });
         if (!curRes.ok) {
           if (curRes.status === 401) { router.push("/login"); return; }
           throw new Error("Gagal memuat kurikulum.");
         }
 
-        const cohortRes = await fetch(`/api/teams/organizations/${orgId}/cohorts`);
+        const cohortRes = await fetch(`/api/teams/organizations/${orgId}/cohorts`, {
+          headers,
+          credentials: 'same-origin',
+        });
         const cohortData = await cohortRes.json();
         const activeCohort = cohortData.cohorts?.[0];
         const targetEnrollmentId = activeCohort?.id
@@ -77,7 +86,8 @@ export default function BaristaLearnPage({
         setEnrollmentId(targetEnrollmentId);
 
         const progRes = await fetch(
-          `/api/teams/organizations/${orgId}/enrollments/${targetEnrollmentId}/progress`
+          `/api/teams/organizations/${orgId}/enrollments/${targetEnrollmentId}/progress`,
+          { headers, credentials: 'same-origin' }
         );
         if (progRes.ok) {
           const progData = await progRes.json();
@@ -85,7 +95,10 @@ export default function BaristaLearnPage({
           setCompetencies(progData.competencies || []);
         }
 
-        const remRes = await fetch(`/api/teams/organizations/${orgId}/remediation`);
+        const remRes = await fetch(`/api/teams/organizations/${orgId}/remediation`, {
+          headers,
+          credentials: 'same-origin',
+        });
         if (remRes.ok) {
           const remData = await remRes.json();
           setRemediationTasks(remData.tasks || []);

@@ -31,7 +31,11 @@ export default function AdminOrganizationsPage() {
 
   const loadOrgs = () => {
     setLoading(true);
-    fetch('/api/teams/admin/organizations')
+    const token = typeof window !== 'undefined' ? localStorage.getItem('teams_auth_token') || '' : '';
+    fetch('/api/teams/admin/organizations', {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: 'same-origin',
+    })
       .then((r) => r.json())
       .then((d) => {
         if (!d.success) throw new Error(d.error ?? 'Gagal memuat daftar organisasi');

@@ -74,17 +74,26 @@ export default function OwnerOverviewPage({
         setLoading(true);
         setError(null);
 
-        const res = await fetch(`/api/teams/organizations/${orgId}/overview`);
+        const token = typeof window !== 'undefined' ? localStorage.getItem('teams_auth_token') || '' : '';
+        const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+
+        const res = await fetch(`/api/teams/organizations/${orgId}/overview`, {
+          headers,
+          credentials: 'same-origin',
+        });
         if (!res.ok) {
           if (res.status === 401) { router.push("/login"); return; }
           throw new Error("Gagal memuat overview organisasi.");
         }
         const data = await res.json();
         setOverview(data.overview);
-        setOutlets(data.overview.outlets || []);
-        setCohorts(data.overview.active_cohorts || []);
+        setOutlets(data.overview?.outlets || []);
+        setCohorts(data.overview?.active_cohorts || []);
 
-        const inviteRes = await fetch(`/api/teams/organizations/${orgId}/invitations`);
+        const inviteRes = await fetch(`/api/teams/organizations/${orgId}/invitations`, {
+          headers,
+          credentials: 'same-origin',
+        });
         if (inviteRes.ok) {
           const inviteData = await inviteRes.json();
           setInvitations(inviteData.invitations || []);

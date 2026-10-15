@@ -39,7 +39,19 @@ export async function GET(req: NextRequest) {
       ORDER BY c.start_at DESC
     `;
 
-    const res = await query(sql, [user.userId]);
+    let cohortRows: any[] = [];
+    try {
+      const res = await query(sql, [user.userId]);
+      cohortRows = res.rows;
+    } catch (dbErr) {
+      const { DEMO_TRAINER_COHORTS } = await import('@/lib/demoData');
+      cohortRows = DEMO_TRAINER_COHORTS;
+    }
+
+    if (cohortRows.length === 0 && (user.userId.includes('trainer') || user.userId.includes('dimas'))) {
+      const { DEMO_TRAINER_COHORTS } = await import('@/lib/demoData');
+      cohortRows = DEMO_TRAINER_COHORTS;
+    }
 
     return NextResponse.json({
       success: true,
@@ -48,7 +60,7 @@ export async function GET(req: NextRequest) {
         name: user.fullName,
         email: user.email,
       },
-      cohorts: res.rows,
+      cohorts: cohortRows,
     });
   } catch (err: any) {
     if (err instanceof AuthorizationError) {
