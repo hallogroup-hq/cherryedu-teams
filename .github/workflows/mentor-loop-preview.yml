@@ -1,0 +1,37 @@
+name: Mentor Loop Preview QA
+on:
+  push:
+    branches: [feat/mentorship-loop-mobile-v1]
+    paths:
+      - 'app/mentor-loop/**'
+      - 'lib/mentorLoop.ts'
+      - 'tests/mentor_loop.test.ts'
+      - '.github/workflows/mentor-loop-preview.yml'
+      - 'middleware.ts'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout the review commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Verify mentor-loop state-machine tests
+        run: npx --no-install tsx --test tests/mentor_loop.test.ts
+      - name: Typecheck application
+        run: npm run typecheck
+      - name: Build application
+        run: npm run build

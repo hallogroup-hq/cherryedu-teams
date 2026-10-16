@@ -21,7 +21,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Prototype is available only in a non-production deployment.
-  if (pathname === "/experience-lab") {
+  if (pathname === "/experience-lab" || pathname === "/mentor-loop") {
     if (process.env.VERCEL_ENV === "production") {
       return new NextResponse(null, { status: 404 });
     }
