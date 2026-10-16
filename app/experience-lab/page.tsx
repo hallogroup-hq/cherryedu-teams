@@ -1,167 +1,141 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Image from 'next/image';
 import {
-  ArrowRight, ArrowUpRight, Award, BookOpen, Check, CheckCircle2,
-  ChevronLeft, ChevronRight, CircleHelp, ClipboardCheck, Coffee,
-  Compass, FlaskConical, Heart, Lightbulb, MoveUpRight, Play,
-  RotateCcw, SlidersHorizontal, Sparkles, Target, Users, WandSparkles,
+  Activity, ArrowRight, ArrowUpRight, BookOpen, Check, CheckCircle2, ChevronRight,
+  ClipboardCheck, Coffee, ExternalLink, FileText, FlaskConical, GraduationCap,
+  Heart, Lightbulb, PenLine, RotateCcw, Sparkles, Target, Users, Wrench,
 } from 'lucide-react';
-import styles from './experience-lab.module.css';
+import s from './experience-lab.module.css';
 
 type Role = 'barista' | 'owner' | 'trainer';
-type Chapter = { title: string; kicker: string; icon: string; phase: string; progress: number };
-type Person = { name: string; job: string; initials: string; color: string; percent: number; priority: string; message: string };
+type SessionType = 'R&D' | 'Teknik' | 'Espresso Base';
+type View = 'activity' | 'people';
+type Log = { step: SessionType; note: string; author: string };
+const COURSES_URL = 'https://edu.cherrycoffeeroastery.com/paths';
 
-const chapters: Chapter[] = [
-  { title: 'Kenali rasa', kicker: 'Fondasi', icon: '01', phase: 'Selesai', progress: 100 },
-  { title: 'Pahami ekstraksi', kicker: 'Sedang dipelajari', icon: '02', phase: 'Sekarang', progress: 65 },
-  { title: 'Mainkan variabel', kicker: 'Eksperimen', icon: '03', phase: 'Berikutnya', progress: 0 },
-  { title: 'Buktikan di bar', kicker: 'Praktik nyata', icon: '04', phase: 'Bersama pelatih', progress: 0 },
+const fundamentals = [
+  { id: 'hulu', title: 'Kopi dari Hulu ke Hilir', kicker: 'Fundamental 01', detail: 'Belajar perjalanan kopi, dari kebun sampai ke cangkir.', status: 'Sedang belajar', progress: 42 },
+  { id: 'barista', title: 'Fundamental Barista', kicker: 'Fundamental 02', detail: 'Bangun pemahaman kerja di balik bar dan prinsip ekstraksi.', status: 'Ujian akhir belum selesai', progress: 64 },
+];
+const classes = [
+  { title: 'Sensory & Cupping', status: 'Dipilih' },
+  { title: 'Home Brewing', status: 'Dipilih' },
+  { title: 'Espresso Exploration', status: 'Belum dipilih' },
+];
+const activities = [
+  { title: 'Audit bar & observasi workflow', type: 'R&D', week: 'Minggu 1', status: 'Sudah dilakukan', detail: 'Alur pelayanan, kondisi peralatan, dan konsistensi resep diamati.' },
+  { title: 'Praktik teknik dasar bar', type: 'Teknik', week: 'Minggu 2', status: 'Sesi terlaksana', detail: 'Distribusi, tamping, kebersihan, dan alur kerja saat ramai.' },
+  { title: 'Kalibrasi espresso & sensori', type: 'Espresso Base', week: 'Minggu 3', status: 'Terjadwal', detail: 'Latihan membaca rasa dan memilih penyesuaian ekstraksi.' },
+  { title: 'Evaluasi & laporan pemilik', type: 'Report', week: 'Minggu 4', status: 'Direncanakan', detail: 'Rangkuman sesi, perkembangan barista, dan tindak lanjut.' },
+];
+const baristas = [
+  { name: 'Naya Putri', role: 'Barista · Outlet Utama', initials: 'NP', color: 'apricot', online: 'Dua fundamental sedang berjalan', practice: 'Sudah mengikuti Teknik', next: 'Latihan ekstraksi lanjutan', tag: 'Berkembang' },
+  { name: 'Rafi Pratama', role: 'Barista · Outlet Utama', initials: 'RP', color: 'lavender', online: 'Fundamental Barista belum ujian akhir', practice: 'Perlu pengulangan tamping', next: 'Latihan bersama Trainer', tag: 'Butuh latihan' },
+  { name: 'Sinta Maharani', role: 'Barista · Outlet Selatan', initials: 'SM', color: 'sage', online: 'Baru memulai materi Hulu ke Hilir', practice: 'Belum ikut Espresso Base', next: 'Selesaikan pengenalan kopi', tag: 'Baru mulai' },
 ];
 
-const choices = [
-  { id: 1, label: 'Langsung naikkan suhu air', sub: 'Ubah suhu terlebih dahulu' },
-  { id: 2, label: 'Cek waktu ekstraksi dan gilingan', sub: 'Cari penyebab, ubah satu variabel' },
-  { id: 3, label: 'Tambah susu supaya lebih seimbang', sub: 'Tutup rasa asamnya' },
-];
-
-const people: Person[] = [
-  { name: 'Naya Putri', job: 'Barista · Outlet Utama', initials: 'NP', color: 'peach', percent: 84, priority: 'Siap diuji', message: 'Naya sudah menyelesaikan latihan ekstraksi. Selanjutnya, jadwalkan penilaian praktik bersama pelatih.' },
-  { name: 'Rafi Pratama', job: 'Barista · Outlet Utama', initials: 'RP', color: 'lilac', percent: 62, priority: 'Butuh arahan', message: 'Rafi masih kesulitan menjaga konsistensi. Diskusi singkat tentang variabel ekstraksi bisa membantu sebelum latihan berikutnya.' },
-  { name: 'Sinta Maharani', job: 'Barista · Outlet Selatan', initials: 'SM', color: 'sage', percent: 46, priority: 'Sedang belajar', message: 'Sinta sedang membangun fondasi rasa. Berikan waktu untuk eksplorasi dan latihan cupping sederhana.' },
-];
-
-const criteria = [
-  { title: 'Persiapan dan kebersihan', detail: 'Area kerja dan alat disiapkan dengan aman serta konsisten.', tip: 'Perhatikan urutan persiapan, bukan hanya hasil akhir.' },
-  { title: 'Teknik distribusi dan tamping', detail: 'Gerakan yang terkontrol dan bisa diulang dengan konsisten.', tip: 'Amati tekanan, posisi tangan, dan hasil puck.' },
-  { title: 'Membaca hasil ekstraksi', detail: 'Menjelaskan gejala, kemungkinan penyebab, dan tindakan yang dipilih.', tip: 'Tanya alasan perubahan variabel, jangan hanya hasil angkanya.' },
-];
-
-function CoffeeArt({ small = false }: { small?: boolean }) {
-  return (
-    <div className={small ? styles.artSmall : styles.art}>
-      <svg viewBox="0 0 310 275" aria-hidden="true" className={styles.coffeeIllustration}>
-        <path d="M160 22c-26 23 15 32-9 53m46-47c-21 20 10 31-8 53" fill="none" stroke="#ffba77" strokeWidth="5" strokeLinecap="round" opacity=".65" />
-        <ellipse cx="158" cy="223" rx="114" ry="18" fill="#0e0a08" opacity=".3" />
-        <path d="M65 91h190l-19 113c-5 25-22 34-56 34h-41c-34 0-52-9-57-34z" fill="#f6d6b0" />
-        <path d="M254 108h19c28 0 30 70-23 78" stroke="#f6d6b0" strokeWidth="21" fill="none" strokeLinecap="round" />
-        <ellipse cx="160" cy="93" rx="95" ry="23" fill="#fff1d9" />
-        <ellipse cx="160" cy="92" rx="83" ry="16" fill="#8d4f30" />
-        <path d="M118 89c18-19 35-13 42 0 7-13 28-18 44 0-8 20-34 32-44 32s-35-12-42-32" fill="#edc498" />
-        <path d="M139 94c5 9 13 11 21 11 9 0 19-5 23-11" stroke="#8d4f30" strokeWidth="5" strokeLinecap="round" fill="none" />
-        <path d="M65 91h190" stroke="#fff5de" strokeWidth="4" />
-        <circle cx="61" cy="158" r="7" fill="#fcb56f" />
-        <path d="M34 140l8 8m0-8l-8 8M273 57l9 9m0-9l-9 9" stroke="#f6b876" strokeWidth="4" strokeLinecap="round" />
-      </svg>
-    </div>
-  );
+function RoleButton({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
+  return <button className={active ? s.roleActive : s.roleButton} type="button" onClick={onClick}>{icon}<span>{label}</span></button>;
 }
-
-function ProgressRing({ value }: { value: number }) {
-  return (
-    <div className={styles.progressRing} style={{ background: 'conic-gradient(#f47e48 ' + value + '%, #f2e2d5 0)' }}>
-      <div><strong>{value}%</strong><span>perjalananmu</span></div>
-    </div>
-  );
+function Status({ children, tone='neutral' }: { children: React.ReactNode; tone?: 'neutral'|'warm'|'positive' }) {
+  return <span className={[s.status, tone==='warm'?s.statusWarm:tone==='positive'?s.statusPositive:''].join(' ')}>{children}</span>;
 }
-
-function Avatar({ person, size = 'normal' }: { person: Person; size?: 'normal' | 'large' }) {
-  return <div className={[styles.avatar, styles[person.color], size === 'large' ? styles.avatarLarge : ''].join(' ')} aria-hidden="true">{person.initials}</div>;
+function SectionHeading({ eyebrow, title, extra }: { eyebrow: string; title: string; extra?: React.ReactNode }) {
+  return <div className={s.sectionHeading}><div><span className={s.eyebrow}>{eyebrow}</span><h2>{title}</h2></div>{extra}</div>;
+}
+function Avatar({ initials, color }: { initials: string; color: string }) {
+  return <span className={[s.avatar,s[color]].join(' ')}>{initials}</span>;
+}
+function CoffeeIllustration() {
+  return <svg className={s.coffeeArt} viewBox="0 0 242 236" aria-hidden="true" fill="none">
+    <ellipse cx="119" cy="208" rx="102" ry="14" fill="#46251D" opacity=".19"/>
+    <path d="M47 88h143l-15 95c-3 16-18 25-37 25H98c-18 0-33-9-36-25L47 88Z" fill="#FFC88C"/>
+    <path d="M186 99h21c34 0 29 68-20 69" stroke="#FFC88C" strokeWidth="16" strokeLinecap="round"/>
+    <ellipse cx="118" cy="89" rx="73" ry="20" fill="#FFECCB"/><ellipse cx="118" cy="87" rx="65" ry="14" fill="#8A5237"/>
+    <path d="M79 85c16-13 31-8 38 4 7-12 24-17 40-4-8 17-23 27-40 27S86 102 79 85Z" fill="#FFE0B0"/>
+    <path d="M99 90c6 7 12 9 18 9s14-2 18-9" stroke="#A26747" strokeWidth="3.5" strokeLinecap="round"/>
+    <path d="M94 25c-17 17 9 25-2 39m41-39c-17 17 9 25-2 39" stroke="#FFD2A0" strokeWidth="4" strokeLinecap="round"/>
+    <path d="M206 39v20m-10-10h20M27 128v14m-7-7h14" stroke="#FFC88C" strokeWidth="4" strokeLinecap="round"/>
+  </svg>;
+}
+function LearningCards() {
+  return <div className={s.twoColumn}>{fundamentals.map((item, i) => <div key={item.id} className={s.courseCard}>
+    <div className={s.courseHead}><span className={s.smallIndex}>0{i+1} / FUNDAMENTAL</span><Status tone={i===0?'positive':'warm'}>{item.status}</Status></div>
+    <h3>{item.title}</h3><p>{item.detail}</p>
+    <div className={s.courseProgress}><div><span>Contoh progres belajar</span><strong>{item.progress}%</strong></div><div className={s.track}><i style={{width:item.progress+'%'}}/></div></div>
+    <a href={COURSES_URL} target="_blank" rel="noreferrer" className={s.textAction}>Belajar di Cherry Edu <ExternalLink size={15}/></a>
+  </div>)}</div>;
 }
 
 export default function ExperienceLabPage() {
-  const [role, setRole] = useState<Role>('barista');
-  const [choice, setChoice] = useState<number | null>(null);
-  const [chapter, setChapter] = useState(1);
-  const [grind, setGrind] = useState(2);
-  const [filter, setFilter] = useState('Semua');
-  const [selectedPerson, setSelectedPerson] = useState(0);
-  const [criterionIndex, setCriterionIndex] = useState(0);
-  const [scores, setScores] = useState<Record<number, number>>({});
-  const [trainerNotes, setTrainerNotes] = useState('');
-  const [trainerReview, setTrainerReview] = useState(false);
-  const currentPerson = people[selectedPerson];
-  const selectedPeople = useMemo(() => people.filter(p => filter === 'Semua' || p.priority === filter), [filter]);
-  const currentCriterion = criteria[criterionIndex];
-  const trainerDone = criteria.every((_, index) => scores[index] !== undefined);
+  const [role,setRole]=useState<Role>('barista');
+  const [answer,setAnswer]=useState<number|null>(null);
+  const [ownerView,setOwnerView]=useState<View>('activity');
+  const [person,setPerson]=useState(0);
+  const [session,setSession]=useState<SessionType>('Teknik');
+  const [note,setNote]=useState('');
+  const [logs,setLogs]=useState<Log[]>([]);
+  const [manualQuestion,setManualQuestion]=useState('');
+  const [questions,setQuestions]=useState<string[]>([]);
+  const [showExamPlan,setShowExamPlan]=useState(false);
 
-  const setCurrentRole = (next: Role) => {
-    setRole(next);
-    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const ownerActivities=useMemo(()=>[...activities,...logs.map((l,i)=>({title:'Catatan sesi '+l.step,type:l.step,week:'Simulasi',status:'Dicatat di preview',detail:l.note}))], [logs]);
+  function addLog() {const value=note.trim();if(!value)return;setLogs(prev=>[...prev,{step:session,note:value,author:'Pelatih (preview)'}]);setNote('');}
+  function addQuestion(){const value=manualQuestion.trim();if(!value)return;setQuestions(q=>[...q,value]);setManualQuestion('');}
+  const currentBarista=baristas[person];
 
-  return (
-    <div className={styles.canvas}>
-      <div className={styles.labNotice}><span className={styles.liveDot} /> <strong>CHERRY EDU / EXPERIENCE LAB</strong><span>Konsep interaktif • Data contoh • Belum terhubung ke akun siswa</span></div>
-      <div className={styles.shell}>
-        <aside className={styles.sidebar}>
-          <div className={styles.brand}><div className={styles.brandMark}><Coffee size={24}/></div><div><strong>CherryEdu</strong><span>TEAMS STUDIO</span></div></div>
-          <div className={styles.sidebarCaption}>PILIH PENGALAMAN</div>
-          <nav aria-label="Pilih tampilan pengguna" className={styles.roleMenu}>
-            <button className={role === 'barista' ? styles.activeRole : ''} onClick={() => setCurrentRole('barista')}><Compass size={19}/> <span>Ruang Barista</span><ArrowUpRight size={15}/></button>
-            <button className={role === 'owner' ? styles.activeRole : ''} onClick={() => setCurrentRole('owner')}><Users size={19}/><span>Ruang Owner</span><ArrowUpRight size={15}/></button>
-            <button className={role === 'trainer' ? styles.activeRole : ''} onClick={() => setCurrentRole('trainer')}><ClipboardCheck size={19}/><span>Ruang Pelatih</span><ArrowUpRight size={15}/></button>
-          </nav>
-          <div className={styles.sidebarBottom}><div className={styles.sidebarSpark}><WandSparkles size={18}/><span>Belajar kopi seharusnya<br/>terasa seperti petualangan.</span></div><p>Design exploration v1.0<br/>Tidak mengubah hasil belajar asli.</p></div>
-        </aside>
+  return <div className={s.app}>
+    <div className={s.labRibbon}><Sparkles size={15}/><strong>EXPERIENCE LAB · V2</strong><span>Simulasi interaktif, bukan akun, nilai, atau data pelanggan asli.</span></div>
+    <div className={s.shell}>
+      <header className={s.header}>
+        <div className={s.brand}><span className={s.brandEmblem}><Coffee size={24}/></span><span><strong>CherryEdu</strong><small>TEAMS · COFFEE PEOPLE CLUB</small></span></div>
+        <nav className={s.roles} aria-label="Lihat pengalaman berdasarkan pengguna">
+          <RoleButton active={role==='barista'} onClick={()=>setRole('barista')} icon={<GraduationCap size={18}/>} label="Barista"/>
+          <RoleButton active={role==='owner'} onClick={()=>setRole('owner')} icon={<Users size={18}/>} label="Owner"/>
+          <RoleButton active={role==='trainer'} onClick={()=>setRole('trainer')} icon={<ClipboardCheck size={18}/>} label="Pelatih"/>
+        </nav>
+        <span className={s.previewBadge}><span/> DESIGN PREVIEW</span>
+      </header>
+      <div className={s.content}>
+        <div className={s.overline}><span><span className={s.starlight}>✳</span> KOPI SENJA / PROGRAM PENDAMPINGAN</span><span>Contoh bulan layanan • Minggu 2 dari 4</span></div>
+        {role==='barista' && <main>
+          <section className={s.baristaHero}>
+            <div className={s.heroWords}><span className={s.heroChip}>RUANG BELAJARMU</span><h1>Belajar, coba,<br/><em>lalu makin jago.</em></h1><p>Belajar teorinya di Cherry Edu. Praktik langsung bersama pelatih. Semuanya bisa kamu ikuti dari HP.</p><a href="#barista-next" className={s.heroButton}>Lihat langkahmu hari ini <ArrowRight size={17}/></a></div>
+            <div className={s.heroIllustration}><CoffeeIllustration/><span className={s.heroSticker}>belajar sampai<br/><b>paham!</b></span></div>
+          </section>
+          <div className={s.baristaToday} id="barista-next"><div className={s.todayIcon}><Target size={23}/></div><div><span className={s.eyebrow}>HAL PENTING MINGGU INI</span><h2>Praktik Teknik bareng pelatih</h2><p>Coba distribusi dan tamping lebih konsisten. Catat apa yang terasa berbeda ketika membuat espresso.</p></div><Status tone="warm">Offline di bar</Status></div>
+          <SectionHeading eyebrow="PETUALANGAN BELAJAR" title="Dua tempat, satu perjalanan." extra={<span className={s.subtle}>Materi online tidak perlu disalin ke Teams.</span>}/>
+          <div className={s.journey}>
+            <div className={s.step}><span className={[s.stepNumber,s.stepDone].join(' ')}><Check size={20}/></span><div className={s.stepBody}><div className={s.stepHeader}><span className={s.stepKicker}>01 / MULAI DARI DASAR</span><Status tone="positive">Online · Berjalan</Status></div><h3>Bangun pondasi kopi</h3><p>Pelajari Fundamental Hulu ke Hilir dan Fundamental Barista di Cherry Edu utama. Teams hanya menampilkan perkembangan sampai hasil ujian akhirnya.</p><LearningCards/></div></div>
+            <div className={s.step}><span className={s.stepNumber}>02</span><div className={s.stepBody}><div className={s.stepHeader}><span className={s.stepKicker}>02 / BELAJAR DI BAR</span><Status tone="warm">Offline · Bersama pelatih</Status></div><h3>Belajar lewat tanganmu sendiri</h3><p>Dua sesi praktik langsung. Pelatih akan mencatat kegiatan dan hal-hal yang masih perlu dilatih.</p><div className={s.offlineGrid}><div className={s.offlineCard}><div className={s.offlineIcon}><Wrench size={23}/></div><div><h4>Teknik</h4><p>Persiapan, workflow, distribusi, tamping, dan teknik kerja.</p><small>Contoh status: sesi sudah dilakukan</small></div></div><div className={s.offlineCard}><div className={s.offlineIcon}><Coffee size={23}/></div><div><h4>Espresso Base</h4><p>Dial-in, rasa, penyesuaian variabel, dan sensori dasar.</p><small>Contoh status: sesi berikutnya</small></div></div></div></div></div>
+            <div className={s.step}><span className={s.stepNumber}>03</span><div className={s.stepBody}><div className={s.stepHeader}><span className={s.stepKicker}>03 / KEMBANGKAN RASA PENASARAN</span><Status>Online · Minimal 3 path</Status></div><h3>Pilih tiga jalur belajar tambahan</h3><p>Minimal tiga path akan ditugaskan sesuai kebutuhan tim. Belajar dan ujian akhirnya tetap dilakukan di Cherry Edu.</p><div className={s.classList}>{classes.map((x,i)=><div key={x.title}><span>{i+1}</span><strong>{x.title}</strong><Status tone={x.status==='Dipilih'?'positive':'neutral'}>{x.status}</Status></div>)}</div><a className={s.textAction} href={COURSES_URL} target="_blank" rel="noreferrer">Jelajahi materi Cherry Edu <ArrowUpRight size={15}/></a></div></div>
+            <div className={s.step}><span className={s.stepNumber}>04</span><div className={s.stepBody}><div className={s.stepHeader}><span className={s.stepKicker}>04 / TUNJUKKAN PEMAHAMANMU</span><Status tone="warm">Ujian gabungan</Status></div><h3>Ujian yang nyambung dengan pekerjaanmu</h3><p>Soal dari materi online digabung dengan pertanyaan yang disiapkan pelatih berdasarkan apa yang diajarkan saat praktik offline.</p><div className={s.examStrip}><FileText size={23}/><div><b>Teori Cherry Edu + kasus dari pelatih</b><span>Ujian resmi hanya muncul ketika sudah dijadwalkan dan memenuhi persyaratan program.</span></div><ChevronRight size={17}/></div></div></div>
+          </div>
+          <div className={s.beyondMonth}><Heart size={22}/><div><h3>Belajarnya tidak harus selesai dalam sebulan.</h3><p>Program layanan punya periode tersendiri. Kalau materi dan ujian online belum selesai, progres tetap dapat berlanjut sesuai kebijakan akses dan program yang ditetapkan.</p></div></div>
+          <SectionHeading eyebrow="COBA DULU" title="Kalau espresso terlalu asam…"/>
+          <section className={s.challenge}><div><span className={s.challengeEyebrow}><Lightbulb size={16}/> LATIH LOGIKA BARISTAMU</span><h3>Mana yang kamu cek duluan?</h3><p>Seorang pelanggan merasa espresso terlalu asam. Kamu ingin mencari penyebabnya, bukan langsung menebak resep.</p></div><div className={s.answers}>{['Langsung naikkan suhu air','Cek waktu ekstraksi, gilingan, dan rasanya','Tambah susu agar asamnya tertutup'].map((text,i)=><button key={text} className={answer===i?s.answerActive:s.answer} onClick={()=>setAnswer(i)}><span>{String.fromCharCode(65+i)}</span><strong>{text}</strong><ChevronRight size={15}/></button>)}{answer!==null&&<div className={s.feedback} role="status"><Lightbulb size={20}/><p><b>{answer===1?'Cara berpikir yang bagus.':'Coba periksa penyebabnya dulu.'}</b> Periksa data dan rasa, buat hipotesis, lalu ubah satu variabel. Ini latihan berpikir, bukan hasil ujian resmi.</p><button onClick={()=>setAnswer(null)}><RotateCcw size={15}/> Ulangi</button></div>}</div></section>
+        </main>}
 
-        <div className={styles.workspace}>
-          <header className={styles.header}>
-            <div className={styles.crumb}><span>CHERRY EDU</span><ChevronRight size={14}/><strong>{role === 'barista' ? 'Skill Journey' : role === 'owner' ? 'Team Growth' : 'Coaching Space'}</strong></div>
-            <div className={styles.headerRight}><span className={styles.previewPill}><span className={styles.pulse}/> Design Preview</span><div className={styles.headerAvatar}>{role === 'barista' ? 'B' : role === 'owner' ? 'O' : 'T'}</div></div>
-          </header>
+        {role==='owner' && <main>
+          <section className={s.ownerHero}><div><span className={s.heroChip}>RUANG OWNER</span><h1>Bukan cuma janji.<br/><em>Lihat hasil kerjanya.</em></h1><p>Lihat apa yang tim Cherry Edu lakukan, apa yang sudah dipelajari baristamu, dan bagaimana perkembangan mereka.</p><button className={s.heroButton} onClick={()=>{setOwnerView('activity');document.getElementById('owner-report')?.scrollIntoView({behavior:'smooth'})}}>Lihat laporan layanan <ArrowRight size={17}/></button></div><div className={s.ownerVisual}><span className={s.ownerStamp}>R&D</span><span className={s.ownerStamp}>PRAKTIK</span><span className={s.ownerStamp}>REPORT</span><span className={s.ownerScribble}>our people,<br/>our progress.</span></div></section>
+          <SectionHeading eyebrow="YANG KAMI KERJAKAN" title="Satu bulan, tiga bagian layanan." extra={<span className={s.subtle}>Contoh susunan, jadwal dapat disesuaikan.</span>}/>
+          <div className={s.servicePillars}><article><span className={s.pillarIcon}><FlaskConical size={22}/></span><small>01 · MEMAHAMI KONDISI</small><h3>R&D</h3><p>Audit bar, alat, alur kerja, resep, dan rekomendasi berdasarkan kondisi coffee shop.</p><Status tone="positive">Contoh: selesai</Status></article><article><span className={s.pillarIcon}><GraduationCap size={23}/></span><small>02 · MENGEMBANGKAN TIM</small><h3>Mentorship Hybrid</h3><p>Belajar online di Cherry Edu, praktik Teknik dan Espresso Base, 3 path pilihan, dan ujian gabungan.</p><Status tone="warm">Contoh: berjalan</Status></article><article><span className={s.pillarIcon}><FileText size={23}/></span><small>03 · MEMBUKTIKAN HASIL</small><h3>Owner Report</h3><p>Catatan kegiatan dan bukti pembelajaran, perkembangan setiap barista, serta tindak lanjut.</p><Status>Disusun bertahap</Status></article></div>
+          <div id="owner-report" className={s.reportPanel}><div className={s.reportHeader}><div><span className={s.eyebrow}>BUKU PERKEMBANGAN KOPI SENJA</span><h2>Jadi, sudah sampai mana?</h2><p>Semua yang penting, tanpa harus bertanya berkali-kali kepada pelatih.</p></div><div className={s.reportToggle} aria-label="Pilih isi laporan"><button className={ownerView==='activity'?s.toggleActive:''} onClick={()=>setOwnerView('activity')}><Activity size={16}/> Kegiatan</button><button className={ownerView==='people'?s.toggleActive:''} onClick={()=>setOwnerView('people')}><Users size={16}/> Barista</button></div></div>
+          {ownerView==='activity'?<div className={s.reportEvents}>{ownerActivities.map((a,i)=><div className={s.reportEvent} key={i}><span className={s.eventBullet}>{i+1}</span><div><div className={s.eventMeta}><span>{a.week} · {a.type}</span><Status tone={a.status==='Sudah dilakukan'||a.status==='Sesi terlaksana'?'positive':'neutral'}>{a.status}</Status></div><h3>{a.title}</h3><p>{a.detail}</p>{i<2&&<small>Catatan dalam prototipe bukan bukti kegiatan sungguhan.</small>}</div></div>)}</div>:<div className={s.ownerPeople}><div className={s.peopleList}>{baristas.map((b,i)=><button key={b.name} className={person===i?s.personActive:s.person} onClick={()=>setPerson(i)}><Avatar initials={b.initials} color={b.color}/><span><strong>{b.name}</strong><small>{b.role}</small></span><ChevronRight size={16}/></button>)}</div><div className={s.personDetails}><span className={s.eyebrow}>CERITA PERKEMBANGAN</span><h3>{currentBarista.name}</h3><Status tone="warm">{currentBarista.tag}</Status><dl><dt>Belajar online</dt><dd>{currentBarista.online}</dd><dt>Praktik offline</dt><dd>{currentBarista.practice}</dd><dt>Langkah berikutnya</dt><dd>{currentBarista.next}</dd></dl><p>Penilaian kemampuan terverifikasi harus memakai bukti dan rubrik pelatih, bukan sekadar progres belajar.</p></div></div>}</div>
+          <div className={s.beyondMonth}><FileText size={23}/><div><h3>Laporan yang menjawab pertanyaan Owner.</h3><p>Catatan pelaksanaan R&D, sesi offline, materi online yang benar-benar dikerjakan, progres ujian, catatan Trainer, serta apa yang perlu ditindaklanjuti setelah satu bulan.</p></div></div>
+        </main>}
 
-          {role === 'barista' && (
-            <main className={styles.main}>
-              <div className={styles.sectionTop}><span className={styles.eyebrow}><Sparkles size={15}/> PETUALANGAN KOPIMU</span><span className={styles.datePill}>Selamat datang kembali <Heart size={14} fill="currentColor"/></span></div>
-              <div className={styles.titleRow}><div><h1 className={styles.mainTitle}>Sedikit demi sedikit,<br/><em>makin jago.</em></h1><p className={styles.lead}>Hari ini kita nggak cuma menghafal resep. Kita belajar memahami kopi.</p></div><div className={styles.ringWrap}><ProgressRing value={42}/></div></div>
-              <div className={styles.baristaGrid}>
-                <section className={styles.heroBarista}>
-                  <div className={styles.heroCopy}><span className={styles.heroTag}><span className={styles.tagSpark}>✳</span> LATIHAN HARI INI</span><h2>Kopi itu<br/>penuh <i>teka-teki.</i></h2><p>Satu seduhan bisa mengajarimu banyak hal. Yuk, mulai dari satu pertanyaan sederhana.</p><a href="#coffee-challenge" className={styles.lightButton}><Play size={15} fill="currentColor"/> Mulai tantangan <ArrowRight size={18}/></a></div>
-                  <CoffeeArt/>
-                  <span className={styles.heroFootnote}>01 / 04 · MEMAHAMI EKSTRAKSI</span>
-                </section>
-
-                <section className={styles.journeyCard}><div className={styles.cardHeader}><div><span className={styles.cardKicker}>JALAN MENUJU MAHIR</span><h2>Peta skill-mu</h2></div><div className={styles.miniGlyph}><Target size={20}/></div></div>
-                  <div className={styles.journeySteps}>{chapters.map((item, idx) => <button type="button" key={item.icon} onClick={() => setChapter(idx)} className={[styles.chapter, chapter === idx ? styles.chapterActive : '', idx < 1 ? styles.chapterDone : ''].join(' ')}><span className={styles.chapterIcon}>{idx === 0 ? <Check size={18}/> : item.icon}</span><span className={styles.chapterText}><strong>{item.title}</strong><small>{item.kicker}</small></span><span className={styles.chapterStatus}>{item.phase}</span></button>)}</div>
-                  <div className={styles.chapterInfo}><span><BookOpen size={16}/> {chapters[chapter].title}</span><strong>{chapters[chapter].progress === 100 ? 'Sudah dikuasai pada latihan ini' : chapters[chapter].progress > 0 ? 'Terus eksplorasi, kamu sedang berkembang.' : 'Akan terbuka sesuai program belajarmu.'}</strong></div>
-                </section>
-              </div>
-
-              <div className={styles.secondaryGrid}>
-                <section className={styles.challenge} id="coffee-challenge"><div className={styles.cardHeader}><div><span className={styles.cardKicker}><Lightbulb size={15}/> COBA PIKIRKAN</span><h2>Kalau espresso terasa terlalu asam…</h2></div><span className={styles.questionCounter}>01 / 01</span></div><p className={styles.challengeLead}>Seorang pelanggan bilang espressonya terlalu asam. Apa langkah pertama yang paling masuk akal?</p>
-                  <div className={styles.answers}>{choices.map(option=><button key={option.id} onClick={()=>setChoice(option.id)} className={[styles.answer,choice===option.id?styles.answerSelected:''].join(' ')}><span className={styles.answerBullet}>{String.fromCharCode(64+option.id)}</span><span><strong>{option.label}</strong><small>{option.sub}</small></span><span className={styles.answerTick}>{choice===option.id?<Check size={16}/>:<ChevronRight size={16}/>}</span></button>)}</div>
-                  {choice !== null ? <div className={styles.feedback} role="status"><span className={styles.feedbackIcon}>{choice===2?<CheckCircle2 size={23}/>:<Lightbulb size={23}/>}</span><div><strong>{choice === 2 ? 'Nah, cara berpikirmu tepat!' : 'Menarik! Tapi coba pikirkan lagi.'}</strong><p>{choice===2?'Sebelum mengubah resep, periksa waktu ekstraksi, ukuran gilingan, dosis, dan hasil rasa. Ubah satu variabel agar kamu tahu penyebabnya.':'Bisa saja variabel itu relevan, tapi jangan langsung menebak. Mulai dari data ekstraksi dan rasa, lalu uji satu perubahan dalam satu waktu.'}</p><button onClick={()=>setChoice(null)}>Coba lagi <RotateCcw size={13}/></button></div></div>:<div className={styles.helperLine}><CircleHelp size={16}/> Tidak ada hukuman kalau salah. Yang penting: cari alasannya.</div>}
-                </section>
-
-                <section className={styles.experiment}><div className={styles.cardHeader}><div><span className={styles.cardKicker}><FlaskConical size={15}/> POJOK EKSPERIMEN</span><h2>Mainkan variabelnya</h2></div><div className={styles.miniGlyph}><SlidersHorizontal size={21}/></div></div><p className={styles.experimentLead}>Coba geser ukuran gilingan. Lihat bagaimana *hipotesis* ekstraksi bisa berubah.</p><div className={styles.grindIllustration}><div className={styles.grindBeans}>{Array.from({length:grind===1?18:grind===2?10:5},(_,i)=><span key={i}/>)}</div><div><span className={styles.microLabel}>UKURAN GILINGAN</span><strong>{['','Lebih halus','Sedang','Lebih kasar'][grind]}</strong></div></div><div className={styles.sliderLabel}><span>Lebih halus</span><span>Lebih kasar</span></div><input aria-label="Simulasi tingkat kehalusan gilingan" type="range" min="1" max="3" step="1" value={grind} onChange={e=>setGrind(Number(e.target.value))} className={styles.grindRange}/><div className={styles.hypothesis}><span className={styles.hypothesisIcon}><Lightbulb size={19}/></span><p>{grind===1?'Secara umum, partikel lebih halus bisa meningkatkan hambatan aliran dan ekstraksi. Tetapi hasil rasa perlu dibuktikan lewat seduhan.':grind===2?'Ini titik awal ilustratif. Coba amati rasa, waktu, dan hasil seduhan sebelum menentukan perubahan.':'Partikel lebih kasar biasanya mengurangi hambatan aliran. Efek pada rasa bergantung pada banyak faktor lain.'}</p></div><p className={styles.disclaimer}>Simulasi konsep, bukan prediksi hasil espresso sebenarnya.</p></section>
-              </div>
-            </main>
-          )}
-
-          {role === 'owner' && (
-            <main className={styles.main}>
-              <div className={styles.sectionTop}><span className={styles.eyebrow}><Users size={15}/> RUANG PERTUMBUHAN TIM</span><span className={styles.datePill}>Kopi Senja · Data ilustrasi</span></div>
-              <div className={styles.titleRow}><div><h1 className={styles.mainTitle}>Tim yang tumbuh,<br/><em>bisnis ikut maju.</em></h1><p className={styles.lead}>Lihat manusia di balik angka. Siapa yang sudah melangkah jauh, dan siapa yang perlu ditemani?</p></div></div>
-              <div className={styles.ownerGrid}><section className={styles.ownerHero}><div className={styles.heroCopy}><span className={styles.heroTag}>✳ PERKEMBANGAN TIM</span><h2>Setiap barista<br/>punya ceritanya.</h2><p>Tiga orang, perjalanan yang berbeda. Peranmu adalah membantu masing-masing menemukan langkah berikutnya.</p><button className={styles.lightButton} onClick={()=>{setFilter('Butuh arahan');setSelectedPerson(1)}}>Lihat siapa yang perlu bantuan <ArrowRight size={17}/></button></div><div className={styles.ownerOrbs}><span className={styles.orbOne}>N</span><span className={styles.orbTwo}>R</span><span className={styles.orbThree}>S</span><span className={styles.orbSpark}>✳</span></div></section><section className={styles.growthStory}><div className={styles.cardHeader}><div><span className={styles.cardKicker}>HAL YANG PERLU DIPERHATIKAN</span><h2>Langkah kecil, dampak besar.</h2></div><div className={styles.miniGlyph}><Heart size={19}/></div></div><div className={styles.storyHighlight}><span className={styles.storyIcon}><Lightbulb size={20}/></span><div><strong>Mulai dari percakapan.</strong><p>Rafi masih berlatih konsistensi ekstraksi. Ajak ngobrol 10 menit tentang satu masalah yang ia temui hari ini.</p></div></div><div className={styles.smallSteps}><span>1 · Dengarkan masalahnya</span><span>2 · Tentukan satu latihan</span><span>3 · Evaluasi bersama</span></div></section></div>
-              <div className={styles.teamPanel}><div className={styles.teamTop}><div><span className={styles.cardKicker}>ORANG-ORANG DI BALIK BAR</span><h2>Kenali perkembangan timmu.</h2></div><span className={styles.teamCount}>03 anggota</span></div><div className={styles.filters} aria-label="Filter perkembangan tim">{['Semua','Butuh arahan','Siap diuji'].map(item=><button key={item} onClick={()=>setFilter(item)} className={filter===item?styles.filterActive:''}>{item}</button>)}</div><div className={styles.ownerDetailGrid}><div className={styles.peopleList}>{selectedPeople.map(person=>{const index=people.indexOf(person);return <button key={person.name} onClick={()=>setSelectedPerson(index)} className={[styles.personRow,selectedPerson===index?styles.personSelected:''].join(' ')}><Avatar person={person}/><span className={styles.personInfo}><strong>{person.name}</strong><small>{person.job}</small></span><span className={styles.personPercent}>{person.percent}%</span><ChevronRight size={16}/></button>})}</div><div className={styles.personDetail}><div className={styles.detailHeading}><Avatar person={currentPerson} size="large"/><div><span className={styles.cardKicker}>FOKUS MINGGU INI</span><h3>{currentPerson.name}</h3><p>{currentPerson.priority}</p></div></div><div className={styles.personProgress}><div><span>Progres latihan</span><strong>{currentPerson.percent}%</strong></div><div className={styles.progressTrack}><span style={{width:currentPerson.percent+'%'}}/></div></div><p className={styles.recommendation}>{currentPerson.message}</p><div className={styles.personNote}><Heart size={16}/> Saran latihan, bukan keputusan kompetensi resmi.</div></div></div></div>
-            </main>
-          )}
-
-          {role === 'trainer' && (
-            <main className={styles.main}>
-              <div className={styles.sectionTop}><span className={styles.eyebrow}><ClipboardCheck size={15}/> RUANG PELATIH</span><span className={styles.datePill}>Penilaian contoh · Tidak tersimpan</span></div>
-              <div className={styles.titleRow}><div><h1 className={styles.mainTitle}>Lebih banyak mengamati.<br/><em>Lebih sedikit mengisi.</em></h1><p className={styles.lead}>Fokus pada barista di depanmu. Catatan dan penilaian seharusnya mengikuti alur praktikmu.</p></div></div>
-              <div className={styles.trainerGrid}><section className={styles.trainerHero}><div className={styles.heroCopy}><span className={styles.heroTag}>✳ SESI PRAKTIK</span><h2>Hari ini,<br/>kita bertumbuh.</h2><p>Simulasi penilaian ekstraksi espresso dengan tiga kriteria sederhana.</p><div className={styles.trainee}><span className={styles.traineeAvatar}>N</span><span><strong>Naya Putri</strong><small>Praktik Espresso · Outlet Utama</small></span></div></div><CoffeeArt small/></section><section className={styles.assessment}><div className={styles.cardHeader}><div><span className={styles.cardKicker}>PENILAIAN PRAKTIK</span><h2>Satu hal dalam satu waktu.</h2></div><span className={styles.questionCounter}>{criterionIndex+1} / {criteria.length}</span></div><div className={styles.rubricTrack}>{criteria.map((_,i)=><button key={i} aria-label={'Buka kriteria '+(i+1)} onClick={()=>{setCriterionIndex(i);setTrainerReview(false)}} className={[styles.rubricStep,i===criterionIndex?styles.rubricStepCurrent:'',scores[i]!==undefined?styles.rubricStepDone:''].join(' ')}/>)}</div><p className={styles.rubricKicker}>AMATI HAL INI</p><h3 className={styles.criterionTitle}>{currentCriterion.title}</h3><p className={styles.criterionDetail}>{currentCriterion.detail}</p><div className={styles.ratingGrid}>{[['1','Belum terlihat'],['2','Perlu latihan'],['3','Cukup baik'],['4','Sudah konsisten']].map(([value,label])=><button key={value} onClick={()=>setScores(prev=>({...prev,[criterionIndex]:Number(value)}))} className={[styles.rating,scores[criterionIndex]===Number(value)?styles.ratingActive:''].join(' ')}><strong>{value}</strong><span>{label}</span></button>)}</div><div className={styles.trainerTip}><Lightbulb size={18}/><p>{currentCriterion.tip}</p></div><div className={styles.rubricActions}><button onClick={()=>{setCriterionIndex(Math.max(0,criterionIndex-1));setTrainerReview(false)}} disabled={criterionIndex===0} className={styles.ghostButton}><ChevronLeft size={17}/> Sebelumnya</button>{criterionIndex < criteria.length-1?<button onClick={()=>{setCriterionIndex(Math.min(criteria.length-1,criterionIndex+1));setTrainerReview(false)}} className={styles.darkButton}>Lanjut <ArrowRight size={17}/></button>:<button onClick={()=>setTrainerReview(true)} className={styles.darkButton}>Lihat ringkasan <ArrowRight size={17}/></button>}</div></section></div>
-              <div className={styles.trainerBottom}><section className={styles.notesCard}><span className={styles.cardKicker}>CATATAN YANG BERARTI</span><h2>Apa yang ingin kamu sampaikan?</h2><textarea value={trainerNotes} onChange={e=>setTrainerNotes(e.target.value)} placeholder="Contoh: Sudah memahami alasan perubahan gilingan. Perlu mengulang teknik distribusi agar lebih konsisten." rows={4}/><p>Catatan hanya berada dalam sesi preview ini.</p></section><section className={styles.reviewCard}><div className={styles.cardHeader}><div><span className={styles.cardKicker}>RINGKASAN LATIHAN</span><h2>Progres penilaian</h2></div><div className={styles.miniGlyph}><Award size={20}/></div></div><div className={styles.reviewNumber}><strong>{Object.keys(scores).length}</strong><span>/ {criteria.length} kriteria dicatat</span></div><div className={styles.reviewProgress}><span style={{width:(Object.keys(scores).length/criteria.length*100)+'%'}}/></div>{trainerReview?<div className={styles.reviewFeedback} role="status"><strong>{trainerDone?'Catatan latihanmu sudah lengkap.':'Masih ada kriteria yang belum dicatat.'}</strong><p>Ini hanya simulasi tampilan. Belum ada nilai, sertifikat, atau verifikasi kompetensi yang disimpan.</p><button onClick={()=>{setScores({});setTrainerNotes('');setCriterionIndex(0);setTrainerReview(false)}}>Mulai ulang simulasi <RotateCcw size={14}/></button></div>:<p className={styles.reviewPrompt}>Nilai tiap kriteria untuk melihat ringkasan latihan. Hasil final tetap membutuhkan sistem asesmen resmi.</p>}</section></div>
-            </main>
-          )}
-          <footer className={styles.footer}><span><Sparkles size={14}/> Cherry Edu Teams · Experience Exploration</span><span>Ini contoh interaktif, bukan data atau hasil asesmen asli.</span></footer>
-        </div>
+        {role==='trainer' && <main>
+          <section className={s.trainerHero}><div><span className={s.heroChip}>RUANG PELATIH</span><h1>Fokus mengajar.<br/><em>Catat seperlunya.</em></h1><p>R&D, praktik Teknik, Espresso Base, dan catatan perkembangan—cukup dalam alur sederhana yang nyaman dipakai sambil berdiri di bar.</p><a href="#trainer-work" className={s.heroButton}>Buka sesi praktik <ArrowRight size={17}/></a></div><span className={s.trainerVisual}><CoffeeIllustration/></span></section>
+          <SectionHeading eyebrow="BAGIAN DARI LAYANAN" title="Apa yang kamu kerjakan hari ini?"/>
+          <div className={s.sessionTabs}>{(['R&D','Teknik','Espresso Base'] as SessionType[]).map((x,i)=><button key={x} className={session===x?s.sessionActive:s.sessionTab} onClick={()=>setSession(x)}><span>0{i+1}</span><strong>{x}</strong><ChevronRight size={17}/></button>)}</div>
+          <div className={s.trainerWorkspace} id="trainer-work"><section className={s.sessionForm}><span className={s.eyebrow}>CATATAN SESI · {session.toUpperCase()}</span><h2>{session==='R&D'?'Apa yang kamu temukan di bar?':session==='Teknik'?'Apa yang sudah dipraktikkan?':'Apa yang berubah pada ekstraksi?'}</h2><p>{session==='R&D'?'Catat kondisi awal, masalah utama, dan tindakan yang disarankan.':session==='Teknik'?'Rekam kegiatan inti, kesulitan yang ditemukan, dan latihan berikutnya.':'Catat eksperimen, hasil sensori, dan keputusan yang perlu dipahami peserta.'}</p><label htmlFor="session-note">Catatan untuk tim dan Owner</label><textarea id="session-note" rows={5} value={note} onChange={e=>setNote(e.target.value)} placeholder={session==='R&D'?'Contoh: Workflow kasir dan bar perlu dipisahkan saat jam ramai...':session==='Teknik'?'Contoh: Tim berlatih teknik distribusi. Masih perlu konsistensi tamping...':'Contoh: Barista membandingkan rasa dari dua pengaturan gilingan...'} /><button onClick={addLog} disabled={!note.trim()} className={s.primaryAction}><PenLine size={17}/> Catat kegiatan (preview)</button><small>Catatan disimpan sementara di halaman preview ini; tidak masuk database atau laporan resmi.</small></section><section className={s.fieldNotes}><div className={s.fieldTop}><span className={s.eyebrow}>BUKU LAPANGAN</span><span className={s.fieldCount}>{logs.length} catatan baru</span></div><h2>Yang dikerjakan,<br/><em>terlihat jelas.</em></h2>{logs.length?logs.map((l,i)=><div className={s.fieldItem} key={i}><small>{l.step} · {l.author}</small><p>{l.note}</p></div>):<div className={s.emptyNotes}><ClipboardCheck size={28}/><strong>Belum ada catatan baru.</strong><p>Coba tulis satu kegiatan, lalu lihat hasilnya di tab Owner → Kegiatan.</p></div>}<div className={s.fieldFooter}><CheckCircle2 size={18}/> Hanya aktivitas yang tercatat yang layak dilaporkan sebagai kegiatan.</div></section></div>
+          <SectionHeading eyebrow="UJIAN HYBRID" title="Soal online bertemu pengalaman di bar."/>
+          <div className={s.examBuilder}><div className={s.examStory}><div className={s.examSource}><BookOpen size={23}/><div><strong>Dari kurikulum Cherry Edu</strong><span>Pilih soal dari bank soal yang telah dipublikasikan dan sesuai path yang ditugaskan.</span></div></div><div className={s.examJoin}>+</div><div className={s.examSource}><PenLine size={23}/><div><strong>Dari materi praktik Trainer</strong><span>Tambahkan soal kasus berdasarkan Teknik, Espresso Base, dan pembelajaran offline.</span></div></div><p>Jumlah, bobot, aturan kelulusan, dan penilaian perlu dikonfigurasi serta disahkan sebelum ujian resmi tersedia.</p></div><div className={s.examEditor}><span className={s.eyebrow}>COBA SUSUN SOAL TAMBAHAN</span><label htmlFor="manual-q">Pertanyaan studi kasus</label><textarea id="manual-q" rows={3} value={manualQuestion} onChange={e=>setManualQuestion(e.target.value)} placeholder="Contoh: Jika espresso terlalu pahit dan waktu ekstraksi lebih lama dari biasanya, variabel apa yang perlu kamu periksa?"/><button onClick={addQuestion} disabled={!manualQuestion.trim()} className={s.primaryAction}>Tambahkan contoh soal <ArrowRight size={17}/></button>{questions.length>0&&<div className={s.questions}>{questions.map((q,i)=><div key={i}><small>SOAL CONTOH {i+1}</small><p>{q}</p></div>)}</div>}<button className={s.textAction} onClick={()=>setShowExamPlan(!showExamPlan)}>{showExamPlan?'Tutup':'Lihat'} alur ujian hybrid <ChevronRight size={15}/></button>{showExamPlan&&<p className={s.examPlan}>Soal resmi online dipilih dari versi kurikulum yang valid. Soal manual diperiksa pelatih. Setelah ujian, hasil tersimpan dengan sumber soal dan upaya pengerjaan yang jelas. Ini baru konsep, belum menjalankan ujian sungguhan.</p>}</div></div>
+        </main>}
+        <footer className={s.footer}><div><Sparkles size={16}/> Cherry Edu Teams · One Month Mentorship Experience</div><span>Semua identitas, aktivitas, dan progres pada halaman ini adalah ilustrasi.</span></footer>
       </div>
-      <div className={styles.mobileSwitch} aria-label="Ganti tampilan pengguna"><button onClick={()=>setCurrentRole('barista')} className={role==='barista'?styles.mobileActive:''}><Compass size={20}/><span>Barista</span></button><button onClick={()=>setCurrentRole('owner')} className={role==='owner'?styles.mobileActive:''}><Users size={20}/><span>Owner</span></button><button onClick={()=>setCurrentRole('trainer')} className={role==='trainer'?styles.mobileActive:''}><ClipboardCheck size={20}/><span>Pelatih</span></button></div>
     </div>
-  );
+  </div>;
 }
