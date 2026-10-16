@@ -263,3 +263,92 @@
  .courseCard p{font-size:14px}
  .ownerHero .heroButton,.baristaHero .heroButton,.trainerHero .heroButton{min-height:46px}
 }
+
+/* Barista activity workspace — interactive personal tracking, never official completion. */
+.checklistPanel{border:1px solid #e8d8c7;background:#fffcf6;border-radius:25px;padding:28px;margin-bottom:35px;box-shadow:0 10px 30px #5c3d2510}
+.checklistHeader{display:flex;justify-content:space-between;gap:22px;align-items:flex-start}
+.checklistHeader h2{font:800 clamp(26px,3vw,36px) var(--font-serif),Georgia,serif;letter-spacing:-.05em;line-height:1.19;margin:8px 0 9px}
+.checklistHeader h2 span{color:#e49d6e}
+.checklistHeader p{font-size:13px;line-height:1.65;color:#907a6b;max-width:580px;margin:0}
+.checklistCounter{width:88px;min-height:88px;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#f8ddc2;border-radius:22px;transform:rotate(6deg);flex-shrink:0}
+.checklistCounter>strong{font:800 36px var(--font-serif),Georgia,serif;letter-spacing:-.06em;line-height:1}
+.checklistCounter>strong small{font-size:16px;color:#aa815e}
+.checklistCounter>span{font-size:9px;color:#996e51;font-weight:900;letter-spacing:.06em;margin-top:5px}
+.checklistTrack{margin:23px 0 17px;height:8px;background:#efe1d4;border-radius:99px;overflow:hidden}
+.checklistTrack span{display:block;height:100%;border-radius:99px;background:#ee9b64;transition:width .26s}
+.taskList{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.taskItem{position:relative;display:flex;align-items:center;gap:12px;border-radius:15px;background:#f6f0e8;border:1px solid #efe2d5;padding:15px;min-height:86px;transition:background .18s,border-color .18s;cursor:pointer;min-width:0}
+.taskItem:hover{border-color:#e9b08a;background:#fff1e4}
+.taskFinished{background:#eaf0e6;border-color:#c7dbc3}
+.taskFinished:hover{background:#eaf0e6;border-color:#8db394}
+.realCheckbox{width:27px;height:27px;flex-shrink:0;accent-color:#5f8465;cursor:pointer}
+.taskIndicator{width:27px;height:27px;flex:0 0 auto;border-radius:9px;border:2px solid #c8b7a6;color:#668a6a;display:grid;place-items:center}
+.taskFinished .taskIndicator{border-color:#92b191;background:#f4faf1}
+.taskText{flex:1;display:flex;flex-direction:column;gap:5px;min-width:0}
+.taskText strong{font-size:12px;line-height:1.45;color:#51392d}
+.taskFinished .taskText strong{color:#496b4e}
+.taskText small{font-size:10px;color:#8f7a6e;line-height:1.4}
+.taskType{font-size:9px;color:#a27c62;font-weight:800;line-height:1.4;flex-shrink:0;max-width:85px;text-align:right}
+.checklistCongrats{display:flex;gap:10px;align-items:center;border-radius:13px;padding:14px;margin-top:14px;background:#e8f1df;color:#527a56;font-size:12px;line-height:1.6;font-weight:800}
+.checklistBottom{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:17px;font-size:10px;color:#a08572}
+.checklistBottom>span{display:flex;gap:7px;align-items:center}
+.checklistBottom button{display:flex;align-items:center;gap:6px;background:none;border:0;color:#ad7655;font-size:10px;font-weight:800;text-decoration:underline}
+.courseStudyButton{border:1px solid #d9c9b8;border-radius:13px;display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:47px;padding:9px 12px;color:#755849;background:#fffdf7;font-size:11px;font-weight:850;margin-top:15px;text-align:left}
+.courseStudyButton:hover{background:#fff1df}
+.studyMarked{color:#4b704d;background:#e8f0e4;border-color:#b7d0b0}
+.personalHint{color:#a08879;font-size:10px;line-height:1.5;margin:10px 0 0!important;display:flex;align-items:center;gap:6px}
+.personalHint svg{flex-shrink:0}
+.classSelection{display:flex;flex-direction:column;gap:11px}
+.classSummary{color:#997963;font-size:11px;line-height:1.5}
+.classSummary strong{color:#6d4c35}
+.classList{display:flex;flex-direction:column;background:#faf6f1;border:1px solid #f1e3d5;border-radius:16px;overflow:hidden}
+.classOption,.classSelected{display:flex;align-items:center;gap:12px;min-height:65px;padding:11px 15px;border-bottom:1px solid #ecded1;cursor:pointer;transition:background .18s}
+.classOption:last-child,.classSelected:last-child{border-bottom:0}
+.classOption:hover,.classSelected:hover{background:#fff2e5}
+.classSelected{background:#edf3e9}
+.classOption input,.classSelected input{width:24px;height:24px;accent-color:#638568;flex-shrink:0;cursor:pointer}
+.classOption>span,.classSelected>span{display:flex;flex-direction:column;gap:5px;min-width:0}
+.classOption strong,.classSelected strong{font-size:12px}
+.classOption small,.classSelected small{color:#947e6f;font-size:10px;line-height:1.5}
+.pathHint{display:flex;align-items:center;gap:9px;color:#7f7864;font-size:11px;line-height:1.5;min-height:35px}
+.pathHint svg{flex-shrink:0;color:#739374}
+.experimentJournal{background:#f4e5d1;border:1px solid #ead8bf;border-radius:23px;padding:28px;margin:28px 0 17px;scroll-margin-top:30px}
+.journalTop{display:flex;align-items:start;justify-content:space-between;gap:15px}
+.journalTop h2{font:800 clamp(27px,3vw,34px) var(--font-serif),Georgia,serif;line-height:1.17;letter-spacing:-.05em;margin:9px 0}
+.journalTop p{font-size:12px;color:#8b6e56;line-height:1.7;max-width:670px;margin-bottom:15px}
+.journalCount{border-radius:99px;background:#fff9f0;padding:9px 13px;font-size:10px;font-weight:850;color:#9b7355;flex-shrink:0}
+.journalLabel{font-weight:850;color:#604636;font-size:12px;display:block;margin:9px 0}
+.experimentJournal textarea{width:100%;display:block;font:14px/1.6 var(--font-sans),Inter,system-ui,sans-serif;min-height:119px;resize:vertical;color:#463126;background:#fffaf3;border:1px solid #e4c7a9;border-radius:14px;padding:15px}
+.experimentJournal textarea::placeholder{color:#ac947e}
+.journalControls{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-top:12px}
+.journalControls>span{font-size:11px;color:#9e806a;line-height:1.5}
+.journalControls button{display:flex;align-items:center;gap:9px;min-height:44px;background:#4c342a;color:#fff9ef;border:0;border-radius:99px;font-weight:850;font-size:12px;padding:11px 17px}
+.journalControls button:hover{background:#6d4938}
+.journalMessage{font-size:11px;color:#426d4b;font-weight:800;background:#e5efda;padding:12px;border-radius:11px;margin-top:12px}
+.savedEntries{margin-top:24px;border-top:1px solid #dfc9b2;padding-top:20px}
+.savedEntries article{border-radius:11px;background:#fff9ef;padding:14px;margin-top:10px}
+.savedEntries article span{font-size:9px;color:#a47e59;font-weight:850}
+.savedEntries article p{font-size:12px;color:#634936;line-height:1.7;margin:6px 0 0}
+.journalDisclaimer{font-size:10px;color:#9d7e63;display:flex;gap:7px;align-items:flex-start;margin:19px 0 0;line-height:1.7}
+.journalDisclaimer svg{flex-shrink:0;margin-top:1px}
+@media(max-width:840px){.taskList{grid-template-columns:1fr}.taskItem{min-height:73px}.checklistPanel{padding:23px}}
+@media(max-width:560px){
+ .checklistPanel{padding:19px 16px;border-radius:20px}
+ .checklistHeader p{font-size:13px}
+ .checklistCounter{width:65px;min-height:65px;border-radius:16px}
+ .checklistCounter>strong{font-size:27px}
+ .checklistCounter>strong small{font-size:13px}
+ .checklistHeader h2{font-size:26px}
+ .taskItem{padding:13px 12px;min-height:73px}
+ .taskText strong{font-size:13px}
+ .taskText small{font-size:11px}
+ .taskType{font-size:9px;max-width:69px}
+ .checklistBottom{align-items:flex-start;flex-direction:column}
+ .experimentJournal{padding:20px 16px}
+ .journalTop h2{font-size:27px}
+ .journalTop p{font-size:13px}
+ .journalCount{font-size:9px}
+ .journalControls{flex-direction:column;align-items:stretch}
+ .journalControls button{justify-content:center}
+ .experimentJournal textarea{font-size:16px}
+}
