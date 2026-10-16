@@ -245,3 +245,21 @@ h1,h2,h3,h4,p{margin-top:0}
 @media(prefers-reduced-motion:reduce){
 .app *, .app *:before,.app *:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}
 }
+/* Touch ergonomics and legible body text on real small screens. */
+.roleButton,.roleActive,.reportToggle button,.sessionTab,.sessionActive,.person,.personActive,.answer,.answerActive{min-height:44px}
+.textAction{min-height:44px}
+@media(max-width:760px){
+ .baristaHero p,.ownerHero p,.trainerHero p,.stepBody>p,.courseCard p,.offlineCard p,.baristaToday p,.challenge>div:first-child>p,.reportEvent p,.sessionForm>p,.examSource span,.personDetails dd,.beyondMonth p{font-size:14px;line-height:1.65}
+ .stepBody>p,.baristaToday p,.reportEvent p{max-width:100%}
+ .roleButton,.roleActive{min-height:48px}
+ .primaryAction{min-height:48px}
+ .sessionForm textarea,.examEditor textarea{font-size:16px}
+ .courseCard h3{font-size:23px}
+ .labRibbon{flex-wrap:wrap}
+}
+@media(max-width:560px){
+ .labRibbon span{display:inline;font-size:9px;opacity:.78;letter-spacing:0;text-align:center;width:100%}
+ .stepBody h3{font-size:24px}
+ .courseCard p{font-size:14px}
+ .ownerHero .heroButton,.baristaHero .heroButton,.trainerHero .heroButton{min-height:46px}
+}
