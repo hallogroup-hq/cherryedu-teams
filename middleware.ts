@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 // Public paths that do not require authentication
 const PUBLIC_PATHS = new Set([
   "/login",
+  "/experience-lab",
   "/auth/callback",
   "/auth/confirm",
   "/invite",
