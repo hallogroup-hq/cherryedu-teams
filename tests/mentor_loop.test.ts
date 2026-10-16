@@ -112,3 +112,14 @@ test('owner report does not expose trainer drafts before publication',()=>{
   assert.equal(getOwnerReport(s).summary,null);
   assert.equal(getOwnerReport(s).topic,null);
 });
+
+test('Owner keeps previously published feedback visible while a new attempt waits for review',()=>{
+  let state=submitPractice(delivered(),sample,t2);
+  state=reviewPractice(state,'practice_again','Latih konsistensi pada satu variabel sebelum mengganti variabel berikutnya.',t3);
+  state=submitPractice(state,{changed:'Mengganti tingkat gilingan tanpa mengubah dosis.',noticed:'Waktu seduh bergerak lebih pendek pada percobaan kedua.',reason:'Saya perlu menjaga perubahan hanya pada satu variabel.'},t4);
+  const owner=getOwnerReport(state);
+  assert.equal(owner.practiceSubmissions,2);
+  assert.equal(owner.feedbackCount,1);
+  assert.equal(owner.latestReview?.verdict,'practice_again');
+  assert.match(owner.nextAction,/meninjau latihan/i);
+});
