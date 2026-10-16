@@ -467,3 +467,151 @@ export const DEMO_MENTORSHIP_PROGRAM: CoffeeShopMentorshipProgram = {
     },
   ],
 };
+
+export interface ScenarioChallenge {
+  id: string;
+  title: string;
+  category: 'extraction' | 'milk' | 'workflow' | 'sensory';
+  categoryLabel: string;
+  scenario: string;
+  symptom: string;
+  options: {
+    id: string;
+    text: string;
+    isCorrect: boolean;
+    explanation: string;
+  }[];
+}
+
+export const DEMO_SCENARIOS: ScenarioChallenge[] = [
+  {
+    id: 'sc-01',
+    title: 'Ekstraksi Terlalu Cepat & Asam Menusuk',
+    category: 'extraction',
+    categoryLabel: 'Dinamika Ekstraksi',
+    scenario: 'Saat membuka shift pagi di kedai, espresso pertama kamu mengalir sangat deras (17 detik menghasilkan 38 gram). Crema tampak pucat, tipis, dan rasa kopi terasa sangat tajam/asam di samping lidah.',
+    symptom: 'Waktu ekstraksi 17 detik (target 26-28 detik), rasa asam mentah (sour under-extraction).',
+    options: [
+      {
+        id: 'opt-a',
+        text: 'Kurangi dosis kopi dari 18.0g menjadi 16.0g agar beban portafilter lebih ringan.',
+        isCorrect: false,
+        explanation: 'Mengurangi dosis justru akan mempercepat aliran air karena cake kopi semakin tipis dan resistensi menurun drastis.',
+      },
+      {
+        id: 'opt-b',
+        text: 'Haluskan ukuran gilingan (grind finer) 1–2 tingkat dan ratakan distribusi bubuk kopi dengan WDT.',
+        isCorrect: true,
+        explanation: 'Tepat. Menggiling lebih halus mempersempit celah antar-partikel, menaikkan resistensi air sehingga waktu kontak air dan kopi mencapai rentang ideal (25-30 detik) dan mengekstraksi rasa manis alami kopi.',
+      },
+      {
+        id: 'opt-c',
+        text: 'Tekan tamping dua kali sekuat tenaga dengan berat badan.',
+        isCorrect: false,
+        explanation: 'Kepadatan tamping memiliki batas maksimal (biasanya 15-20 kg). Menekan berlebihan tidak bisa mengompensasi ukuran gilingan yang terlalu kasar dan berisiko mencederai pergelangan tangan.',
+      },
+    ],
+  },
+  {
+    id: 'sc-02',
+    title: 'Busa Susu Kasar & Cepat Terpisah pada Cappuccino',
+    category: 'milk',
+    categoryLabel: 'Teknik Texturing Susu',
+    scenario: 'Saat menyajikan cappuccino untuk pelanggan, permukaan susu tampak memiliki gelembung-gelembung besar yang mudah pecah, dan lapisan busa terpisah dari cairan susu hanya dalam 1 menit.',
+    symptom: 'Busa kasar (dry foam), suhu pitcher terasa sangat panas membakar tangan (>75°C).',
+    options: [
+      {
+        id: 'opt-a',
+        text: 'Tarik tip steam wand keluar dari susu di akhir proses saat susu sudah mendidih.',
+        isCorrect: false,
+        explanation: 'Menarik wand saat susu panas justru merusak struktur busa dan membuat susu meletup membakar tangan barista.',
+      },
+      {
+        id: 'opt-b',
+        text: 'Selesaikan peregangan udara (stretching) di awal saat susu dingin (<38°C), lalu benamkan tip sedikit untuk pusaran (rolling) hingga suhu 60–65°C.',
+        isCorrect: true,
+        explanation: 'Tepat. Protein susu (kasein & whey) hanya bisa mengikat udara dengan stabil saat dingin. Di atas 65°C protein terdenaturasi dan gula laktosa kehilangan rasa manis alaminya.',
+      },
+      {
+        id: 'opt-c',
+        text: 'Biarkan pitcher diam di atas meja tanpa dipegang selama proses steam.',
+        isCorrect: false,
+        explanation: 'Tangan barista berfungsi sebagai sensor termal penting untuk merasakan perubahan suhu susu secara real-time.',
+      },
+    ],
+  },
+  {
+    id: 'sc-03',
+    title: 'Channeling & Rasa Pahit Sepet (Astringent)',
+    category: 'workflow',
+    categoryLabel: 'SOP Bar & Distribusi',
+    scenario: 'Saat ekstraksi dengan bottomless portafilter, terlihat semburan cairan halus (jet spray) memancar ke samping, dan espresso di cangkir meninggalkan rasa kering/sepet di bagian belakang tenggorokan.',
+    symptom: 'Channeling lokal: air mengalir tidak merata menembus jalur terlemah di dalam portafilter.',
+    options: [
+      {
+        id: 'opt-a',
+        text: 'Lakukan distribusi jarum (WDT) dari dasar basket secara melingkar dan pastikan tamping benar-benar datar tegak lurus 90 derajat.',
+        isCorrect: true,
+        explanation: 'Tepat. Channeling disebabkan gumpalan bubuk atau distribusi tidak rata yang menciptakan celah air bertekanan tinggi. Area celah mengalami over-extraction parah (penyebab rasa kering/astringent).',
+      },
+      {
+        id: 'opt-b',
+        text: 'Ketuk portafilter keras-keras dengan tamper logam ke sisi kuping portafilter.',
+        isCorrect: false,
+        explanation: 'Mengetuk dinding portafilter setelah bubuk rata justru memecahkan ikatan cake kopi di pinggir keranjang (side channeling).',
+      },
+      {
+        id: 'opt-c',
+        text: 'Ganti biji kopi dengan varietas yang berbeda.',
+        isCorrect: false,
+        explanation: 'Masalah ini berkaitan dengan mekanika persiapan portafilter (puck preparation), bukan kualitas green bean atau roast profile.',
+      },
+    ],
+  },
+];
+
+export interface CoffeeExperiment {
+  id: string;
+  title: string;
+  subtitle: string;
+  objective: string;
+  steps: string[];
+  parameterA: { label: string; value: string };
+  parameterB: { label: string; value: string };
+  expectedInsight: string;
+}
+
+export const DEMO_EXPERIMENTS: CoffeeExperiment[] = [
+  {
+    id: 'exp-01',
+    title: 'Eksperimen Rasio: Ristretto vs Normale vs Lungo',
+    subtitle: 'Sensori Perbandingan Hasil Ekstraksi',
+    objective: 'Memahami bagaimana yield (cairan hasil) mengubah persepsi keasaman, rasa manis, dan kepahitan kopi.',
+    steps: [
+      'Gunakan dosis tetap 18.0g kopi House Blend Cherry Edu.',
+      'Ekstraksi Cangkir 1 (Ristretto): Hentikan di 27.0g (rasio 1:1.5).',
+      'Ekstraksi Cangkir 2 (Normale): Hentikan di 36.0g (rasio 1:2.0).',
+      'Ekstraksi Cangkir 3 (Lungo): Hentikan di 45.0g (rasio 1:2.5).',
+      'Cicipi berdampingan dan catat perbedaan body serta aftertaste.',
+    ],
+    parameterA: { label: 'Ristretto (1:1.5)', value: 'Tinggi body, asam pekat, aftertaste pendek' },
+    parameterB: { label: 'Normale (1:2.0)', value: 'Seimbang, manis karamel maksimal, bersih' },
+    expectedInsight: 'Semakin panjang rasio yield, semakin banyak komponen pahit larut. Rasio 1:2.0 merupakan standar calibrated recipe kedai Aroma Kopi.',
+  },
+  {
+    id: 'exp-02',
+    title: 'Uji Distribusi: Tamping Langsung vs WDT Needle',
+    subtitle: 'Stabilitas Aliran & Reduksi Channeling',
+    objective: 'Membuktikan secara visual pengaruh de-clumping bubuk kopi terhadap konsistensi ekstraksi.',
+    steps: [
+      'Giling 18.0g kopi ke dalam portafilter.',
+      'Shot 1: Ratakan dengan jari permukaan saja, lalu tamping dan ekstrak.',
+      'Shot 2: Aduk merata dari dasar basket dengan WDT tool selama 5 detik, lalu tamping datar.',
+      'Bandingkan waktu shot dan kestabilan aliran cairan di cangkir.',
+    ],
+    parameterA: { label: 'Tanpa WDT', value: 'Aliran tidak stabil, variasi waktu ±4 detik antar shot' },
+    parameterB: { label: 'Dengan WDT', value: 'Aliran halus terpusat, konsisten di 27 detik ±1s' },
+    expectedInsight: 'WDT memecah gumpalan statis dari grinder, menyamakan kepadatan di seluruh basket, dan menghilangkan channeling.',
+  },
+];
+

@@ -1,22 +1,12 @@
 "use client";
 
 import React, { useState, use } from "react";
-import Link from "next/link";
 import ShellNav from "@/components/ShellNav";
 import MobileBottomNav from "@/components/MobileBottomNav";
-import BaristaChecklistGamification from "@/components/BaristaChecklistGamification";
-import DailyCalibrationWidget from "@/components/DailyCalibrationWidget";
+import BaristaDailyExperience from "@/components/BaristaDailyExperience";
 import HybridExamModal from "@/components/HybridExamModal";
 import { DEMO_MENTORSHIP_PROGRAM } from "@/lib/mentorshipService";
-import {
-  Coffee,
-  CheckCircle2,
-  SlidersHorizontal,
-  Flame,
-  Award,
-  ExternalLink,
-  BookOpen,
-} from "lucide-react";
+import { ExternalLink, BookOpen } from "lucide-react";
 
 export default function BaristaLearnPage({
   params,
@@ -27,7 +17,6 @@ export default function BaristaLearnPage({
   const program = DEMO_MENTORSHIP_PROGRAM;
   const barista = program.baristas[0]; // Budi Pratama
 
-  const [activeSegment, setActiveSegment] = useState<"checklist" | "dialin">("checklist");
   const [isExamModalOpen, setIsExamModalOpen] = useState(false);
   const [examScore, setExamScore] = useState<number | null>(barista.hybridExam.finalScore);
 
@@ -46,16 +35,15 @@ export default function BaristaLearnPage({
       />
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 pb-28 md:pb-12">
-        
-        {/* BARISTA WELCOME HERO */}
+        {/* BARISTA HERO */}
         <div className="card p-5 sm:p-6 bg-white border-paper-300 shadow-subtle space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-roast-500 font-bold">
-                  Portal Barista · {program.coffeeShopName}
+                  Ruang Belajar Barista · {program.coffeeShopName}
                 </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-crema-100 border border-crema-300 text-roast-900 font-bold">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-paper-100 border border-paper-300 text-roast-900 font-bold">
                   Mentorship 1 Bulan
                 </span>
               </div>
@@ -63,11 +51,11 @@ export default function BaristaLearnPage({
                 {barista.name}
               </h1>
               <p className="text-xs sm:text-sm text-roast-600 font-sans">
-                {barista.role} · Selesaikan 6 modul untuk sertifikasi barista terstandar Cherry Edu.
+                {barista.role} · Selesaikan 5 tahapan kecakapan untuk sertifikasi barista resmi Cherry Edu.
               </p>
             </div>
 
-            {/* Quick Web Catalog Pill */}
+            {/* Quick Web Catalog Link */}
             <a
               href="https://edu.cherrycoffeeroastery.com/paths"
               target="_blank"
@@ -80,56 +68,14 @@ export default function BaristaLearnPage({
               <ExternalLink className="w-3 h-3 text-roast-400" />
             </a>
           </div>
-
-          {/* Clean 2-Segment Mobile Toggle */}
-          <div className="pt-2">
-            <div className="grid grid-cols-2 p-1 rounded-xl bg-paper-100 border border-paper-300 text-xs font-mono">
-              <button
-                type="button"
-                onClick={() => setActiveSegment("checklist")}
-                className={`py-2 px-3 rounded-lg font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
-                  activeSegment === "checklist"
-                    ? "bg-roast-950 text-white shadow-2xs"
-                    : "text-roast-600 hover:text-roast-950"
-                }`}
-              >
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Ceklis Mentorship</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveSegment("dialin")}
-                className={`py-2 px-3 rounded-lg font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
-                  activeSegment === "dialin"
-                    ? "bg-roast-950 text-white shadow-2xs"
-                    : "text-roast-600 hover:text-roast-950"
-                }`}
-              >
-                <SlidersHorizontal className="w-3.5 h-3.5" />
-                <span>Espresso Dial-In</span>
-              </button>
-            </div>
-          </div>
         </div>
 
-        {/* SECTION 1: GAMIFIED CHECKLIST */}
-        {activeSegment === "checklist" && (
-          <BaristaChecklistGamification
-            onOpenDialIn={() => setActiveSegment("dialin")}
-            onOpenExam={() => setIsExamModalOpen(true)}
-            examPassed={Boolean(examScore && examScore >= 75)}
-            examScore={examScore}
-          />
-        )}
-
-        {/* SECTION 2: DIAL-IN STUDIO */}
-        {activeSegment === "dialin" && (
-          <div className="space-y-4">
-            <DailyCalibrationWidget />
-          </div>
-        )}
-
+        {/* PRIMARY BARISTA EXPERIENCE WORKSPACE */}
+        <BaristaDailyExperience
+          onOpenExam={() => setIsExamModalOpen(true)}
+          examPassed={Boolean(examScore && examScore >= 75)}
+          examScore={examScore}
+        />
       </main>
 
       {/* INTERACTIVE HYBRID EXAM MODAL */}
@@ -144,8 +90,6 @@ export default function BaristaLearnPage({
       <MobileBottomNav
         role="barista"
         orgId={orgId}
-        onOpenCalibration={() => setActiveSegment("dialin")}
-        onOpenTracker={() => setActiveSegment("checklist")}
       />
     </div>
   );
