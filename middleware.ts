@@ -20,6 +20,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Prototype is available only in a non-production deployment.
+  if (pathname === "/experience-lab") {
+    if (process.env.VERCEL_ENV === "production") {
+      return new NextResponse(null, { status: 404 });
+    }
+    return NextResponse.next();
+  }
+
   // Public routes — allow
   if (PUBLIC_PATHS.has(pathname) || pathname.startsWith("/invite/")) {
     return NextResponse.next();
