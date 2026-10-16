@@ -3,7 +3,6 @@ import { NextResponse, type NextRequest } from "next/server";
 // Public paths that do not require authentication
 const PUBLIC_PATHS = new Set([
   "/login",
-  "/experience-lab",
   "/auth/callback",
   "/auth/confirm",
   "/invite",
@@ -18,6 +17,14 @@ export function middleware(request: NextRequest) {
     pathname.startsWith("/favicon") ||
     pathname === "/api/health"
   ) {
+    return NextResponse.next();
+  }
+
+  // Prototype is available only in a non-production deployment.
+  if (pathname === "/experience-lab") {
+    if (process.env.VERCEL_ENV === "production") {
+      return new NextResponse(null, { status: 404 });
+    }
     return NextResponse.next();
   }
 
