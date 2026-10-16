@@ -228,7 +228,7 @@ export default function MentorLoopPage() {
               <SectionTitle kicker="TIM YANG DIDAMPINGI" title="Perkembangan Naya"/>
               <section className={s.ownerLearner}>
                 <div className={s.personRow}><span className={s.avatar}>NP</span><div><strong>{ACTIVITY.learnerFull}</strong><small>Barista · {ACTIVITY.client}</small></div></div>
-                <div className={s.ownerMetrics}><div><strong>{owner.practiceSubmissions}</strong><span>Latihan dikirim</span></div><div><strong>{owner.reviewPublished?'1':'0'}</strong><span>Feedback terbaru</span></div></div>
+                <div className={s.ownerMetrics}><div><strong>{owner.practiceSubmissions}</strong><span>Latihan dikirim</span></div><div><strong>{owner.feedbackCount}</strong><span>Feedback diterbitkan</span></div></div>
                 <div className={s.ownerAction}><span>LANGKAH SELANJUTNYA</span><p>{owner.nextAction}</p></div>
                 {owner.latestReview && <div className={s.feedbackPublished}><MessageCircle size={21}/><div><strong>Catatan perkembangan dari Pelatih</strong><p>{owner.latestReview.message}</p><small>{owner.latestReview.verdict==='practice_again'?'Perlu latihan ulang':'Ada perkembangan, belum berarti kompetensi terverifikasi'} · <TimeStamp value={owner.latestReview.at}/></small></div></div>}
               </section>
