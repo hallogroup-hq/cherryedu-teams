@@ -179,6 +179,8 @@ export function getPracticeStatus(state: MentorLoopState):
 
 export function getOwnerReport(state: MentorLoopState) {
   const last = state.attempts.at(-1);
+  const reviewed = state.attempts.filter(attempt => Boolean(attempt.review));
+  const latestReviewed = reviewed.at(-1)?.review;
   return {
     sessionPublished: Boolean(state.sessionPublishedAt),
     sessionDate: state.sessionPublishedAt,
@@ -186,12 +188,13 @@ export function getOwnerReport(state: MentorLoopState) {
     summary: state.sessionPublishedAt ? state.draft.ownerSummary.trim() : null,
     attendeeCount: state.sessionPublishedAt && state.attendance ? 1 : 0,
     practiceSubmissions: state.attempts.length,
-    reviewPublished: Boolean(last?.review),
-    latestReview: last?.review
+    feedbackCount: reviewed.length,
+    reviewPublished: reviewed.length > 0,
+    latestReview: latestReviewed
       ? {
-          verdict: last.review.verdict,
-          message: last.review.message,
-          at: last.review.publishedAt,
+          verdict: latestReviewed.verdict,
+          message: latestReviewed.message,
+          at: latestReviewed.publishedAt,
         }
       : null,
     // Deliberately exclude internalObservation, private Barista submission
