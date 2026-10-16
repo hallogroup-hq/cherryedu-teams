@@ -60,7 +60,7 @@ export default function BaristaLearnPage({
                 </span>
               </div>
               <h1 className="font-serif font-black text-2xl sm:text-3xl text-roast-950">
-                Halo, {barista.name} 👋
+                {barista.name}
               </h1>
               <p className="text-xs sm:text-sm text-roast-600 font-sans">
                 {barista.role} · Selesaikan 6 modul untuk sertifikasi barista terstandar Cherry Edu.

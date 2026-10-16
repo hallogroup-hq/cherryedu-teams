@@ -291,7 +291,7 @@ export default function OwnerOverviewPage({
                       <div className="p-2 rounded bg-paper-50 border border-paper-200">
                         <span className="text-roast-500 block text-[9px]">2.1 FUNDAMENTAL</span>
                         <span className="font-semibold text-roast-900">
-                          {barista.fundamentalHuluHilir.finalExamPassed ? "Teori Lulus ✓" : "In Progress"}
+                          {barista.fundamentalHuluHilir.finalExamPassed ? "Teori Lulus" : "In Progress"}
                         </span>
                       </div>
 
@@ -603,7 +603,7 @@ export default function OwnerOverviewPage({
                 <div className="flex justify-between font-mono font-bold">
                   <span className="text-roast-900">2.1 Fundamental Hulu ke Hilir &amp; Barista Path (Online)</span>
                   <span className="text-roast-700">
-                    {selectedBarista.fundamentalHuluHilir.finalExamPassed ? "LULUS ✓" : "BELUM LENGKAP"}
+                    {selectedBarista.fundamentalHuluHilir.finalExamPassed ? "LULUS" : "BELUM LENGKAP"}
                   </span>
                 </div>
                 <p className="text-[11px] text-roast-500">

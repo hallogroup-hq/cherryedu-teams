@@ -299,7 +299,7 @@ export default function PracticalAssessmentWorkspacePage({
           </div>
           <p className="text-[11px] text-roast-500 font-mono">
             {isEligibleToSignoff
-              ? '✓ Semua kriteria memenuhi standar kelulusan Cherry Edu. Siap disahkan secara definitif.'
+              ? 'Semua kriteria memenuhi standar kelulusan Cherry Edu. Siap disahkan secara definitif.'
               : 'Perhatian: Seluruh kriteria wajib minimal Level 3 untuk pengesahan sertifikasi.'}
           </p>
         </div>

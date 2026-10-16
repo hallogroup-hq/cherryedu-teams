@@ -131,7 +131,7 @@ export default function CompetencyTrackerWidget() {
         </div>
         <div className="grid grid-cols-3 gap-2">
           <div className="p-2.5 rounded-lg bg-white border border-paper-300 text-left">
-            <span className="text-[9px] font-mono text-olive-700 font-bold uppercase block">Fase 1 ✓</span>
+            <span className="text-[9px] font-mono text-roast-700 font-bold uppercase block">Fase 1 (Selesai)</span>
             <span className="text-xs font-bold text-roast-950 block mt-0.5">Barista Junior</span>
             <span className="text-[10px] text-roast-500 block">SOP & Teori Kopi</span>
           </div>

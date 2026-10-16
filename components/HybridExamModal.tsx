@@ -286,7 +286,7 @@ export default function HybridExamModal({
                 {examResult?.score} / 100
               </h4>
               <p className="text-xs text-roast-600 font-mono mt-1">
-                {examResult?.passed ? '✓ Lulus Standar Kompetensi Industri Cherry Edu (≥ 75)' : 'Perlu Pengulangan Modul'}
+                {examResult?.passed ? 'Lulus Standar Kompetensi Industri Cherry Edu (≥ 75)' : 'Perlu Pengulangan Modul'}
               </p>
             </div>
 
