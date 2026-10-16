@@ -143,7 +143,7 @@ export default function ExperienceLabPage() {
     setExperimentNote('');
     setSaveMessage('Checklist dan catatan contoh sudah direset.');
   }
-  const checklistCompletion={
+  const checklistCompletion: Record<string, boolean> = {
     ...baristaPreview.checks,
     catatan:baristaPreview.journal.length>0,
     kelas:baristaPreview.selectedPaths.length>=3
