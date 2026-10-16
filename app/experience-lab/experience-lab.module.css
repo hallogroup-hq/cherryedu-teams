@@ -352,3 +352,9 @@
  .journalControls button{justify-content:center}
  .experimentJournal textarea{font-size:16px}
 }
+
+/* Checklist task anchors direct users to the appropriate action. */
+.taskTypeLink{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:94px;border-radius:99px;background:#fff6e9;padding:8px 10px;font-size:10px;font-weight:850;color:#a45f3b;text-align:center;text-decoration:none}
+.taskTypeLink:hover{background:#fbe1ca;text-decoration:underline}
+.classSelection,.experimentJournal{scroll-margin-top:20px}
+@media(max-width:560px){.taskTypeLink{min-width:80px;padding:7px 8px;font-size:10px}}
