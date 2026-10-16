@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import {
   Activity, ArrowRight, ArrowUpRight, BookOpen, Check, CheckCircle2, ChevronRight,
   ClipboardCheck, Coffee, ExternalLink, FileText, FlaskConical, GraduationCap,
@@ -35,13 +35,13 @@ const baristas = [
   { name: 'Sinta Maharani', role: 'Barista · Outlet Selatan', initials: 'SM', color: 'sage', online: 'Baru memulai materi Hulu ke Hilir', practice: 'Belum ikut Espresso Base', next: 'Selesaikan pengenalan kopi', tag: 'Baru mulai' },
 ];
 
-function RoleButton({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
+function RoleButton({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: ReactNode; label: string }) {
   return <button className={active ? s.roleActive : s.roleButton} type="button" onClick={onClick}>{icon}<span>{label}</span></button>;
 }
-function Status({ children, tone='neutral' }: { children: React.ReactNode; tone?: 'neutral'|'warm'|'positive' }) {
+function Status({ children, tone='neutral' }: { children: ReactNode; tone?: 'neutral'|'warm'|'positive' }) {
   return <span className={[s.status, tone==='warm'?s.statusWarm:tone==='positive'?s.statusPositive:''].join(' ')}>{children}</span>;
 }
-function SectionHeading({ eyebrow, title, extra }: { eyebrow: string; title: string; extra?: React.ReactNode }) {
+function SectionHeading({ eyebrow, title, extra }: { eyebrow: string; title: string; extra?: ReactNode }) {
   return <div className={s.sectionHeading}><div><span className={s.eyebrow}>{eyebrow}</span><h2>{title}</h2></div>{extra}</div>;
 }
 function Avatar({ initials, color }: { initials: string; color: string }) {
